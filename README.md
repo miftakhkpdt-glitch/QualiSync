@@ -7,6 +7,17 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
+## Development with Docker
+
+Copy `.env.example` to `.env`, then start the development containers:
+
+```bash
+cp .env.example .env
+docker compose up --build
+```
+
+Open `http://localhost:8000`. The project directory is mounted into the containers, so PHP and Blade changes are available immediately. Vite runs on `http://localhost:5173` and reloads frontend changes through HMR. Stop the containers with `docker compose down`.
+
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:

@@ -18,10 +18,10 @@ class HomeController extends Controller
         // PINTU KHUSUS DIREKSI & MANAGER PLAN (REDIRECT)
         // =========================================================
         if ($role === 'direktur' || $role === 'presiden_direktur') {
-            return redirect('/purchasing/approval-po'); 
+            return redirect('/qualisync/purchasing/approval-po'); 
         }
         if ($role === 'manager_plan') {
-            return redirect('/purchasing/purchase-request');
+            return redirect('/qualisync/purchasing/purchase-request');
         }
 
         // =========================================================

@@ -13,6 +13,8 @@
     <!-- ============================================== -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 
+    @vite(['resources/sass/app.scss', 'resources/js/app.js'])
+
     <style>
         :root {
             --sidebar-bg: #1e293b;

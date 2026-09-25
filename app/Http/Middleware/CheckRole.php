@@ -37,6 +37,6 @@ class CheckRole
         }
 
         // Jika tidak punya akses, kembalikan ke /home dengan pesan error
-        return redirect('/home')->with('error', 'Anda tidak memiliki hak akses ke halaman tersebut!');
+        return redirect('/qualisync/home')->with('error', 'Anda tidak memiliki hak akses ke halaman tersebut!');
     }
 }

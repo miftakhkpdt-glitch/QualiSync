@@ -48,42 +48,40 @@ class LoginController extends Controller
      */
     protected function authenticated(Request $request, $user)
     {
-        // TAMBAHKAN BARIS INI. Ini akan mematikan proses redirect dan menampilkan isi asli role-nya di layar.
-    dd("Role aslinya adalah: '" . $user->role . "'", "Panjang karakternya: " . strlen($user->role));
         switch ($user->role) {
             case 'admin':
-                return redirect('/home');
+                return redirect('/qualisync/home');
 
             case 'hrd_ga':
-                return redirect('/hrd-ga/karyawan');
+                return redirect('/qualisync/hrd-ga/karyawan');
 
             case 'ppic_warehouse':
-                return redirect('/warehouse/finish-good');
+                return redirect('/qualisync/warehouse/finish-good');
 
             case 'development':
-                return redirect('/development/dashboard');
+                return redirect('/qualisync/development/dashboard');
 
             case 'produksi':
-                return redirect('/produksi/daily-report');
+                return redirect('/qualisync/produksi/daily-report');
 
             case 'STAFF_QUALITY':
-                return redirect('/quality/dashboard-qa');
+                return redirect('/qualisync/dashboard-qa');
 
             case 'fat':
-                return redirect('/finance/invoice');
+                return redirect('/qualisync/finance/invoice');
 
             case 'sales_marketing':
-                return redirect('/sales/dashboard');
+                return redirect('/qualisync/sales/dashboard');
 
             case 'supplier':
-                return redirect('/capa-8d/supplier');
+                return redirect('/qualisync/capa-8d/supplier');
 
             // ---> INI DIA JALUR KHUSUS UNTUK MANAGER PLAN <---
             case 'manager_plan':
-                return redirect('/purchasing/purchase-request');
+                return redirect('/qualisync/purchasing/purchase-request');
 
             default:
-                return redirect('/home');
+                return redirect('/qualisync/home');
         }
     }
 }
