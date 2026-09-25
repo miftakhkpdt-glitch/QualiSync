@@ -788,7 +788,7 @@ Route::post('/developer/reset-transaksi', function () {
     // Route Reset data, Daftar SEMUA tabel transaksi dari ujung ke ujung
     $tabelTransaksi = [
         // 1. Quality & Produksi
-        'capa_customers', 'capa_suppliers', 'coa_records', 'coas',
+        'capa_customers', 'capa_suppliers', 'coa_records',
         'qir_records', 'quality_stocks', 'traceability_logs',
         'incoming_materials', 'produksi_fg_logs', 'produksi_stoks', 'produksi_stocks',
         'finished_goods', 'karantina_stocks', 'mutasi_materials', 'ppic_pos',
