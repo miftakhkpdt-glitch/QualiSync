@@ -34,7 +34,19 @@ class MrpController extends Controller
         foreach ($activeForecasts as $item) {
             $fg_mm = $item->no_mm;
             
-            $customer = DB::table('master_customers')->where('nama_customer', $item->nama_customer)->first();
+            $customerName = trim($item->nama_customer);
+            $customer = DB::table('master_customers')
+                ->whereRaw('LOWER(TRIM(nama_customer)) = ?', [strtolower($customerName)])
+                ->first();
+
+            // Forecast lama dapat menyimpan nama singkat customer, misalnya
+            // "PT PARAGON", sementara master menyimpan nama legal lengkap.
+            if (!$customer && $customerName !== '') {
+                $customer = DB::table('master_customers')
+                    ->whereRaw('LOWER(nama_customer) LIKE ?', ['%' . strtolower($customerName) . '%'])
+                    ->first();
+            }
+
             if (!$customer) continue;
 
             $masterItemFG = DB::table('master_materials')->where('no_mm', $fg_mm)->first();
