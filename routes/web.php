@@ -489,20 +489,20 @@ Route::middleware(['auth'])->group(function () {
 // RUTE KHUSUS PPIC
 Route::group(['prefix' => 'ppic', 'middleware' => ['auth']], function () {
     // Rute Work Order (Tampilan & Aksi)
-    Route::get('/work-order', [\App\Http\Controllers\PPIC\WorkOrderController::class, 'index'])->name('ppic.work_order.index');
-    Route::get('/work-order/{id}/request-material', [\App\Http\Controllers\PPIC\WorkOrderController::class, 'requestMaterial'])->name('ppic.work_order.request');
+    Route::get('/work-order', [\App\Http\Controllers\Ppic\WorkOrderController::class, 'index'])->name('ppic.work_order.index');
+    Route::get('/work-order/{id}/request-material', [\App\Http\Controllers\Ppic\WorkOrderController::class, 'requestMaterial'])->name('ppic.work_order.request');
     
     // [BARU] Rute untuk form Pembuatan Work Order hasil MRP
     Route::get('/create-wo', [\App\Http\Controllers\PPIC\WorkOrderController::class, 'create'])->name('ppic.wo.create');
     Route::post('/store-wo', [\App\Http\Controllers\PPIC\WorkOrderController::class, 'store'])->name('ppic.wo.store');
 
     // Rute MRP Dashboard & Parameter
-    Route::get('/mrp-dashboard', [\App\Http\Controllers\PPIC\MrpController::class, 'index'])->name('ppic.mrp.index');
-    Route::get('/mrp-parameter', [\App\Http\Controllers\PPIC\MrpParameterController::class, 'index'])->name('ppic.mrp_parameter.index');
-    Route::post('/mrp-parameter/{id}', [\App\Http\Controllers\PPIC\MrpParameterController::class, 'update'])->name('ppic.mrp_parameter.update');
+    Route::get('/mrp-dashboard', [\App\Http\Controllers\Ppic\MrpController::class, 'index'])->name('ppic.mrp.index');
+    Route::get('/mrp-parameter', [\App\Http\Controllers\Ppic\MrpParameterController::class, 'index'])->name('ppic.mrp_parameter.index');
+    Route::post('/mrp-parameter/{id}', [\App\Http\Controllers\Ppic\MrpParameterController::class, 'update'])->name('ppic.mrp_parameter.update');
 });
 Route::get('/ppic/create-pr', [\App\Http\Controllers\Ppic\PpicController::class, 'createPrForm']);
-Route::post('/ppic/store-pr', [\App\Http\Controllers\PPIC\PPICController::class, 'storePr'])->name('ppic.pr.store');
+Route::post('/ppic/store-pr', [PpicController::class, 'storePr'])->name('ppic.pr.store');
 Route::get('/ppic/riwayat-pr', [\App\Http\Controllers\Ppic\PpicController::class, 'riwayatPr'])->name('ppic.riwayat_pr');
 // Rute untuk Form Pembuatan WO Baru
 Route::get('/ppic/work-order/create', [\App\Http\Controllers\Ppic\WorkOrderController::class, 'create']);
