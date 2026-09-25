@@ -120,7 +120,7 @@ Route::match(['get', 'post'], '/logout', function (Request $request) {
     Auth::logout();
     $request->session()->invalidate();
     $request->session()->regenerateToken();
-    return redirect('/qualisync/login');
+    return redirect('/login');
 })->name('logout');
 
 /*
