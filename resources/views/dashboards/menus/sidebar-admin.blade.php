@@ -15,7 +15,7 @@
                 @include('dashboards.menus.sidebar-main_quality')
             @endif
 
-            @if(in_array(strtoupper(auth()->user()->role ?? ''), ['OPERATOR', 'ADMIN']))
+            @if(in_array(strtoupper(auth()->user()->role ?? ''), ['OPERATOR']))
                 @include('dashboards.menus.sidebar-operator_quality')
             @endif
 
