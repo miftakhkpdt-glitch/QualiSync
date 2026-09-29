@@ -35,6 +35,24 @@ class MasterParameterController extends Controller
         return redirect()->back()->with('success', 'Parameter baru berhasil ditambahkan!');
     }
 
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'nama_parameter' => 'required|string|max:255',
+            'tipe_input'     => 'required|in:Angka,Teks',
+            'satuan'         => 'nullable|string|max:50',
+        ]);
+
+        DB::table('master_parameters')->where('id', $id)->update([
+            'nama_parameter' => $request->nama_parameter,
+            'tipe_input'     => $request->tipe_input,
+            'satuan'         => $request->satuan,
+            'updated_at'     => now(),
+        ]);
+
+        return redirect()->back()->with('success', 'Parameter berhasil diperbarui!');
+    }
+
     // Menghapus parameter
     public function destroy($id)
     {

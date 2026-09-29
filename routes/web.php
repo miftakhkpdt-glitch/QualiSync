@@ -307,6 +307,7 @@ Route::post('/master-standar/store/{no_mm}', [App\Http\Controllers\Quality\Maste
 // Rute untuk Master Parameter QIR
 Route::get('/master-parameters', [MasterParameterController::class, 'index']);
 Route::post('/master-parameters/store', [MasterParameterController::class, 'store']);
+Route::put('/master-parameters/update/{id}', [MasterParameterController::class, 'update']);
 Route::delete('/master-parameters/delete/{id}', [MasterParameterController::class, 'destroy']);
 
 

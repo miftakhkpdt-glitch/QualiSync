@@ -24,13 +24,13 @@
 
     <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px;">
         
-        <!-- KOLOM KIRI: FORM TAMBAH PARAMETER -->
+        <!-- KOLOM KIRI: FORM TAMBAH / EDIT PARAMETER -->
         <div style="background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; height: fit-content;">
-            <h3 style="margin-top: 0; font-size: 16px; color: #1e293b; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px;">
+            <h3 id="parameter-form-title" style="margin-top: 0; font-size: 16px; color: #1e293b; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px;">
                 <i class="fas fa-plus-circle" style="color: #10b981;"></i> Tambah Parameter Baru
             </h3>
 
-            <form action="{{ url('/master-parameters/store') }}" method="POST">
+            <form id="parameter-form" action="{{ url('/master-parameters/store') }}" method="POST">
                 @csrf
                 <div style="margin-bottom: 15px;">
                     <label style="font-weight: 600; font-size: 12px; display: block; margin-bottom: 5px; color: #334155;">Nama Parameter *</label>
@@ -50,8 +50,11 @@
                     <input type="text" name="satuan" class="form-control" placeholder="Cth: mm, gr, %, dll (Opsional)" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;">
                 </div>
 
-                <button type="submit" style="width: 100%; background: #10b981; color: white; padding: 10px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">
+                <button id="parameter-submit" type="submit" style="width: 100%; background: #10b981; color: white; padding: 10px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">
                     <i class="fas fa-save"></i> Simpan Parameter
+                </button>
+                <button id="parameter-cancel" type="button" hidden style="width: 100%; margin-top: 8px; background: #64748b; color: white; padding: 10px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">
+                    Batal Edit
                 </button>
             </form>
         </div>
@@ -84,6 +87,9 @@
                             </td>
                             <td style="padding: 8px;">{{ $param->satuan ?? '-' }}</td>
                             <td style="padding: 8px; text-align: center;">
+                                <button type="button" class="edit-parameter" data-id="{{ $param->id }}" data-name="{{ $param->nama_parameter }}" data-type="{{ $param->tipe_input }}" data-unit="{{ $param->satuan }}" aria-label="Edit {{ $param->nama_parameter }}" title="Edit parameter" style="background: #3b82f6; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; margin-right: 4px;">
+                                    <i class="fas fa-edit"></i>
+                                </button>
                                 <form action="{{ url('/master-parameters/delete/' . $param->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus parameter ini?')" style="display: inline;">
                                     @csrf
                                     @method('DELETE')
@@ -100,4 +106,48 @@
 
     </div>
 </div>
+
+<script>
+    const parameterForm = document.getElementById('parameter-form');
+    const parameterFormTitle = document.getElementById('parameter-form-title');
+    const parameterSubmit = document.getElementById('parameter-submit');
+    const parameterCancel = document.getElementById('parameter-cancel');
+    const parameterName = parameterForm.elements.namedItem('nama_parameter');
+    const parameterType = parameterForm.elements.namedItem('tipe_input');
+    const parameterUnit = parameterForm.elements.namedItem('satuan');
+    const storeParameterUrl = @json(url('/master-parameters/store'));
+
+    function resetParameterForm() {
+        parameterForm.action = storeParameterUrl;
+        const existingMethodInput = parameterForm.querySelector('input[name="_method"]');
+        if (existingMethodInput) existingMethodInput.remove();
+        parameterForm.reset();
+        parameterFormTitle.innerHTML = '<i class="fas fa-plus-circle" style="color: #10b981;"></i> Tambah Parameter Baru';
+        parameterSubmit.innerHTML = '<i class="fas fa-save"></i> Simpan Parameter';
+        parameterCancel.hidden = true;
+    }
+
+    document.querySelectorAll('.edit-parameter').forEach((button) => {
+        button.addEventListener('click', () => {
+            parameterForm.action = storeParameterUrl.replace('/store', `/update/${button.dataset.id}`);
+            const existingMethodInput = parameterForm.querySelector('input[name="_method"]');
+            if (existingMethodInput) existingMethodInput.remove();
+            const methodInput = document.createElement('input');
+            methodInput.type = 'hidden';
+            methodInput.name = '_method';
+            methodInput.value = 'PUT';
+            parameterForm.appendChild(methodInput);
+
+            parameterName.value = button.dataset.name;
+            parameterType.value = button.dataset.type;
+            parameterUnit.value = button.dataset.unit;
+            parameterFormTitle.innerHTML = '<i class="fas fa-edit" style="color: #3b82f6;"></i> Edit Parameter';
+            parameterSubmit.innerHTML = '<i class="fas fa-save"></i> Simpan Perubahan';
+            parameterCancel.hidden = false;
+            parameterName.focus();
+        });
+    });
+
+    parameterCancel.addEventListener('click', resetParameterForm);
+</script>
 @endsection
