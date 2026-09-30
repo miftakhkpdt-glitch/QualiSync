@@ -1,6 +1,7 @@
 @extends('layouts.staff-layout')
 
 @push('styles')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <style>
     .modern-container {
         padding: 20px 30px;
@@ -58,6 +59,20 @@
         outline: none;
         background-color: #ffffff;
     }
+
+    .select2-container { width: 100% !important; }
+    .select2-container .select2-selection--single {
+        height: 42px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        background-color: #f8fafc;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 40px;
+        padding-left: 15px;
+        color: #2d3748;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow { height: 40px; }
 
     .form-row-split {
         display: flex;
@@ -322,11 +337,17 @@
 
 @push('scripts')
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 <script>
     const masterDefects = @json($defects ?? []);
 
     $(document).ready(function() {
+        $('#no_mm').select2({
+            width: '100%',
+            minimumResultsForSearch: 0
+        });
+
         let activeAqlLabels = [];
 
         $('#customer_id').on('change', function() {

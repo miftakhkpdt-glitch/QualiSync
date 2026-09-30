@@ -11,6 +11,10 @@
     .form-group { margin-bottom: 15px; }
     .form-label { display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 6px; }
     .modern-input { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; }
+    .select2-container { width: 100% !important; }
+    .select2-container .select2-selection--single { height: 42px; border: 1px solid #cbd5e1; border-radius: 6px; }
+    .select2-container--default .select2-selection--single .select2-selection__rendered { line-height: 40px; padding-left: 10px; color: #334155; }
+    .select2-container--default .select2-selection--single .select2-selection__arrow { height: 40px; }
     
     .table-wrapper { overflow-x: auto; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 15px; }
     .modern-table { width: 100%; border-collapse: collapse; min-width: 800px; text-align: center; font-size: 13px; }
@@ -110,13 +114,15 @@
     </form>
 </div>
 
-<!-- Scripts -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+@push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 <script>
     $(document).ready(function() {
-        if ($.fn.select2) { $('#no_mm').select2(); }
+        $('#no_mm').select2({
+            width: '100%',
+            minimumResultsForSearch: 0
+        });
 
         let currentParameters = []; 
         let sampleCount = 0;
@@ -247,4 +253,5 @@
         }
     });
 </script>
+@endpush
 @endsection
