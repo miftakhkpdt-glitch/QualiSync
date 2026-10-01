@@ -42,6 +42,7 @@
                         <option value="Critical">Critical</option>
                         <option value="Major">Major</option>
                         <option value="Minor">Minor</option>
+                        <option value="Intolerance">Intolerance</option>
                     </select>
                 </div>
 
