@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\QueryException;
+use Illuminate\Validation\Rule;
 
 class MasterMaterialController extends Controller
 {
@@ -34,6 +35,30 @@ class MasterMaterialController extends Controller
         ]);
 
         return redirect()->route('development.master-material.index')->with('success', 'Master Material berhasil ditambahkan.');
+    }
+
+    public function update(Request $request, $id)
+    {
+        if (!DB::table('master_materials')->where('id', $id)->exists()) {
+            abort(404);
+        }
+
+        $validated = $request->validate([
+            'no_mm' => ['required', Rule::unique('master_materials', 'no_mm')->ignore($id)],
+            'nama_material' => 'required',
+            'kategori' => 'required',
+            'satuan' => 'required',
+        ]);
+
+        DB::table('master_materials')->where('id', $id)->update([
+            'no_mm' => $validated['no_mm'],
+            'nama_material' => $validated['nama_material'],
+            'kategori' => $validated['kategori'],
+            'satuan' => $validated['satuan'],
+            'updated_at' => now(),
+        ]);
+
+        return redirect()->route('development.master-material.index')->with('success', 'Master Material berhasil diperbarui.');
     }
     
     // =================================================================

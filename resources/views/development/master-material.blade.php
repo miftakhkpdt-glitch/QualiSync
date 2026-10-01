@@ -10,6 +10,18 @@
             {{ session('success') }}
         </div>
     @endif
+    @if(session('error'))
+        <div style="background: #fee2e2; color: #991b1b; padding: 10px; margin-top: 10px; border-radius: 5px;">
+            {{ session('error') }}
+        </div>
+    @endif
+    @if($errors->any())
+        <div style="background: #fee2e2; color: #991b1b; padding: 10px; margin-top: 10px; border-radius: 5px;">
+            @foreach($errors->all() as $error)
+                <div>{{ $error }}</div>
+            @endforeach
+        </div>
+    @endif
 
     <!-- Form Tambah Master Material -->
     <div style="background: #ffffff; padding: 20px; margin-top: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
@@ -65,6 +77,9 @@
                     </td>
                     <td style="padding: 10px;">{{ $mat->satuan }}</td>
                     <td style="padding: 10px; text-align: center;">
+                        <button type="button" class="edit-material-button" data-update-url="{{ route('development.master-material.update', $mat->id) }}" data-no-mm="{{ $mat->no_mm }}" data-nama-material="{{ $mat->nama_material }}" data-kategori="{{ $mat->kategori }}" data-satuan="{{ $mat->satuan }}" style="background-color: #2563eb; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin-right: 4px;">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
                         <form action="{{ url('/development/master-material/' . $mat->id) }}" method="POST" style="display:inline-block;" 
                               onsubmit="return confirm('PERINGATAN!\n\nYakin ingin menghapus Material ini? Data tidak bisa dikembalikan.');">
                             @csrf
@@ -79,5 +94,73 @@
             </tbody>
         </table>
     </div>
+
+    <dialog id="edit-material-dialog" style="border: 1px solid #cbd5e1; border-radius: 8px; padding: 24px; width: min(560px, calc(100% - 32px));">
+        <h4 style="margin-top: 0;">Edit Master Material</h4>
+        <form id="edit-material-form" method="POST" style="display: grid; gap: 12px;">
+            @csrf
+            @method('PUT')
+            <input type="hidden" name="material_id" id="edit-material-id">
+            <label>No. MM
+                <input type="text" name="no_mm" id="edit-no-mm" value="{{ old('no_mm') }}" required style="display: block; box-sizing: border-box; width: 100%; padding: 8px; margin-top: 4px;">
+            </label>
+            <label>Nama Material / Produk
+                <input type="text" name="nama_material" id="edit-nama-material" value="{{ old('nama_material') }}" required style="display: block; box-sizing: border-box; width: 100%; padding: 8px; margin-top: 4px;">
+            </label>
+            <label>Kategori
+                <select name="kategori" id="edit-kategori" required style="display: block; box-sizing: border-box; width: 100%; padding: 8px; margin-top: 4px;">
+                    <option value="">Pilih Kategori</option>
+                    <option value="Raw Material" @selected(old('kategori') === 'Raw Material')>Raw Material</option>
+                    <option value="Finish Good" @selected(old('kategori') === 'Finish Good')>Finish Good</option>
+                    <option value="Packaging" @selected(old('kategori') === 'Packaging')>Packaging Material</option>
+                    <option value="CSM" @selected(old('kategori') === 'CSM')>Customer Supplied Material (CSM)</option>
+                </select>
+            </label>
+            <label>Satuan
+                <select name="satuan" id="edit-satuan" required style="display: block; box-sizing: border-box; width: 100%; padding: 8px; margin-top: 4px;">
+                    <option value="">Pilih Satuan</option>
+                    <option value="Pcs" @selected(old('satuan') === 'Pcs')>Pcs</option>
+                    <option value="Kg" @selected(old('satuan') === 'Kg')>Kg</option>
+                    <option value="Gram" @selected(old('satuan') === 'Gram')>Gram</option>
+                    <option value="Meter" @selected(old('satuan') === 'Meter')>Meter</option>
+                    <option value="Roll" @selected(old('satuan') === 'Roll')>Roll</option>
+                    <option value="Liter" @selected(old('satuan') === 'Liter')>Liter</option>
+                    <option value="Set" @selected(old('satuan') === 'Set')>Set</option>
+                </select>
+            </label>
+            <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px;">
+                <button type="button" id="close-edit-material" style="background: #e2e8f0; border: none; padding: 8px 14px; border-radius: 4px; cursor: pointer;">Batal</button>
+                <button type="submit" style="background: #2563eb; color: white; border: none; padding: 8px 14px; border-radius: 4px; cursor: pointer;">Simpan Perubahan</button>
+            </div>
+        </form>
+    </dialog>
+
+    <style>
+        #edit-material-dialog::backdrop { background: rgba(15, 23, 42, 0.45); }
+    </style>
+    <script>
+        const editMaterialDialog = document.getElementById('edit-material-dialog');
+        const editMaterialForm = document.getElementById('edit-material-form');
+
+        document.addEventListener('click', (event) => {
+            const button = event.target.closest('.edit-material-button');
+            if (!button) return;
+
+            editMaterialForm.action = button.dataset.updateUrl;
+            document.getElementById('edit-material-id').value = button.dataset.updateUrl.split('/').pop();
+            document.getElementById('edit-no-mm').value = button.dataset.noMm;
+            document.getElementById('edit-nama-material').value = button.dataset.namaMaterial;
+            document.getElementById('edit-kategori').value = button.dataset.kategori;
+            document.getElementById('edit-satuan').value = button.dataset.satuan;
+            editMaterialDialog.showModal();
+        });
+
+        document.getElementById('close-edit-material').addEventListener('click', () => editMaterialDialog.close());
+
+        @if($errors->any() && old('material_id'))
+            editMaterialForm.action = @json(route('development.master-material.update', old('material_id')));
+            editMaterialDialog.showModal();
+        @endif
+    </script>
 </div>
 @endsection

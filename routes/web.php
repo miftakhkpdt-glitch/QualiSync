@@ -385,6 +385,7 @@ Route::delete('/master-parameters/delete/{id}', [MasterParameterController::clas
         // Master Material (MM)
         Route::get('/development/master-material', [MasterMaterialController::class, 'index'])->name('development.master-material.index');
         Route::post('/development/master-material/store', [MasterMaterialController::class, 'store'])->name('development.master-material.store');
+        Route::put('/development/master-material/{id}', [MasterMaterialController::class, 'update'])->name('development.master-material.update');
 
         // Bill of Materials (BOM)
         Route::get('/development/bom', [BomController::class, 'index'])->name('development.bom.index');
