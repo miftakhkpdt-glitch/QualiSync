@@ -126,7 +126,7 @@
     <!-- ==================== Z. AREA BERBAHAYA (DEV ONLY) ==================== -->
     <li style="margin-top: 30px; padding: 0 15px; margin-bottom: 20px;">
         <form action="{{ route('developer.reset_transaksi') }}" method="POST" 
-              onsubmit="return confirm('PERINGATAN KERAS! ⚠️\n\nApakah Anda YAKIN ingin MENGHAPUS SEMUA DATA TRANSAKSI dari semua departemen?\n\n* Data Master (User, Barang, Supplier) akan AMAN.\n* Semua stok dan transaksi akan kembali ke NOL.');">
+              onsubmit="return confirm('PERINGATAN KERAS!\n\nReset ini akan MENGOSONGKAN data transaksi berikut:\n- Quality: QIR, CAPA (termasuk data CAPA customer/supplier), dan COA.\n- Warehouse dan Produksi: stok, mutasi, penerimaan/pengeluaran, hasil produksi, finished goods, dan karantina.\n- Purchasing dan Sales: PR, PO, invoice, forecast, sales order, dan work order.\n- Finance, laporan, dan HRD: jurnal, biaya operasional, laporan harian, payroll, lembur, serta data cuti/riwayat cuti.\n- Proyek Development.\n\nDATA MASTER TIDAK DIHAPUS, termasuk:\n- User/akun, master item/barang/material, master customer, dan master supplier/vendor.\n- Master Defect, Master Reject, dan Master Downtime.\n- Master Parameter, Master Standar Parameter, dan Master AQL.\n\nCatatan: data transaksi CAPA customer/supplier akan dikosongkan, tetapi data master customer/supplier tetap aman. Data stok dan transaksi yang disebut di atas akan kosong. Tindakan ini tidak dapat dibatalkan.\n\nApakah Anda yakin ingin melanjutkan?');">
             @csrf
             
             <button type="submit" class="no-disable" style="
