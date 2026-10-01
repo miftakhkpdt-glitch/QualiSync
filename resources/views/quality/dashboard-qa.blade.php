@@ -117,28 +117,24 @@
             </h5>
             
             <div style="margin-top: 15px; display: flex; flex-direction: column; gap: 15px;">
-                <!-- Item Log 1 -->
-                <div style="border-left: 3px solid #10b981; padding-left: 12px; position: relative;">
-                    <div style="font-weight: bold; font-size: 13px; color: #1e293b;">COA Diterbitkan</div>
-                    <div style="font-size: 12px; color: #475569; margin-top: 2px;">COA/09/2026/011 - PT Yasulor</div>
-                    <div style="font-size: 11px; color: #94a3b8; margin-top: 4px;"><i class="far fa-clock"></i> 10 menit yang lalu</div>
-                </div>
-                <!-- Item Log 2 -->
-                <div style="border-left: 3px solid #ef4444; padding-left: 12px; position: relative;">
-                    <div style="font-weight: bold; font-size: 13px; color: #1e293b;">QIR Dibuat (Reject)</div>
-                    <div style="font-size: 12px; color: #475569; margin-top: 2px;">Material Tube NG Dimensi</div>
-                    <div style="font-size: 11px; color: #94a3b8; margin-top: 4px;"><i class="far fa-clock"></i> 2 jam yang lalu</div>
-                </div>
-                <!-- Item Log 3 -->
-                <div style="border-left: 3px solid #3b82f6; padding-left: 12px; position: relative;">
-                    <div style="font-weight: bold; font-size: 13px; color: #1e293b;">Incoming Material</div>
-                    <div style="font-size: 12px; color: #475569; margin-top: 2px;">Kedatangan Resin Supplier A</div>
-                    <div style="font-size: 11px; color: #94a3b8; margin-top: 4px;"><i class="far fa-clock"></i> Kemarin, 14:00</div>
-                </div>
+                @forelse($latestLogs as $log)
+                    @php
+                        $activityColor = $log->event_type === 'COA' ? '#10b981' : ($log->event_type === 'QIR' ? '#ef4444' : '#3b82f6');
+                    @endphp
+                    <div style="border-left: 3px solid {{ $activityColor }}; padding-left: 12px; position: relative;">
+                        <div style="font-weight: bold; font-size: 13px; color: #1e293b;">{{ $log->title }}</div>
+                        <div style="font-size: 12px; color: #475569; margin-top: 2px;">{{ $log->description }}</div>
+                        <div style="font-size: 11px; color: #94a3b8; margin-top: 4px;"><i class="far fa-clock"></i> {{ $log->occurred_at ? \Carbon\Carbon::parse($log->occurred_at)->format('d-m-Y H:i') : '-' }}</div>
+                    </div>
+                @empty
+                    <div style="padding: 16px 8px; text-align: center; color: #94a3b8; font-size: 13px;">
+                        Belum ada aktivitas tercatat.
+                    </div>
+                @endforelse
             </div>
             
             <div style="text-align: center; margin-top: 15px; padding-top: 10px; border-top: 1px solid #f1f5f9;">
-                <a href="#" style="font-size: 12px; color: #3b82f6; text-decoration: none; font-weight: 600;">Lihat Semua Log</a>
+                <a href="{{ route('quality.activity-logs') }}" style="font-size: 12px; color: #3b82f6; text-decoration: none; font-weight: 600;">Lihat Semua Log</a>
             </div>
         </div>
 

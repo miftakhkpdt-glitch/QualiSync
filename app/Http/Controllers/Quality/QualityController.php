@@ -73,6 +73,12 @@ class QualityController extends Controller
             $totalReject[] = $rejectCount;
         }
 
+        $latestLogs = DB::query()
+            ->fromSub($this->activityLogsQuery(), 'activity_logs')
+            ->orderByDesc('occurred_at')
+            ->limit(3)
+            ->get();
+
         return view('quality.dashboard-qa', compact(
             'pendingIncoming', 
             'qirHariIni', 
@@ -80,7 +86,47 @@ class QualityController extends Controller
             'tugasSegera',
             'labels',
             'totalInspeksi',
-            'totalReject'
+            'totalReject',
+            'latestLogs'
         ));
+    }
+
+    public function activityLogs(Request $request)
+    {
+        $logsQuery = DB::query()->fromSub($this->activityLogsQuery(), 'activity_logs');
+
+        if ($request->filled('search')) {
+            $search = '%' . trim($request->input('search')) . '%';
+            $logsQuery->where(function ($query) use ($search) {
+                $query->where('event_type', 'like', $search)
+                    ->orWhere('title', 'like', $search)
+                    ->orWhere('description', 'like', $search);
+            });
+        }
+
+        $logs = $logsQuery->orderByDesc('occurred_at')->paginate(30)->withQueryString();
+
+        return view('quality.activity-logs', compact('logs'));
+    }
+
+    private function activityLogsQuery()
+    {
+        $coaLogs = DB::table('qa_coas')->selectRaw(
+            "'COA' as event_type, 'COA Diterbitkan' as title, CONCAT(no_coa, ' - ', COALESCE(NULLIF(customer_name, ''), no_mm)) as description, created_at as occurred_at"
+        );
+
+        $qirLogs = DB::table('qir_records')
+            ->leftJoin('master_materials', 'qir_records.no_mm', '=', 'master_materials.no_mm')
+            ->selectRaw(
+                "'QIR' as event_type, CONCAT('QIR ', COALESCE(qir_records.status, 'Dibuat')) as title, CONCAT(COALESCE(master_materials.nama_material, qir_records.no_mm), ' - Batch ', qir_records.no_batch) as description, qir_records.created_at as occurred_at"
+            );
+
+        $incomingLogs = DB::table('incoming_materials')
+            ->whereNull('deleted_at')
+            ->selectRaw(
+                "'Incoming Material' as event_type, 'Incoming Material' as title, CONCAT(COALESCE(NULLIF(item_name, ''), mm), ' - ', COALESCE(vendor_name, 'Supplier'), ' (', COALESCE(stpb_number, '-'), ')') as description, created_at as occurred_at"
+            );
+
+        return $coaLogs->unionAll($qirLogs)->unionAll($incomingLogs);
     }
 }
