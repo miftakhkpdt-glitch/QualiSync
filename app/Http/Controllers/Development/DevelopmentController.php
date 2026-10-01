@@ -9,6 +9,11 @@ use App\Models\DevelopmentProject;
 
 class DevelopmentController extends Controller
 {
+    public function index()
+    {
+        return $this->dashboard();
+    }
+
     // Menampilkan halaman dashboard development & daftar riset
     public function dashboard() // <-- Saya sesuaikan namanya menjadi dashboard
     {
@@ -24,23 +29,36 @@ class DevelopmentController extends Controller
     // Menyimpan data proyek riset baru
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'judul_riset' => 'required|string|max:255',
             'kode_material' => 'required|string|max:50',
             'target_suhu' => 'nullable|numeric',
-            'status' => 'required',
+            'status' => 'required|in:Planning,On Progress,Evaluation,Completed',
+            'keterangan' => 'nullable|string',
         ]);
 
         DevelopmentProject::create([
-            'judul_riset' => $request->judul_riset,
-            'kode_material' => $request->kode_material,
-            'target_suhu' => $request->target_suhu,
-            'status' => $request->status,
-            'keterangan' => $request->keterangan,
+            ...$validated,
             'dibuat_oleh' => auth()->user()->name ?? 'Development Team',
         ]);
 
         return redirect('/development/dashboard')->with('success', 'Data riset development berhasil ditambahkan!');
+    }
+
+    public function update(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'judul_riset' => 'required|string|max:255',
+            'kode_material' => 'required|string|max:50',
+            'target_suhu' => 'nullable|numeric',
+            'status' => 'required|in:Planning,On Progress,Evaluation,Completed',
+            'keterangan' => 'nullable|string',
+        ]);
+
+        $project = DevelopmentProject::findOrFail($id);
+        $project->update($validated);
+
+        return redirect('/development/dashboard')->with('success', 'Data riset berhasil diperbarui!');
     }
 
     // Menghapus data riset

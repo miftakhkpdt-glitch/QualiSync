@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Hash;
 
 // Controller Utama / Departemen Lain
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\DevelopmentController;
+use App\Http\Controllers\Development\DevelopmentController;
 use App\Http\Controllers\HanyaSupplierCapaController;
 
 // =========================================================================
@@ -694,8 +694,8 @@ Route::prefix('warehouse')->name('warehouse.')->group(function () {
 });
 
 Route::get('/warehouse/work-order', [\App\Http\Controllers\Warehouse\WorkOrderController::class, 'index'])->name('warehouse.work_order.index');
-Route::get('/warehouse/material-request', [\App\Http\Controllers\WarehouseController::class, 'indexMaterial']);
-Route::post('/warehouse/material-request/{id}/process', [\App\Http\Controllers\WarehouseController::class, 'processMaterial']);
+Route::get('/warehouse/material-request', [WarehouseController::class, 'indexMaterial'])->middleware(['auth', 'role:admin,warehouse']);
+Route::post('/warehouse/material-request/{id}/process', [WarehouseController::class, 'processMaterial'])->middleware(['auth', 'role:admin,warehouse']);
 Route::post('/warehouse/stok/mutasi-raw', [WarehouseMutasiController::class, 'storeMutasiKeluar'])->name('warehouse.stok.mutasi.store');
 Route::get('/warehouse/stok/get-item', [WarehouseMutasiController::class, 'getItemByMm'])->name('warehouse.stok.get_item');
 Route::delete('/warehouse/outgoing/{id}', [\App\Http\Controllers\Warehouse\OutgoingController::class, 'destroy'])->name('warehouse.outgoing.destroy');
@@ -719,9 +719,9 @@ Route::prefix('purchasing')->name('purchasing.')->group(function () {
 // 3. MODUL MASTER DATA (UMUM / ADMIN)
 // =========================================================================
 Route::group(['prefix' => 'master', 'middleware' => ['auth']], function () {
-    Route::get('/customer', [\App\Http\Controllers\MasterCustomerController::class, 'index'])->name('master.customer.index');
-    Route::get('/customer/create', [\App\Http\Controllers\MasterCustomerController::class, 'create'])->name('master.customer.create');
-    Route::post('/customer', [\App\Http\Controllers\MasterCustomerController::class, 'store'])->name('master.customer.store');
+    Route::get('/customer', [\App\Http\Controllers\Sales\MasterCustomerController::class, 'index'])->name('master.customer.index');
+    Route::get('/customer/create', [\App\Http\Controllers\Sales\MasterCustomerController::class, 'create'])->name('master.customer.create');
+    Route::post('/customer', [\App\Http\Controllers\Sales\MasterCustomerController::class, 'store'])->name('master.customer.store');
 });
 
 // ROUTE KHUSUS DEPARTEMEN FAT (KEUANGAN)
@@ -785,7 +785,7 @@ Route::prefix('fat')->name('fat.')->group(function () {
     Route::get('/reports/balance-sheet', [\App\Http\Controllers\Fat\ReportController::class, 'balanceSheet'])->name('reports.balance_sheet');
 });
 
-// Gunakan route POST agar lebih aman dan tidak bisa diakses lewat ketik URL langsung
+// Batasi operasi reset data transaksi untuk admin yang sudah login.
 Route::post('/developer/reset-transaksi', function () {
     
     // Route Reset data, Daftar SEMUA tabel transaksi dari ujung ke ujung
@@ -810,19 +810,20 @@ Route::post('/developer/reset-transaksi', function () {
         'development_projects', 'payrolls', 'lembur_karyawans', 'cuti_records', 'riwayat_cuti'
     ];
 
-    DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+    try {
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
-    foreach ($tabelTransaksi as $tabel) {
-        // Pengecekan cerdas: Hanya hapus jika tabelnya benar-benar ada di database
-        // (Ini mencegah error Code 1146 seperti yang Anda alami sebelumnya)
-        if (Schema::hasTable($tabel)) {
-            DB::table($tabel)->truncate();
+        foreach ($tabelTransaksi as $tabel) {
+            // Hanya hapus tabel yang memang tersedia di database.
+            if (Schema::hasTable($tabel)) {
+                DB::table($tabel)->truncate();
+            }
         }
+    } finally {
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
     }
-
-    DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
     // Setelah selesai, kembalikan ke halaman sebelumnya dengan pesan sukses
     return redirect()->back()->with('success', 'BAM! 💥 Semua data transaksi berhasil dibersihkan. Data master aman!');
 
-})->name('developer.reset_transaksi');
+})->middleware(['auth', 'role:admin'])->name('developer.reset_transaksi');
