@@ -37,10 +37,14 @@ class MasterDefectController extends Controller
 
     public function update(Request $request, $id)
     {
+        $validated = $request->validate([
+            'nama_defect' => 'required|string|max:255',
+            'kategori' => 'required|in:Critical,Major,Minor,Intolerance',
+        ]);
+
         DB::table('master_defects')->where('id', $id)->update([
-            'nama_defect' => $request->nama_defect,
-            'kategori'    => $request->kategori,
-            'deskripsi'   => $request->deskripsi,
+            'nama_defect' => $validated['nama_defect'],
+            'kategori'    => $validated['kategori'],
             'updated_at'  => now(),
         ]);
 

@@ -201,7 +201,7 @@ Route::get('/get-defect-categories/{id}', [MasterAqlController::class, 'getAqlBy
 
 Route::get('/master-defect', [MasterDefectController::class, 'index']);
 Route::post('/master-defect', [MasterDefectController::class, 'store']);
-Route::put('/master-defect/{id}', [MasterDefectController::class, 'update']);
+Route::put('/master-defect/{id}', [MasterDefectController::class, 'update'])->name('master-defect.update');
 Route::delete('/master-defect/{id}', [MasterDefectController::class, 'destroy']);
 Route::get('/master-defect/create', [MasterDefectController::class, 'create'])->name('master-defect.create');
 Route::post('/master-defect', [MasterDefectController::class, 'store'])->name('master-defect.store');
