@@ -14,6 +14,15 @@
     .modern-table th { background-color: #f1f5f9; color: #334155; font-weight: 600; padding: 15px; border-bottom: 2px solid #e2e8f0; }
     .modern-table td { padding: 15px; border-bottom: 1px solid #e2e8f0; vertical-align: middle; }
     .modern-table tr:hover { background-color: #f8fafc; }
+
+    .item-search-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 16px; }
+    .item-search-label { color: #475569; font-size: 14px; font-weight: 600; }
+    .item-search-input { box-sizing: border-box; width: min(100%, 360px); padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; color: #1e293b; font: inherit; }
+    .item-search-input:focus { border-color: #3b82f6; outline: 2px solid rgba(59, 130, 246, 0.2); }
+    @media (max-width: 600px) {
+        .item-search-toolbar { align-items: stretch; flex-direction: column; gap: 8px; }
+        .item-search-input { width: 100%; }
+    }
     
     .btn-manage { background-color: #3b82f6; color: white; padding: 8px 15px; border-radius: 6px; font-weight: bold; text-decoration: none; font-size: 13px; transition: 0.2s; display: inline-block; }
     .btn-manage:hover { background-color: #2563eb; }
@@ -47,6 +56,11 @@
         </div>
         
         <div style="padding: 20px;">
+            <div class="item-search-toolbar">
+                <label class="item-search-label" for="item-search">Cari nama item atau No. MM</label>
+                <input type="search" id="item-search" class="item-search-input" placeholder="Contoh: 310148 atau Tube Wardah" autocomplete="off" aria-controls="master-standard-items">
+            </div>
+            <p id="item-search-status" role="status" aria-live="polite" style="margin: 0 0 12px; color: #64748b; font-size: 13px;"></p>
             <table class="modern-table">
                 <thead>
                     <tr>
@@ -56,9 +70,9 @@
                         <th style="text-align: center; width: 150px;">Aksi</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="master-standard-items">
                     @forelse($items as $index => $item)
-                    <tr>
+                    <tr data-search="{{ $item->no_mm }} {{ $item->nama_material ?? '' }}">
                         <td>{{ $index + 1 }}</td>
                         <td><strong>{{ $item->no_mm }}</strong></td>
                         <td>{{ $item->nama_material ?? '-' }}</td>
@@ -75,9 +89,40 @@
                         </td>
                     </tr>
                     @endforelse
+                    <tr id="item-search-empty" hidden>
+                        <td colspan="4" style="text-align: center; padding: 30px; color: #64748b; font-style: italic;">Tidak ada item yang cocok dengan pencarian.</td>
+                    </tr>
                 </tbody>
             </table>
         </div>
     </div>
 </div>
+
+<script>
+    const itemSearchInput = document.getElementById('item-search');
+    const itemSearchRows = Array.from(document.querySelectorAll('#master-standard-items tr[data-search]'));
+    const itemSearchEmpty = document.getElementById('item-search-empty');
+    const itemSearchStatus = document.getElementById('item-search-status');
+
+    function filterMasterStandardItems() {
+        const query = itemSearchInput.value.trim().toLocaleLowerCase('id');
+        let visibleCount = 0;
+
+        itemSearchRows.forEach((row) => {
+            const matches = row.dataset.search.toLocaleLowerCase('id').includes(query);
+            row.hidden = !matches;
+
+            if (matches) {
+                visibleCount += 1;
+                row.cells[0].textContent = visibleCount;
+            }
+        });
+
+        itemSearchEmpty.hidden = query === '' || visibleCount > 0;
+        itemSearchStatus.textContent = `Menampilkan ${visibleCount} dari ${itemSearchRows.length} item`;
+    }
+
+    itemSearchInput.addEventListener('input', filterMasterStandardItems);
+    filterMasterStandardItems();
+</script>
 @endsection
