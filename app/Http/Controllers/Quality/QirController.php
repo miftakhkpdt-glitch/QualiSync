@@ -44,14 +44,17 @@ class QirController extends Controller
             'line_produksi' => 'required',
         ]);
         
-        // CEK BATCH KHUSUS UNTUK ITEM (NO MM) INI SAJA
+        // Tolak hanya jika seluruh identitas inspeksi sama.
         $cekBatch = DB::table('qir_records')
+                        ->where('tanggal', $request->tanggal)
                         ->where('no_batch', $request->no_batch)
-                        ->where('no_mm', $request->no_mm) // <-- PERBAIKAN DI SINI
+                        ->where('no_mm', $request->no_mm)
+                        ->where('shift', $request->shift)
+                        ->where('line_produksi', $request->line_produksi)
                         ->first();
                         
         if ($cekBatch) {
-            return redirect()->back()->withInput()->with('error', 'GAGAL SIMPAN! No. Batch "' . $request->no_batch . '" untuk item ini sudah pernah diinput sebelumnya.');
+            return redirect()->back()->withInput()->with('error', 'GAGAL SIMPAN! Data QIR dengan tanggal, No. Batch, item, shift, dan line yang sama sudah pernah diinput.');
         }
 
         DB::beginTransaction();
@@ -308,17 +311,22 @@ class QirController extends Controller
             'tanggal'       => 'required|date',
             'no_batch'      => 'required',
             'no_mm'         => 'required',
+            'shift'         => 'required',
+            'line_produksi' => 'required',
         ]);
         
-        // CEK BATCH KHUSUS UNTUK ITEM (NO MM) INI SAJA, KECUALI ID DOKUMEN INI SENDIRI
+        // Tolak hanya jika seluruh identitas inspeksi sama, selain dokumen ini sendiri.
         $cekBatch = DB::table('qir_records')
+                        ->where('tanggal', $request->tanggal)
                         ->where('no_batch', $request->no_batch)
-                        ->where('no_mm', $request->no_mm) // <-- PERBAIKAN DI SINI
-                        ->where('id', '!=', $id) // <-- Kunci pentingnya di sini
+                        ->where('no_mm', $request->no_mm)
+                        ->where('shift', $request->shift)
+                        ->where('line_produksi', $request->line_produksi)
+                        ->where('id', '!=', $id)
                         ->first();
                         
         if ($cekBatch) {
-            return redirect()->back()->withInput()->with('error', 'GAGAL UPDATE! No. Batch "' . $request->no_batch . '" sudah terpakai oleh dokumen QIR lain pada item ini.');
+            return redirect()->back()->withInput()->with('error', 'GAGAL UPDATE! Data QIR dengan tanggal, No. Batch, item, shift, dan line yang sama sudah pernah diinput.');
         }
 
         DB::beginTransaction();

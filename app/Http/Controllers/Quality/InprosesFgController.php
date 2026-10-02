@@ -48,6 +48,8 @@ class InprosesFgController extends Controller
             'no_batch'      => 'required',
             'no_mm'         => 'required',
             'customer_id'   => 'required',
+            'shift'         => 'required',
+            'line_produksi' => 'required',
             'pic'           => 'required|array', 
             'pic.*'         => 'required',
             'no_box'        => 'nullable|array',
@@ -55,6 +57,18 @@ class InprosesFgController extends Controller
             'jml_box'       => 'nullable|array',
             'jml_box.*'     => 'nullable|numeric'   
         ]);
+
+        $duplicate = DB::table('fg_inspections')
+            ->where('tanggal', $request->tanggal)
+            ->where('no_batch', $request->no_batch)
+            ->where('no_mm', $request->no_mm)
+            ->where('shift', $request->shift)
+            ->where('line_produksi', $request->line_produksi)
+            ->exists();
+
+        if ($duplicate) {
+            return back()->withInput()->with('error', 'GAGAL SIMPAN! Data FG dengan tanggal, No. Batch, item, shift, dan line yang sama sudah pernah diinput.');
+        }
 
         DB::beginTransaction();
         try {
@@ -356,6 +370,27 @@ class InprosesFgController extends Controller
 
     public function update(Request $request, $id)
     {
+        $request->validate([
+            'tanggal'       => 'required|date',
+            'no_batch'      => 'required',
+            'no_mm'         => 'required',
+            'shift'         => 'required',
+            'line_produksi' => 'required',
+        ]);
+
+        $duplicate = DB::table('fg_inspections')
+            ->where('tanggal', $request->tanggal)
+            ->where('no_batch', $request->no_batch)
+            ->where('no_mm', $request->no_mm)
+            ->where('shift', $request->shift)
+            ->where('line_produksi', $request->line_produksi)
+            ->where('id', '!=', $id)
+            ->exists();
+
+        if ($duplicate) {
+            return back()->withInput()->with('error', 'GAGAL UPDATE! Data FG dengan tanggal, No. Batch, item, shift, dan line yang sama sudah pernah diinput.');
+        }
+
         DB::beginTransaction();
         try {
             // 1. Update bagian Header (kolom customer_id dihapus karena tidak ada di tabel fg_inspections)
