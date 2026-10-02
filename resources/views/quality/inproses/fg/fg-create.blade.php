@@ -439,7 +439,7 @@
                     <select name="decision[]">
                         <option value="OK">OK</option>
                         <option value="NG">NG</option>
-                        <option value="SORTIR">SORTIR</option>
+                        <option value="SORTIR">Sortir</option>
                     </select>
                 </td>
                 <td><input type="number" name="jml_box[]" value="0" min="0"></td>

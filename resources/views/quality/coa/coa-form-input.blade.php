@@ -234,21 +234,6 @@
 
                                 <!-- Result / Hasil AVG QIR (MUNCUL DI KEDUA MODE GENERAL MAUPUN YASULOR) -->
                                 <td style="text-align: center;">
-                                    @php
-                                        // 1. Sesuaikan variabel $nama_parameter dengan variabel yang Anda gunakan
-                                        // untuk memunculkan nama di kolom paling kiri. 
-                                        // (Bisa $param->nama_parameter, $item->nama_parameter, atau $detail->nama_parameter)
-                                        $namaParam = $param->nama_parameter ?? ''; 
-                                        
-                                        // 2. Daftar parameter yang dipaksa menjadi OK
-                                        $parameterVisual = ['Air Tight Test', 'Tape Test', 'Unzip', 'Pinch'];
-                                        
-                                        // 3. Jika nama parameter cocok, timpa variabel $valHasil menjadi OK
-                                        if(in_array($namaParam, $parameterVisual)) {
-                                            $valHasil = 'OK';
-                                        }
-                                    @endphp
-                                    
                                     <input type="text" 
                                            name="parameters[{{ $index }}][result_avg]" 
                                            class="t-input" 

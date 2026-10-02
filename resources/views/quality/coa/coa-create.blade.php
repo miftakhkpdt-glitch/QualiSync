@@ -1,5 +1,24 @@
 @extends('layouts.staff-layout')
 
+@push('styles')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+    .select2-container { width: 100% !important; }
+    .select2-container--default .select2-selection--single {
+        height: 46px;
+        border: 1.5px solid #d1d3e2;
+        border-radius: 6px;
+        background-color: #fff;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 44px;
+        padding-left: 14px;
+        color: #495057;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow { height: 44px; }
+</style>
+@endpush
+
 @section('konten')
 <!-- Custom Style khusus Form Pencarian COA -->
 <style>
@@ -179,3 +198,16 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+    $(function() {
+        $('#no_mm').select2({
+            width: '100%',
+            minimumResultsForSearch: 0,
+            placeholder: '-- Pilih Material --'
+        });
+    });
+</script>
+@endpush

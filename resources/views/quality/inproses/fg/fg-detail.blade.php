@@ -207,13 +207,13 @@
                 <th rowspan="2">NO. BOX</th>
                 <th rowspan="2">DEFECT</th>
                 <th colspan="3">AQL (Jumlah Temuan)</th>
-                <th rowspan="2">Decision<br>(OK/Reject)</th>
+                <th rowspan="2">Decision<br>(OK/Reject/Sortir)</th>
                 <th colspan="3">Remark</th>
             </tr>
             <tr>
-                <th>Critical<br><small>0.65</small></th>
-                <th>Major<br><small>2.5</small></th>
-                <th>Minor<br><small>4.1</small></th>
+                <th>Critical<br><small>{{ $aqlStandards['critical'] }}</small></th>
+                <th>Major<br><small>{{ $aqlStandards['major'] }}</small></th>
+                <th>Minor<br><small>{{ $aqlStandards['minor'] }}</small></th>
                 <th>Jumlah Total</th>
                 <th>Hasil Sortir OK</th>
                 <th>Hasil Sortir NG</th>
@@ -229,7 +229,9 @@
                     <td>{{ $row->major }}</td>
                     <td>{{ $row->minor }}</td>
                     <td>
-                        @if(strtoupper($row->decision) == 'REJECT')
+                        @if(strtoupper($row->decision) == 'SORTIR')
+                            <strong style="color: #d97706;">SORTIR</strong>
+                        @elseif(in_array(strtoupper($row->decision), ['REJECT', 'NG'], true))
                             <strong style="color: red;">REJECT</strong>
                         @else
                             <strong>OK</strong>

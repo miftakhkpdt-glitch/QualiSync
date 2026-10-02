@@ -68,19 +68,40 @@ class CoaController extends Controller
     $batch = $request->get('batch');
     $mm = $request->get('mm');
 
-    // 1. Hitung Rata-Rata (AVG) nilai dari QIR untuk Batch dan MM ini
-    $rekomendasiHasil = DB::table('qir_records')
+    // 1. Ambil hasil QIR untuk batch dan MM ini.
+    $hasilQir = DB::table('qir_records')
         ->join('qir_details', 'qir_records.id', '=', 'qir_details.qir_id')
         ->join('qir_results', 'qir_details.id', '=', 'qir_results.qir_detail_id')
+        ->join('master_parameters', 'qir_results.parameter_id', '=', 'master_parameters.id')
         ->where('qir_records.no_batch', $batch)
         ->where('qir_records.no_mm', $mm)
-        ->groupBy('qir_results.parameter_id')
         ->select(
             'qir_results.parameter_id',
-            DB::raw('ROUND(AVG(CAST(qir_results.hasil_aktual AS DECIMAL(10,2))), 2) as rata_rata')
+            'qir_results.hasil_aktual',
+            'qir_results.status',
+            'master_parameters.tipe_input'
         )
-        ->pluck('rata_rata', 'parameter_id') // Menghasilkan array: [parameter_id => nilai_avg]
-        ->toArray();
+        ->get()
+        ->groupBy('parameter_id');
+
+    $rekomendasiHasil = [];
+    foreach ($hasilQir as $parameterId => $hasilParameter) {
+        if ($hasilParameter->first()->tipe_input === 'Angka') {
+            $nilaiAngka = $hasilParameter
+                ->pluck('hasil_aktual')
+                ->filter(fn ($nilai) => is_numeric($nilai));
+
+            $rekomendasiHasil[$parameterId] = $nilaiAngka->isNotEmpty()
+                ? number_format($nilaiAngka->avg(), 2, '.', '')
+                : '';
+            continue;
+        }
+
+        $rekomendasiHasil[$parameterId] = $hasilParameter->contains(function ($hasil) {
+            return strtoupper((string) $hasil->hasil_aktual) === 'NG'
+                || strtoupper((string) $hasil->status) === 'NG';
+        }) ? 'NG' : 'OK';
+    }
 
     // 2. Ambil Master Parameter Spesifikasi Item
     $parameters = DB::table('master_item_standards')

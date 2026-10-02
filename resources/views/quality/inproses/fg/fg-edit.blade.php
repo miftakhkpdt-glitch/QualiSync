@@ -13,6 +13,7 @@
     .form-group { margin-bottom: 20px; }
     .form-label { display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 8px; text-transform: uppercase; }
     .modern-input { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; background-color: #f8fafc; }
+    .select2-container { width: 100% !important; }
     .select2-container .select2-selection--single { height: 40px !important; border: 1px solid #cbd5e1 !important; border-radius: 6px !important; background-color: #f8fafc !important; }
     .select2-container--default .select2-selection--single .select2-selection__rendered { line-height: 38px !important; }
     .select2-container--default .select2-selection--single .select2-selection__arrow { height: 38px !important; }
@@ -65,10 +66,11 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">No. MM / Produk</label>
-                        <select name="no_mm" class="modern-input select2" required style="width: 100%;">
+                        <select name="no_mm" id="no_mm" class="modern-input" required style="width: 100%;">
+                            <option value="">-- Pilih Item Produk --</option>
                             @foreach($masterItems as $item)
                                 <option value="{{ $item->no_mm }}" {{ $header->no_mm ==$item->no_mm ? 'selected' : '' }}>
-                                    {{ $item->no_mm }} - {{ $item->item_name ?? $item->nama_item ?? '' }}
+                                    {{ $item->no_mm }} - {{ $item->nama_material ?? $item->nama_item ?? '' }}
                                 </option>
                             @endforeach
                         </select>
@@ -144,6 +146,7 @@
                                     <select name="decision[]" class="modern-input">
                                         <option value="OK" {{ $row->decision == 'OK' ? 'selected' : '' }}>OK</option>
                                         <option value="Reject" {{ $row->decision == 'Reject' ? 'selected' : '' }}>Reject</option>
+                                        <option value="SORTIR" {{ strtoupper($row->decision) == 'SORTIR' ? 'selected' : '' }}>Sortir</option>
                                     </select>
                                 </td>
                                 <td><input type="text" name="jml_box[]" class="modern-input" value="{{ $row->jml_box }}"></td>
@@ -178,12 +181,7 @@
     </div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
-    $(document).ready(function() {$('.select2').select2();
-});
-
 var defectOptions = `<option value="">-- Pilih Cacat --</option>`;
 @foreach($defects as $defect)
     defectOptions += `<option value="{{ $defect->nama_defect }}">{{ $defect->nama_defect }}</option>`;
@@ -207,6 +205,7 @@ var defectOptions = `<option value="">-- Pilih Cacat --</option>`;
                 <select name="decision[]" class="modern-input">
                     <option value="OK">OK</option>
                     <option value="Reject">Reject</option>
+                    <option value="SORTIR">Sortir</option>
                 </select>
             </td>
             <td><input type="text" name="jml_box[]" class="modern-input" value="0"></td>
@@ -222,3 +221,16 @@ var defectOptions = `<option value="">-- Pilih Cacat --</option>`;
     }
 </script>
 @endsection
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+    $(function() {
+        $('#no_mm').select2({
+            placeholder: 'Cari No. MM atau nama item...',
+            minimumResultsForSearch: 0,
+            width: '100%'
+        });
+    });
+</script>
+@endpush

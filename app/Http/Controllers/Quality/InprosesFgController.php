@@ -150,8 +150,19 @@ class InprosesFgController extends Controller
         $masterItem = DB::table('master_materials')->where('no_mm', $header->no_mm)->first();
         
         $namaItem = $masterItem ? ($masterItem->nama_material ?? 'Nama Item Tidak Ditemukan') : '-'; 
+        $customer = DB::table('master_customers')->where('id', $header->item_name)->first();
+        $customerName = $customer->nama_customer ?? $header->item_name;
+        $masterAql = DB::table('master_aql_standards')
+            ->where('customer_id', $customer->id ?? $header->item_name)
+            ->orWhere('customer_name', $customerName)
+            ->first();
+        $aqlStandards = [
+            'critical' => $masterAql->aql_critical ?? 0.65,
+            'major'    => $masterAql->aql_major ?? 2.5,
+            'minor'    => $masterAql->aql_minor ?? 4.0,
+        ];
 
-        return view('quality.inproses.fg.fg-detail', compact('header', 'details', 'namaItem'));
+        return view('quality.inproses.fg.fg-detail', compact('header', 'details', 'namaItem', 'aqlStandards'));
     }
 
     // ==========================================
