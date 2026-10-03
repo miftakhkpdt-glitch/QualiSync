@@ -38,6 +38,7 @@
             width: 260px; background-color: var(--sidebar-bg); color: var(--sidebar-text);
             display: flex; flex-direction: column; box-shadow: 4px 0 10px rgba(0,0,0,0.05); z-index: 20;
         }
+        body.sidebar-hidden .sidebar { display: none; }
         .sidebar-judul { padding: 25px 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
         .sidebar-judul h2 { color: #ffffff; font-family: "Times New Roman", Times, serif; margin: 0; font-size: 20px; font-weight: bold; }
         
@@ -68,12 +69,20 @@
             background-color: rgba(255, 255, 255, 0.95); 
             backdrop-filter: blur(10px);
             height: 70px; padding: 0 40px; 
-            display: flex; align-items: center; justify-content: flex-end; 
+            display: flex; align-items: center; justify-content: space-between;
             border-bottom: 1px solid var(--border-color); 
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
             z-index: 10;
             position: sticky; top: 0;
         }
+        .sidebar-toggle {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 40px; height: 40px; border: 1px solid var(--border-color);
+            border-radius: 8px; background: #ffffff; color: #475569;
+            cursor: pointer; font-size: 16px; transition: background 0.2s, color 0.2s;
+        }
+        .sidebar-toggle:hover { background: #f1f5f9; color: #1e293b; }
+        .sidebar-toggle:focus-visible { outline: 2px solid #3b82f6; outline-offset: 2px; }
         
         .profil { 
             display: flex; align-items: center; gap: 15px; 
@@ -181,6 +190,9 @@
         
         <!-- TOPBAR PROFIL -->
         <div class="topbar">
+            <button type="button" class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()" aria-label="Sembunyikan sidebar" title="Sembunyikan sidebar" aria-expanded="true">
+                <i class="fas fa-bars" aria-hidden="true"></i>
+            </button>
             <div class="profil-container">
                 <div class="profil" onclick="toggleProfileDropdown()">
                     <div class="profil-info">
@@ -217,6 +229,17 @@
 
     <!-- ================= KUMPULAN JAVASCRIPT UI CLEAN ================= -->
     <script>
+        function toggleSidebar() {
+            var isHidden = document.body.classList.toggle('sidebar-hidden');
+            localStorage.setItem('kimpa-sidebar-hidden', isHidden ? 'true' : 'false');
+
+            var toggleButton = document.getElementById('sidebarToggle');
+            var label = isHidden ? 'Tampilkan sidebar' : 'Sembunyikan sidebar';
+            toggleButton.setAttribute('aria-label', label);
+            toggleButton.setAttribute('title', label);
+            toggleButton.setAttribute('aria-expanded', isHidden ? 'false' : 'true');
+        }
+
         // FUNGSI TOGGLE UNIVERSAL DROPDOWN SIDEBAR
         function toggleSubmenu(element) {
             var parentLi = element.closest('li');
@@ -285,6 +308,17 @@
     <!-- SCRIPT INITIALIZATION (MEMUAT STATE TERBACA DARI LOCALSTORAGE & HIGHLIGHT) -->
     <script>
         document.addEventListener("DOMContentLoaded", function() {
+            // Pulihkan preferensi tampilan sidebar
+            if (localStorage.getItem('kimpa-sidebar-hidden') === 'true') {
+                document.body.classList.add('sidebar-hidden');
+                let toggleButton = document.getElementById('sidebarToggle');
+                if (toggleButton) {
+                    toggleButton.setAttribute('aria-label', 'Tampilkan sidebar');
+                    toggleButton.setAttribute('title', 'Tampilkan sidebar');
+                    toggleButton.setAttribute('aria-expanded', 'false');
+                }
+            }
+
             // 1. Buka kembali dropdown yang disimpan di localStorage
             let openMenus = JSON.parse(localStorage.getItem('kimpa-open-menus')) || [];
             openMenus.forEach(function(id) {

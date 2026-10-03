@@ -3,6 +3,7 @@
 @section('title', 'Laporan CPK Proses FG')
 
 @push('styles')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <style>
     @media print {
         body * { visibility: hidden; }
@@ -33,6 +34,18 @@
     }
     .stat-title { font-size: 11px; font-weight: bold; color: #64748b; margin-bottom: 4px; text-transform: uppercase; }
     .stat-value { font-size: 16px; font-weight: bold; color: #0f172a; }
+
+    .cpk-product-select + .select2-container { width: 100% !important; }
+    .cpk-product-select + .select2-container .select2-selection--single {
+        height: 38px;
+        border: 1px solid #cbd5e1;
+        border-radius: 4px;
+    }
+    .cpk-product-select + .select2-container .select2-selection__rendered {
+        line-height: 36px;
+        padding-left: 8px;
+    }
+    .cpk-product-select + .select2-container .select2-selection__arrow { height: 36px; }
 
     .box-container {
         background: #f8fafc;
@@ -120,7 +133,7 @@
                 </div>
                 <div style="flex-grow: 1; min-width: 250px;">
                     <label style="font-weight: bold; font-size: 12px; display: block; margin-bottom: 5px;">Pilih Produk (Finish Good)</label>
-                    <select name="no_mm" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;" required onchange="this.form.submit()">
+                    <select name="no_mm" id="cpk-no-mm" class="form-control cpk-product-select" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;" required onchange="this.form.submit()">
                         <option value="">-- Pilih Produk --</option>
                         @foreach($masterItems as $item)
                             <option value="{{ $item->no_mm }}" {{ (isset($no_mm) && $no_mm == $item->no_mm) ? 'selected' : '' }}>
@@ -365,3 +378,23 @@
 
 </div>
 @endsection
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#cpk-no-mm').select2({
+            width: '100%',
+            minimumResultsForSearch: 0,
+            language: {
+                noResults: function() {
+                    return 'Produk tidak ditemukan';
+                },
+                searching: function() {
+                    return 'Mencari...';
+                }
+            }
+        });
+    });
+</script>
+@endpush
