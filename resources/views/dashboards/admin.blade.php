@@ -4,42 +4,129 @@
 
 @push('styles')
 <style>
-    /* CSS Khusus Halaman Dashboard Admin Saja */
-    h1 { font-size: 24px; color: var(--text-main); margin-bottom: 8px; }
-    p.subtitle { color: var(--text-muted); font-size: 14px; margin-bottom: 30px; margin-top: 0; }
-    
-    /* Ubah grid dari 3 kolom jadi 5 kolom agar muat semua KPI */
-    .baris-kpi { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; margin-bottom: 40px; }
-    .kartu-kpi { background-color: var(--white); padding: 24px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; border: 1px solid #f3f4f6; transition: 0.2s; }
-    .kartu-kpi:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
-    
-    .kpi-teks h3 { font-size: 14px; color: var(--text-muted); font-weight: 500; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
-    .kpi-teks .angka { font-size: 36px; font-weight: 700; color: var(--text-main); line-height: 1; }
-    
-    .icon-box { width: 64px; height: 64px; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 28px; }
-    .icon-gold { background-color: #fef9c3; color: #ca8a04; }
-    .icon-red { background-color: #fee2e2; color: #ef4444; }
-    .icon-green { background-color: #dcfce7; color: #22c55e; }
-    /* Warna baru untuk PR dan WO */
-    .icon-orange { background-color: #fef3c7; color: #d97706; } 
-    .icon-purple { background-color: #ede9fe; color: #7c3aed; } 
-    
-    /* Ubah grid grafik jadi 2 kolom (Kiri lebih lebar untuk chart, kanan untuk To-Do List) */
-    .baris-grafik { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }
-    .kartu-grafik { background-color: var(--white); padding: 24px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid #f3f4f6; }
-    .kartu-grafik h3 { font-size: 16px; margin-bottom: 20px; color: var(--text-main); border-bottom: 1px solid #f3f4f6; padding-bottom: 15px; }
-    .wadah-gambar { width: 100%; height: 300px; background-color: var(--white); border-radius: 12px; display: flex; align-items: center; justify-content: center; position: relative; }
-    .wadah-todo { width: 100%; height: 300px; background-color: #f9fafb; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px dashed #e5e7eb; }
-    
-    @media (max-width: 1024px) {
-        .baris-grafik { grid-template-columns: 1fr; }
+    .dashboard-admin h1 { font-size: 26px; color: var(--text-main); margin: 0 0 8px; }
+    .dashboard-admin .subtitle { color: var(--text-muted); font-size: 14px; margin: 0 0 24px; }
+
+    .dashboard-admin .baris-kpi {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 16px;
+        margin-bottom: 28px;
+    }
+    .dashboard-admin .kartu-kpi {
+        min-height: 128px;
+        box-sizing: border-box;
+        background: #ffffff;
+        padding: 18px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        border: 1px solid #e2e8f0;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .dashboard-admin .kartu-kpi:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.09);
+    }
+    .dashboard-admin .kpi-teks { min-width: 0; }
+    .dashboard-admin .kpi-teks h3 {
+        font-size: 12px;
+        color: var(--text-muted);
+        font-weight: 600;
+        line-height: 1.4;
+        margin: 0 0 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+    }
+    .dashboard-admin .kpi-teks .angka {
+        font-size: 32px;
+        font-weight: 700;
+        color: var(--text-main);
+        line-height: 1;
+        margin: 0;
+    }
+
+    .dashboard-admin .icon-box {
+        width: 52px;
+        height: 52px;
+        flex: 0 0 52px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+    }
+    .dashboard-admin .icon-blue { background: #eff6ff; color: #2563eb; }
+    .dashboard-admin .icon-red { background: #fef2f2; color: #dc2626; }
+    .dashboard-admin .icon-green { background: #f0fdf4; color: #16a34a; }
+    .dashboard-admin .icon-orange { background: #fffbeb; color: #d97706; }
+
+    .dashboard-admin .baris-grafik {
+        display: grid;
+        grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+        gap: 20px;
+    }
+    .dashboard-admin .kartu-grafik {
+        min-width: 0;
+        background: #ffffff;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+        border: 1px solid #e2e8f0;
+    }
+    .dashboard-admin .kartu-grafik h3 {
+        font-size: 15px;
+        margin: 0 0 16px;
+        color: var(--text-main);
+        border-bottom: 1px solid #e2e8f0;
+        padding-bottom: 12px;
+    }
+    .dashboard-admin .wadah-gambar {
+        width: 100%;
+        height: 300px;
+        background: #ffffff;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+    .dashboard-admin .wadah-todo {
+        width: 100%;
+        height: 300px;
+        background: #f8fafc;
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border: 1px dashed #cbd5e1;
+    }
+
+    @media (max-width: 1199px) {
+        .dashboard-admin .baris-kpi { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        .dashboard-admin .baris-grafik { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 700px) {
+        .dashboard-admin .baris-kpi { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+        .dashboard-admin .kartu-kpi { padding: 14px; }
+        .dashboard-admin .icon-box { width: 44px; height: 44px; flex-basis: 44px; font-size: 19px; }
+    }
+    @media (max-width: 480px) {
+        .dashboard-admin .baris-kpi { grid-template-columns: 1fr; }
+        .dashboard-admin .kartu-kpi { min-height: 100px; }
+        .dashboard-admin .kartu-grafik { padding: 16px; }
     }
 </style>
 @endpush
 
 @section('konten')
+<div class="dashboard-admin">
     <h1>Dashboard Overview</h1>
-    <p class="subtitle">Monitoring data operasional perusahaan secara *real-time*.</p>
+    <p class="subtitle">Monitoring data operasional perusahaan secara real-time.</p>
 
     <!-- KARTU KPI (DATA REAL-TIME) -->
     <div class="baris-kpi">
@@ -48,13 +135,13 @@
                 <h3>Total COA</h3>
                 <p class="angka">{{ number_format($totalCoa ?? 0, 0, ',', '.') }}</p>
             </div>
-            <div class="icon-box icon-gold"><i class="fas fa-certificate"></i></div>
+            <div class="icon-box icon-blue"><i class="fas fa-certificate"></i></div>
         </div>
         
         <div class="kartu-kpi">
             <div class="kpi-teks">
                 <h3>CAPA Terbuka</h3>
-                <p class="angka" style="color: #ef4444;">{{ number_format($capaTerbuka ?? 0, 0, ',', '.') }}</p>
+                <p class="angka" style="color: #dc2626;">{{ number_format($capaTerbuka ?? 0, 0, ',', '.') }}</p>
             </div>
             <div class="icon-box icon-red"><i class="fas fa-folder-open"></i></div>
         </div>
@@ -62,7 +149,7 @@
         <div class="kartu-kpi">
             <div class="kpi-teks">
                 <h3>CAPA Selesai</h3>
-                <p class="angka" style="color: #22c55e;">{{ number_format($capaSelesai ?? 0, 0, ',', '.') }}</p>
+                <p class="angka" style="color: #16a34a;">{{ number_format($capaSelesai ?? 0, 0, ',', '.') }}</p>
             </div>
             <div class="icon-box icon-green"><i class="fas fa-folder-check"></i></div>
         </div>
@@ -78,9 +165,9 @@
         <div class="kartu-kpi">
             <div class="kpi-teks">
                 <h3>WO In-Proses</h3>
-                <p class="angka" style="color: #7c3aed;">{{ number_format($woAktif ?? 0, 0, ',', '.') }}</p>
+                <p class="angka" style="color: #2563eb;">{{ number_format($woAktif ?? 0, 0, ',', '.') }}</p>
             </div>
-            <div class="icon-box icon-purple"><i class="fas fa-industry"></i></div>
+            <div class="icon-box icon-blue"><i class="fas fa-industry"></i></div>
         </div>
     </div>
 
@@ -105,6 +192,7 @@
         </div>
         
     </div>
+</div>
 @endsection
 
 @push('scripts')
@@ -134,8 +222,8 @@
                 datasets: [{
                     label: 'Total Reject (Pcs)',
                     data: chartValues,
-                    backgroundColor: 'rgba(239, 68, 68, 0.8)', // Merah
-                    borderColor: '#ef4444',
+                    backgroundColor: 'rgba(37, 99, 235, 0.8)',
+                    borderColor: '#2563eb',
                     borderWidth: 1,
                     borderRadius: 6
                 }]
