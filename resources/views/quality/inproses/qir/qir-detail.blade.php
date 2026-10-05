@@ -78,7 +78,7 @@
 
 @section('konten')
 <div style="max-width: 1100px; margin: 0 auto 20px auto; display: flex; gap: 10px;" class="no-print">
-    <a href="{{ url('/qir') }}" class="btn-action btn-back"><i class="fas fa-arrow-left"></i> Kembali ke Riwayat</a>
+    <a href="{{ url('/qir/riwayat') }}" class="btn-action btn-back"><i class="fas fa-arrow-left"></i> Kembali ke Riwayat</a>
     <button onclick="window.print()" class="btn-action btn-print"><i class="fas fa-print"></i> Cetak / Print Dokumen</button>
 </div>
 

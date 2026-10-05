@@ -125,6 +125,7 @@
                         <th>No. MM</th>
                         <th>Nama Item</th> <!-- Kolom Baru -->
                         <th>Shift</th>
+                        <th>Line</th>
                         <th>Status Edit</th>
                         <th style="width: 240px;">Aksi</th>
                     </tr>
@@ -140,7 +141,8 @@
                         <!-- Data Nama Item Baru -->
                         <td>{{ $row->nama_material ?? '-' }}</td> 
                         
-                        <td><span class="badge-shift">Shift {{ $row->shift ?? '1' }}</span></td>
+                        <td><span class="badge-shift">{{ $row->shift ?? 'Shift 1' }}</span></td>
+                        <td>{{ $row->line_produksi ?? '-' }}</td>
                         <td>
                             @if(isset($row->pernah_diedit) && $row->pernah_diedit)
                                 <span style="color: #d97706; font-weight: bold;"><i class="fas fa-pen-alt"></i> Pernah Diedit</span>
@@ -173,8 +175,8 @@
                     </tr>
                     @empty
                     <tr>
-                        <!-- Colspan diubah dari 7 menjadi 8 karena ada tambahan 1 kolom -->
-                        <td colspan="8" class="empty-row"> 
+                        <!-- Colspan menyesuaikan jumlah kolom tabel -->
+                        <td colspan="9" class="empty-row">
                             <i class="fas fa-folder-open" style="font-size: 24px; color: #cbd5e1; display: block; margin-bottom: 10px;"></i>
                             Belum ada riwayat inspeksi QIR yang tersimpan.
                         </td>
