@@ -261,8 +261,8 @@ Route::get('/in-proses/fg/get-defect-categories/{customer_id}', [InprosesFgContr
     });
     
 
-    // === KELOMPOK CAPA SUPPLIER & CUSTOMER (INTERNAL QUALITY/ADMIN) ===
-    Route::middleware(['role:quality,admin'])->group(function () {
+    // === KELOMPOK CAPA SUPPLIER & CUSTOMER (STAFF QUALITY/QUALITY/ADMIN) ===
+    Route::middleware(['role:staff_quality,quality,admin'])->group(function () {
         Route::get('/capa-8d/supplier/create', [CapaSupplierController::class, 'create']);
         Route::post('/capa-8d/supplier/store', [CapaSupplierController::class, 'store']);
         Route::get('/capa-8d/supplier/print/{id}', [CapaSupplierController::class, 'print']);
@@ -280,8 +280,10 @@ Route::get('/in-proses/fg/get-defect-categories/{customer_id}', [InprosesFgContr
     });
 
     // === RUTE KHUSUS PORTAL SUPPLIER ===
+    Route::get('/capa-8d/supplier', [HanyaSupplierCapaController::class, 'index'])
+        ->middleware(['role:supplier,staff_quality,admin,quality']);
+
     Route::middleware(['role:supplier,admin,quality'])->group(function () {
-        Route::get('/capa-8d/supplier', [HanyaSupplierCapaController::class, 'index']);
         Route::get('/capa-8d/supplier/form/{id}', [HanyaSupplierCapaController::class, 'supplierForm']);
         Route::post('/capa-8d/supplier/submit/{id}', [HanyaSupplierCapaController::class, 'supplierSubmit']);
     });

@@ -6,6 +6,25 @@
 <style>
     .dashboard-admin h1 { font-size: 26px; color: var(--text-main); margin: 0 0 8px; }
     .dashboard-admin .subtitle { color: var(--text-muted); font-size: 14px; margin: 0 0 24px; }
+    .dashboard-admin .welcome-banner {
+        background: linear-gradient(135deg, #1e293b, #0f172a);
+        color: #ffffff;
+        padding: 22px 28px;
+        border-radius: 12px;
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        margin-bottom: 24px;
+        border-left: 6px solid #3b82f6;
+    }
+    .dashboard-admin .welcome-banner h2 {
+        margin: 0 0 6px;
+        font-size: 22px;
+    }
+    .dashboard-admin .welcome-banner p {
+        margin: 0;
+        font-size: 13px;
+        color: #94a3b8;
+        line-height: 1.5;
+    }
 
     .dashboard-admin .baris-kpi {
         display: grid;
@@ -125,6 +144,11 @@
 
 @section('konten')
 <div class="dashboard-admin">
+    <div class="welcome-banner">
+        <h2>Halo, {{ $user->name }}! 👋</h2>
+        <p>Selamat datang di Dashboard Admin. Semoga aktivitas hari ini berjalan lancar dan produktif!</p>
+    </div>
+
     <h1>Dashboard Overview</h1>
     <p class="subtitle">Monitoring data operasional perusahaan secara real-time.</p>
 

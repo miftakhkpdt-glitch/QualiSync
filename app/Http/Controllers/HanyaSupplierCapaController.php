@@ -12,7 +12,7 @@ class HanyaSupplierCapaController extends Controller
     {
         $user = auth()->user();
 
-        if ($user->role === 'admin' || $user->role === 'quality') {
+        if (in_array(strtolower($user->role), ['admin', 'quality', 'staff_quality'], true)) {
             return (new CapaSupplierController())->index();
         }
 
