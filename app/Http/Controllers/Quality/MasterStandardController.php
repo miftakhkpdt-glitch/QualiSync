@@ -77,7 +77,7 @@ class MasterStandardController extends Controller
                             'n'              => $request->n[$i] ?? null,
                             // -------------------------------------------------------
 
-                            'urutan'         => $i + 1, // Agar posisinya tidak tertukar
+                            'urutan'         => count($dataToInsert) + 1, // Simpan sesuai urutan baris
                             'created_at'     => now(),
                             'updated_at'     => now(),
                         ];

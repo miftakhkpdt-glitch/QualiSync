@@ -21,6 +21,8 @@
     .btn-add { background-color: #10b981; margin-top: 15px; }
     .btn-save { background-color: #3b82f6; }
     .btn-remove { background-color: #ef4444; padding: 8px 12px; }
+    .btn-move { background-color: #64748b; padding: 8px 10px; }
+    .btn-move:disabled { background-color: #cbd5e1; cursor: not-allowed; }
     
     .bg-yasulor-header { background-color: #e0f2fe !important; color: #0369a1 !important; }
 </style>
@@ -97,6 +99,8 @@
                                 <td><input type="text" name="n[]" class="input-box" value="{{ $std->n }}" placeholder="n"></td>
 
                                 <td style="text-align: center;">
+                                    <button type="button" class="btn-action btn-move btn-move-up" aria-label="Naikkan parameter" title="Naikkan parameter"><i class="fas fa-arrow-up"></i></button>
+                                    <button type="button" class="btn-action btn-move btn-move-down" aria-label="Turunkan parameter" title="Turunkan parameter"><i class="fas fa-arrow-down"></i></button>
                                     <button type="button" class="btn-action btn-remove"><i class="fas fa-trash"></i></button>
                                 </td>
                             </tr>
@@ -127,6 +131,8 @@
                                 <td><input type="text" name="n[]" class="input-box" placeholder="n"></td>
 
                                 <td style="text-align: center;">
+                                    <button type="button" class="btn-action btn-move btn-move-up" aria-label="Naikkan parameter" title="Naikkan parameter"><i class="fas fa-arrow-up"></i></button>
+                                    <button type="button" class="btn-action btn-move btn-move-down" aria-label="Turunkan parameter" title="Turunkan parameter"><i class="fas fa-arrow-down"></i></button>
                                     <button type="button" class="btn-action btn-remove"><i class="fas fa-trash"></i></button>
                                 </td>
                             </tr>
@@ -179,6 +185,8 @@
                     <td><input type="text" name="n[]" class="input-box" placeholder="n"></td>
 
                     <td style="text-align: center;">
+                        <button type="button" class="btn-action btn-move btn-move-up" aria-label="Naikkan parameter" title="Naikkan parameter"><i class="fas fa-arrow-up"></i></button>
+                        <button type="button" class="btn-action btn-move btn-move-down" aria-label="Turunkan parameter" title="Turunkan parameter"><i class="fas fa-arrow-down"></i></button>
                         <button type="button" class="btn-action btn-remove"><i class="fas fa-trash"></i></button>
                     </td>
                 </tr>
@@ -193,10 +201,26 @@
             reindexRows();
         });
 
+        // Pindahkan baris tanpa mengubah nilai input di dalamnya
+        $(document).on('click', '.btn-move-up', function() {
+            const row = $(this).closest('tr');
+            row.prev('tr').before(row);
+            reindexRows();
+        });
+
+        $(document).on('click', '.btn-move-down', function() {
+            const row = $(this).closest('tr');
+            row.next('tr').after(row);
+            reindexRows();
+        });
+
         // Rapikan Nomor Urut
         function reindexRows() {
-            $('#tbody-parameter tr').each(function(index) {
+            const rows = $('#tbody-parameter tr');
+            rows.each(function(index) {
                 $(this).find('.row-number').text(index + 1);
+                $(this).find('.btn-move-up').prop('disabled', index === 0);
+                $(this).find('.btn-move-down').prop('disabled', index === rows.length - 1);
             });
         }
         reindexRows();
