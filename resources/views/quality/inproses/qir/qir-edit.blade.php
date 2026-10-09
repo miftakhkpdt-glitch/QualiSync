@@ -198,6 +198,61 @@
             reindexSamples();
         });
 
+        function validateNumberRange(inputEl) {
+            const $input = $(inputEl);
+            const raw = $input.val();
+            if (raw === '' || raw === null) {
+                $input.data('range-alerted', false);
+                $input.css('border-color', '#cbd5e1');
+                return true;
+            }
+
+            const name = $input.attr('name');
+            const match = name.match(/hasil_aktual\[\d+\]\[(\d+)\]/);
+            if (!match) return true;
+
+            const paramId = Number(match[1]);
+            const param = currentParameters.find(p => Number(p.id) === paramId);
+            if (!param || param.tipe_input !== 'Angka') return true;
+
+            const value = Number(raw);
+            const min = param.min_value !== null && param.min_value !== '' ? Number(param.min_value) : null;
+            const max = param.max_value !== null && param.max_value !== '' ? Number(param.max_value) : null;
+
+            if ((min !== null && value < min) || (max !== null && value > max)) {
+                $input.css('border-color', '#ef4444');
+                const alerted = $input.data('range-alerted') === true;
+                if (!alerted) {
+                    $input.data('range-alerted', true);
+                    $input.focus();
+                    alert('Nilai di luar range standar untuk parameter: ' + (param.nama_parameter || 'this parameter'));
+                }
+                return false;
+            }
+
+            $input.data('range-alerted', false);
+            $input.css('border-color', '#cbd5e1');
+            return true;
+        }
+
+        $('#table-body input[type="number"]').off('blur.rangeCheck keydown.rangeCheck input.rangeCheck').on('blur.rangeCheck', function(e) {
+            if (!validateNumberRange(this)) {
+                e.preventDefault();
+                this.focus();
+                return false;
+            }
+        }).on('keydown.rangeCheck', function(e) {
+            if (e.key === 'Enter' || e.key === 'Tab') {
+                if (!validateNumberRange(this)) {
+                    e.preventDefault();
+                    return false;
+                }
+            }
+        }).on('input.rangeCheck', function() {
+            $(this).data('range-alerted', false);
+            $(this).css('border-color', '#cbd5e1');
+        });
+
         function reindexSamples() {
             let currentCount = 0;
             $('#table-body tr').each(function() {
