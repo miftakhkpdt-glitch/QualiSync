@@ -177,9 +177,11 @@
                     <label class="form-label-custom">
                         Nomor Batch <span style="color: #e74a3b;">*</span>
                     </label>
-                    <input type="text" name="no_batch" class="form-control-custom" placeholder="Contoh: 2601 atau 2601, 2602, 2603" required>
+                    <select name="no_batch[]" id="batch_select" class="form-control-custom" multiple size="8" required style="min-height: 120px;">
+                        <option value="">-- Pilih material terlebih dahulu --</option>
+                    </select>
                     <span class="form-help-text">
-                        <i class="fas fa-info-circle"></i> Pisahkan dengan koma jika ingin menggabungkan beberapa batch (contoh: <code style="background:#e3e6f0; padding:2px 5px; border-radius:3px; color:#333;">2601, 2602</code>).
+                        <i class="fas fa-info-circle"></i> Pilih satu atau beberapa batch yang sudah ada pada QIR untuk material ini.
                     </span>
                 </div>
 
@@ -207,6 +209,49 @@
             width: '100%',
             minimumResultsForSearch: 0,
             placeholder: '-- Pilih Material --'
+        });
+
+        function populateBatchOptions(noMm) {
+            const batchSelect = $('#batch_select');
+            batchSelect.empty();
+
+            if (!noMm) {
+                batchSelect.append(new Option('-- Pilih material terlebih dahulu --', '', true, true));
+                batchSelect.prop('disabled', true);
+                return;
+            }
+
+            batchSelect.prop('disabled', true);
+            batchSelect.append(new Option('Memuat batch...', '', true, true));
+
+            const batchUrl = `{{ url('/coa/batches') }}/${encodeURIComponent(noMm)}`;
+
+            fetch(batchUrl)
+                .then(response => response.json())
+                .then(data => {
+                    batchSelect.empty();
+
+                    if (!Array.isArray(data) || data.length === 0) {
+                        batchSelect.append(new Option('Belum ada batch pada QIR untuk material ini', '', true, true));
+                        batchSelect.prop('disabled', true);
+                        return;
+                    }
+
+                    data.forEach(function(batch) {
+                        batchSelect.append(new Option(batch, batch, false, false));
+                    });
+
+                    batchSelect.prop('disabled', false);
+                })
+                .catch(() => {
+                    batchSelect.empty();
+                    batchSelect.append(new Option('Gagal memuat batch', '', true, true));
+                    batchSelect.prop('disabled', true);
+                });
+        }
+
+        $('#no_mm').on('change', function() {
+            populateBatchOptions($(this).val());
         });
     });
 </script>

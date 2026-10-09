@@ -240,6 +240,7 @@ Route::get('/in-proses/fg/get-defect-categories/{customer_id}', [InprosesFgContr
 
     // Halaman Form Pemilihan Material & Batch Awal
     Route::get('/coa/create', [CoaController::class, 'create'])->name('coa.create');
+    Route::get('/coa/batches/{noMm}', [CoaController::class, 'getBatchesByMaterial'])->name('coa.batches');
 
     // Proses Validasi Data QIR dari Form Awal
     Route::post('/coa/process', [CoaController::class, 'process'])->name('coa.process');

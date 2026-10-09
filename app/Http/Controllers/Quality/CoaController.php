@@ -39,6 +39,21 @@ class CoaController extends Controller
         return view('quality.coa.coa-create', compact('masterItems'));
     }
 
+    public function getBatchesByMaterial($noMm)
+    {
+        $batches = DB::table('qir_records')
+            ->where('no_mm', $noMm)
+            ->select('no_batch')
+            ->distinct()
+            ->orderBy('no_batch', 'asc')
+            ->pluck('no_batch')
+            ->map(fn ($batch) => (string) $batch)
+            ->values()
+            ->all();
+
+        return response()->json($batches);
+    }
+
     public function process(Request $request)
     {
         $batch = $request->input('no_batch');
@@ -48,7 +63,11 @@ class CoaController extends Controller
             return redirect()->back()->with('error', 'Nomor Batch dan No. MM wajib diisi!');
         }
 
-        $batchArray = array_map('trim', explode(',', $batch));
+        if (is_array($batch)) {
+            $batch = implode(',', array_filter(array_map('trim', $batch), fn ($value) => $value !== ''));
+        }
+
+        $batchArray = array_map('trim', array_filter(explode(',', (string) $batch), fn ($value) => $value !== ''));
 
         // Cek apakah QIR untuk batch tersebut ada
         $records = DB::table('qir_records')
