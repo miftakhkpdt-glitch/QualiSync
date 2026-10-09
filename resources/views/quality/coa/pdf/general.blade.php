@@ -15,30 +15,31 @@
             background-color: #525659;
         }
         @page {
-            size: A4;
-            margin: 10mm 15mm;
+            size: A4 portrait;
+            margin: 6mm 8mm;
         }
         .page-container {
             width: 100%;
-            max-width: 800px;
-            margin: 20px auto;
+            max-width: 760px;
+            margin: 8px auto;
             background: #fff;
-            padding: 40px 50px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+            padding: 18px 22px 12px 22px;
+            box-shadow: 0 0 8px rgba(0,0,0,0.18);
             box-sizing: border-box;
+            page-break-inside: avoid;
         }
 
         .print-btn-wrapper { text-align: center; margin-bottom: 20px; }
         .btn-print { background: #4e73df; color: white; padding: 10px 20px; border: none; border-radius: 4px; font-size: 14px; font-weight: bold; cursor: pointer; text-decoration: none; display: inline-block; }
 
         /* 1. Header Tanpa Grid Outer Box */
-        .header-table { width: 100%; margin-bottom: 20px; border-collapse: collapse; }
+        .header-table { width: 100%; margin-bottom: 12px; border-collapse: collapse; }
         .header-table td { vertical-align: top; border: none; padding: 0; }
-        .header-left { font-weight: bold; font-size: 11px; line-height: 1.4; width: 30%; }
+        .header-left { font-weight: bold; font-size: 10.5px; line-height: 1.4; width: 30%; }
         .header-center { text-align: center; width: 40%; }
-        .header-center .doc-title { font-size: 14px; font-weight: bold; text-transform: uppercase; }
-        .header-center .doc-no { font-size: 11px; font-weight: bold; margin-top: 4px; }
-        .header-right { text-align: right; font-size: 11px; line-height: 1.4; width: 30%; }
+        .header-center .doc-title { font-size: 13px; font-weight: bold; text-transform: uppercase; }
+        .header-center .doc-no { font-size: 10.5px; font-weight: bold; margin-top: 4px; }
+        .header-right { text-align: right; font-size: 10.5px; line-height: 1.4; width: 30%; }
 
         /* 2. General Information Grid Table */
         .info-grid { width: 100%; border-collapse: collapse; border: 1.5px solid #000; margin-bottom: 12px; }
@@ -51,16 +52,16 @@
         .expire-note span { font-weight: normal; }
 
         /* 3. Analysis Table */
-        .analysis-table { width: 100%; border-collapse: collapse; border: 1.5px solid #000; margin-bottom: 18px; }
-        .analysis-table th, .analysis-table td { border: 1px solid #000; padding: 8px 10px; font-size: 11px; }
+        .analysis-table { width: 100%; border-collapse: collapse; border: 1.5px solid #000; margin-bottom: 12px; }
+        .analysis-table th, .analysis-table td { border: 1px solid #000; padding: 5px 6px; font-size: 10px; }
         .analysis-table th { font-weight: bold; text-align: center; }
-        .analysis-sec-title { text-align: left !important; font-size: 11.5px; padding: 8px 10px !important; }
+        .analysis-sec-title { text-align: left !important; font-size: 11px; padding: 6px 8px !important; }
 
         /* 4. Conclusion Box */
-        .conclusion-box { border: 1.5px solid #000; padding: 10px 12px; font-size: 11px; margin-bottom: 15px; }
+        .conclusion-box { border: 1.5px solid #000; padding: 8px 10px; font-size: 10.5px; margin-bottom: 10px; }
         
         /* 5. Remark & Signature Box */
-        .remark-signature-box { border: 1.5px solid #000; padding: 12px 15px; min-height: 130px; position: relative; font-size: 11px; }
+        .remark-signature-box { border: 1.5px solid #000; padding: 10px 12px; min-height: 110px; position: relative; font-size: 10.5px; }
         .signature-wrapper { position: absolute; right: 15px; bottom: 12px; text-align: right; }
         .signature-group { display: inline-block; text-align: center; margin-left: 15px; vertical-align: bottom; }
         
@@ -81,8 +82,16 @@
 
         @media print {
             .no-print, .print-btn-wrapper { display: none !important; }
-            .page-container { margin: 0; padding: 0; box-shadow: none; max-width: 100%; width: 100%; }
             body { background: transparent; -webkit-print-color-adjust: exact; }
+            .page-container {
+                margin: 0;
+                padding: 0;
+                box-shadow: none;
+                max-width: 100%;
+                width: 100%;
+                page-break-inside: avoid;
+                overflow: hidden;
+            }
         }
         
     </style>
