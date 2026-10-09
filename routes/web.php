@@ -130,7 +130,11 @@ Route::match(['get', 'post'], '/logout', function (Request $request) {
 */
 
 Route::middleware(['auth'])->group(function () {
-    
+        Route::middleware(['role:admin'])->group(function () {
+        Route::delete('/qir/delete/{id}', [App\Http\Controllers\Quality\QirController::class, 'destroy']);
+        Route::delete('/in-proses/fg/delete/{id}', [App\Http\Controllers\Quality\InprosesFgController::class, 'destroy']);
+        Route::delete('/coa/{id}', [CoaController::class, 'destroy'])->name('coa.destroy');
+    });
     Route::get('/home', [HomeController::class, 'index'])->name('home');
     Route::post('/home', [HomeController::class, 'index']);
     Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');
@@ -162,7 +166,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/qir/riwayat', [QirController::class, 'history']);
         Route::post('/qir/update/{id}', [App\Http\Controllers\Quality\QirController::class, 'update']);
         Route::post('/qir-detail', [QirController::class, 'store']);
-        Route::delete('/qir/delete/{id}', [App\Http\Controllers\Quality\QirController::class, 'destroy']);
         // 1. Route untuk AJAX (Tarik data master otomatis)
         Route::get('/qir/get-master-standard/{no_mm}', [App\Http\Controllers\Quality\QirController::class, 'getMasterStandard']);
         
@@ -220,7 +223,6 @@ Route::post('/in-proses/fg/store', [InprosesFgController::class, 'store'])->name
         Route::get('/in-proses/fg', [InprosesFgController::class, 'menu']);
         Route::get('/inproses/fg', [InprosesFgController::class, 'menu']);
         Route::get('/in-proses/fg/edit/{id}', [App\Http\Controllers\Quality\InprosesFgController::class, 'edit']);
-Route::delete('/in-proses/fg/delete/{id}', [App\Http\Controllers\Quality\InprosesFgController::class, 'destroy']);
 Route::put('/in-proses/fg/update/{id}', [App\Http\Controllers\Quality\InprosesFgController::class, 'update']);
 Route::get('/in-proses/fg/cpk', [CpkController::class, 'index']);
 // Route untuk mengambil kategori defect secara dinamis berdasarkan customer
@@ -251,7 +253,6 @@ Route::get('/in-proses/fg/get-defect-categories/{customer_id}', [InprosesFgContr
     // Cetak Dokumen PDF berdasarkan ID (Snapshot)
     Route::get('/print-coa/{id}', [CoaController::class, 'print'])->name('coa.print');
 
-    Route::delete('/coa/{id}', [CoaController::class, 'destroy'])->name('coa.destroy');
         
         // Rute Mutasi Stok Keluar (Quality)
         Route::get('/quality/mutasi-stok', [MutasiStokController::class, 'mutasiKeluarIndex'])->name('quality.mutasi_keluar.index');

@@ -105,8 +105,8 @@
                             <a href="{{ url('/in-proses/fg/edit/' . $data->id) }}" class="btn-aksi btn-edit" title="Edit Data">
                                 <i class="fas fa-edit"></i>
                             </a>
-                            
-                            <!-- Tombol Hapus -->
+
+                            @if(strtolower(auth()->user()->role ?? '') === 'admin')
                             <form action="{{ url('/in-proses/fg/delete/' . $data->id) }}" method="POST" style="margin: 0;" onsubmit="return confirm('Yakin ingin menghapus data inspeksi ini beserta seluruh detail temuan di dalamnya? Data yang dihapus tidak dapat dikembalikan.');">
                                 @csrf
                                 @method('DELETE')
@@ -114,6 +114,7 @@
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </form>
+                            @endif
                         </div>
                     </td>
                 </tr>

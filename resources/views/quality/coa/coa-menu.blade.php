@@ -137,6 +137,7 @@
                                     <i class="fas fa-print"></i> Cetak
                                 </a>
 
+                                @if(strtolower(auth()->user()->role ?? '') === 'admin')
                                 <form action="{{ url('/coa/' . $item->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus dokumen {{ $item->no_coa }} ini?');" style="display: inline;">
                                     @csrf
                                     @method('DELETE')
@@ -144,6 +145,7 @@
                                         <i class="fas fa-trash"></i> Hapus
                                     </button>
                                 </form>
+                                @endif
                             </div>
                         </td>
                     </tr>
