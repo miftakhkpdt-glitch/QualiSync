@@ -13,20 +13,25 @@
             margin: 0;
             padding: 0;
             background-color: #525659;
+            display: flex;
+            justify-content: center;
         }
         @page {
             size: A4 portrait;
-            margin: 6mm 8mm;
+            margin: 7mm 6mm 6mm 6mm;
         }
         .page-container {
-            width: 100%;
-            max-width: 760px;
+            width: 188mm;
+            max-width: calc(100vw - 32px);
             margin: 8px auto;
             background: #fff;
-            padding: 18px 22px 12px 22px;
+            padding: 14px 16px 10px 16px;
             box-shadow: 0 0 8px rgba(0,0,0,0.18);
             box-sizing: border-box;
             page-break-inside: avoid;
+            display: block;
+            position: relative;
+            overflow: visible;
         }
 
         .print-btn-wrapper { text-align: center; margin-bottom: 20px; }
@@ -35,11 +40,12 @@
         /* 1. Header Tanpa Grid Outer Box */
         .header-table { width: 100%; margin-bottom: 12px; border-collapse: collapse; }
         .header-table td { vertical-align: top; border: none; padding: 0; }
-        .header-left { font-weight: bold; font-size: 10.5px; line-height: 1.4; width: 30%; }
+        .header-left { font-weight: bold; font-size: 10px; line-height: 1.25; width: 30%; padding-top: 2px; }
+        .header-left strong { display: inline-block; line-height: 1.15; }
         .header-center { text-align: center; width: 40%; }
-        .header-center .doc-title { font-size: 13px; font-weight: bold; text-transform: uppercase; }
-        .header-center .doc-no { font-size: 10.5px; font-weight: bold; margin-top: 4px; }
-        .header-right { text-align: right; font-size: 10.5px; line-height: 1.4; width: 30%; }
+        .header-center .doc-title { font-size: 12.5px; font-weight: bold; text-transform: uppercase; line-height: 1.2; }
+        .header-center .doc-no { font-size: 10px; font-weight: bold; margin-top: 4px; }
+        .header-right { text-align: right; font-size: 10px; line-height: 1.3; width: 30%; }
 
         /* 2. General Information Grid Table */
         .info-grid { width: 100%; border-collapse: collapse; border: 1.5px solid #000; margin-bottom: 12px; }
@@ -82,15 +88,20 @@
 
         @media print {
             .no-print, .print-btn-wrapper { display: none !important; }
-            body { background: transparent; -webkit-print-color-adjust: exact; }
+            body {
+                background: transparent;
+                display: block;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
             .page-container {
-                margin: 0;
-                padding: 0;
+                margin: 0 auto !important;
+                padding: 0 0 4mm 0;
                 box-shadow: none;
                 max-width: 100%;
                 width: 100%;
                 page-break-inside: avoid;
-                overflow: hidden;
+                overflow: visible;
             }
         }
         
@@ -188,11 +199,14 @@
                     <th colspan="5" class="analysis-sec-title">ANALYSIS SECTION</th>
                 </tr>
                 <tr>
-                    <th style="width: 35%;">CRITICAL PROPERTY</th>
-                    <th style="width: 12%;">UOM</th>
+                    <th style="width: 35%;" rowspan="2">CRITICAL PROPERTY</th>
+                    <th style="width: 12%;" rowspan="2">UOM</th>
+                    <th colspan="2" style="width: 36%;">STANDARD</th>
+                    <th style="width: 17%;" rowspan="2">TEST RESULT (AVG)</th>
+                </tr>
+                <tr>
                     <th style="width: 18%;">MINIMUM</th>
                     <th style="width: 18%;">MAXIMUM</th>
-                    <th style="width: 17%;">TEST RESULT (AVG)</th>
                 </tr>
             </thead>
             <tbody>
@@ -201,16 +215,21 @@
                 @endphp
 
                 @forelse($listParameters as $param)
-                    @php $item = (object) $param; @endphp
+                    @php
+                        $item = (object) $param;
+                        $minValue = $item->min_val ?? $item->min_value ?? null;
+                        $maxValue = $item->max_val ?? $item->max_value ?? null;
+                        $standardText = trim((string) ($item->standar_text ?? $item->standar_teks ?? ''));
+                    @endphp
                     <tr>
                         <td style="text-align: left; padding-left: 8px;">{{ $item->nama_parameter ?? $item->parameter_name ?? '-' }}</td>
                         <td style="text-align: center;">{{ $item->uom ?? $item->satuan ?? '-' }}</td>
-                        
-                        @if(!empty($item->min_val) || !empty($item->min_value))
-                            <td style="text-align: center;">{{ $item->min_val ?? $item->min_value }}</td>
-                            <td style="text-align: center;">{{ $item->max_val ?? $item->max_value }}</td>
+
+                        @if(!empty($minValue) || !empty($maxValue))
+                            <td style="text-align: center;">{{ $minValue ?? '-' }}</td>
+                            <td style="text-align: center;">{{ $maxValue ?? '-' }}</td>
                         @else
-                            <td colspan="2" style="text-align: center;">{{ $item->standar_text ?? $item->standar_teks ?? '-' }}</td>
+                            <td colspan="2" style="text-align: center;">{{ $standardText !== '' ? $standardText : '-' }}</td>
                         @endif
 
                         <td style="text-align: center; font-weight: bold;">{{ $item->result_avg ?? $item->hasil ?? '-' }}</td>
