@@ -32,6 +32,7 @@ use App\Http\Controllers\Quality\CapaCustomerController;
 use App\Http\Controllers\Quality\IncomingVerificationController;
 use App\Http\Controllers\Quality\StokController as QualityStokController;
 use App\Http\Controllers\Quality\SupplierPerformanceController;
+use App\Http\Controllers\Quality\CalibrationController;
 use App\Http\Controllers\Quality\CpkController;
 use App\Http\Controllers\Quality\MasterParameterController;
 use App\Http\Controllers\Quality\MasterAqlController;
@@ -298,6 +299,25 @@ Route::prefix('quality/supplier-performance')->name('quality.supplier_performanc
     Route::post('/store', [SupplierPerformanceController::class, 'store'])->name('store');
     Route::post('/print', [SupplierPerformanceController::class, 'print'])->name('print');
 });
+
+Route::middleware(['role:admin,staff_quality'])
+    ->prefix('quality/kalibrasi')
+    ->name('quality.calibration.')
+    ->group(function () {
+        Route::get('/checklist', [CalibrationController::class, 'checklist'])->name('checklist.index');
+        Route::get('/checklist/create', [CalibrationController::class, 'createEquipment'])->name('checklist.create');
+        Route::post('/checklist', [CalibrationController::class, 'storeEquipment'])->name('checklist.store');
+        Route::get('/checklist/{equipment}/edit', [CalibrationController::class, 'editEquipment'])->name('checklist.edit');
+        Route::put('/checklist/{equipment}', [CalibrationController::class, 'updateEquipment'])->name('checklist.update');
+        Route::delete('/checklist/{equipment}', [CalibrationController::class, 'destroyEquipment'])->name('checklist.destroy');
+
+        Route::get('/verifikasi', [CalibrationController::class, 'verifications'])->name('verification.index');
+        Route::get('/verifikasi/create', [CalibrationController::class, 'createVerification'])->name('verification.create');
+        Route::post('/verifikasi', [CalibrationController::class, 'storeVerification'])->name('verification.store');
+        Route::get('/verifikasi/{verification}/edit', [CalibrationController::class, 'editVerification'])->name('verification.edit');
+        Route::put('/verifikasi/{verification}', [CalibrationController::class, 'updateVerification'])->name('verification.update');
+        Route::delete('/verifikasi/{verification}', [CalibrationController::class, 'destroyVerification'])->name('verification.destroy');
+    });
     // Master Standart Item
     Route::middleware(['role:admin,quality'])->group(function () {
         Route::get('/quality/master-items', [App\Http\Controllers\Quality\MasterItemController::class, 'index'])->name('quality.master-item.index');

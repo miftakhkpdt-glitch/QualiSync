@@ -4,6 +4,7 @@
     $isCapaActive = request()->is('capa-8d*');
     $isStokQcActive = request()->routeIs('quality.stok.*') || request()->is('quality/mutasi-stok*') || request()->is('quality/approval-mutasi*');
     $isSupplierActive = request()->is('quality/supplier-performance*'); 
+    $isCalibrationActive = request()->is('quality/kalibrasi*');
 @endphp
 
 <!-- 1. Dashboard Utama -->
@@ -113,6 +114,29 @@
         <i class="fas fa-star-half-alt" style="{{ $isSupplierActive ? 'color: #ffffff;' : 'color: #f59e0b;' }} width: 20px;"></i> 
         <span>Performa Supplier</span>
     </a>
+</li>
+
+<!-- Kalibrasi Alat -->
+<li>
+    <a href="#" onclick="event.preventDefault(); toggleDeptDropdown('kalibrasiQualitySubmenu')" style="{{ $isCalibrationActive ? 'color: #3b82f6; font-weight: bold;' : '' }}">
+        <i class="fas fa-ruler-combined" style="color: #38bdf8; width: 20px;"></i>
+        <span>Kalibrasi Alat</span>
+        <i class="fas fa-chevron-down" style="margin-left: auto; font-size: 13px; {{ $isCalibrationActive ? 'transform: rotate(180deg);' : '' }}"></i>
+    </a>
+    <ul class="sub-menu" id="kalibrasiQualitySubmenu" style="display: {{ $isCalibrationActive ? 'block' : 'none' }}; padding-left: 15px;">
+        <li>
+            <a href="{{ route('quality.calibration.checklist.index') }}" style="{{ request()->routeIs('quality.calibration.checklist.*') ? 'color: #3b82f6; font-weight: bold;' : '' }}">
+                <i class="far fa-circle" style="color: #38bdf8; width: 14px; font-size: 10px;"></i>
+                <span>Checklist Alat Ukur</span>
+            </a>
+        </li>
+        <li>
+            <a href="{{ route('quality.calibration.verification.index') }}" style="{{ request()->routeIs('quality.calibration.verification.*') ? 'color: #3b82f6; font-weight: bold;' : '' }}">
+                <i class="far fa-circle" style="color: #38bdf8; width: 14px; font-size: 10px;"></i>
+                <span>Verifikasi Sertifikat Kalibrasi</span>
+            </a>
+        </li>
+    </ul>
 </li>
 
 <!-- 6. STOK & MUTASI (Dropdown Lengkap) -->

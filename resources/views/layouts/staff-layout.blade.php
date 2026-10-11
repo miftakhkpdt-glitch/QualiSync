@@ -62,7 +62,21 @@
         .sub-menu li a:hover { color: #ffffff; background-color: var(--sidebar-hover); }
 
         .area-kanan { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
-        .konten { padding: 35px 40px; }
+        .konten { padding: 35px 40px; font-size: 14px; }
+        .konten h1,
+        .konten h2,
+        .konten h3,
+        .konten h4,
+        .konten h5,
+        .konten h6 { font-size: 20px !important; }
+        .konten .calibration-page { font-size: 13px; }
+        .konten .calibration-page h2 { font-size: 20px !important; }
+        .konten .calibration-page p,
+        .konten .calibration-page a,
+        .konten .calibration-page button,
+        .konten .calibration-page label,
+        .konten .calibration-page th,
+        .konten .calibration-page td { font-size: 13px !important; }
 
         /* --- CSS Topbar & Profil --- */
         .topbar { 

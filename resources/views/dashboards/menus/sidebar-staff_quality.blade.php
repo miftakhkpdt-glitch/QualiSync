@@ -4,6 +4,7 @@
     $isCapaActive = request()->is('capa-8d*');
     $isStokQcActive = request()->routeIs('quality.stok.*') || request()->is('quality/mutasi-stok*') || request()->is('quality/approval-mutasi*');
     $isSupplierActive = request()->is('quality/supplier-performance*'); 
+    $isCalibrationActive = request()->is('quality/kalibrasi*');
 @endphp
 
 <!-- 1. Dashboard Utama -->
@@ -112,6 +113,29 @@
         <i class="fas fa-star-half-alt" style="width: 20px; color: #fbbf24;"></i> 
         <span>Performa Supplier</span>
     </a>
+</li>
+
+<!-- Kalibrasi Alat -->
+<li>
+    <a href="#" onclick="event.preventDefault(); toggleDeptDropdown('kalibrasiQualitySubmenu')" style="display: flex; align-items: center; color: {{ $isCalibrationActive ? '#3b82f6' : '#cbd5e1' }}; font-weight: {{ $isCalibrationActive ? 'bold' : 'normal' }}; padding: 8px 10px; text-decoration: none;">
+        <i class="fas fa-ruler-combined" style="width: 20px; color: #38bdf8;"></i>
+        <span>Kalibrasi Alat</span>
+        <i class="fas fa-chevron-down" style="margin-left: auto; font-size: 13px; transform: {{ $isCalibrationActive ? 'rotate(180deg)' : 'rotate(0deg)' }};"></i>
+    </a>
+    <ul class="sub-menu" id="kalibrasiQualitySubmenu" style="display: {{ $isCalibrationActive ? 'block' : 'none' }}; padding-left: 15px; list-style: none;">
+        <li>
+            <a href="{{ route('quality.calibration.checklist.index') }}" style="display: flex; align-items: center; color: {{ request()->routeIs('quality.calibration.checklist.*') ? '#3b82f6' : '#cbd5e1' }}; padding: 6px 10px; text-decoration: none;">
+                <i class="far fa-circle" style="width: 14px; font-size: 8px; color: #38bdf8; margin-right: 8px;"></i>
+                <span>Checklist Alat Ukur</span>
+            </a>
+        </li>
+        <li>
+            <a href="{{ route('quality.calibration.verification.index') }}" style="display: flex; align-items: center; color: {{ request()->routeIs('quality.calibration.verification.*') ? '#3b82f6' : '#cbd5e1' }}; padding: 6px 10px; text-decoration: none;">
+                <i class="far fa-circle" style="width: 14px; font-size: 8px; color: #38bdf8; margin-right: 8px;"></i>
+                <span>Verifikasi Sertifikat Kalibrasi</span>
+            </a>
+        </li>
+    </ul>
 </li>
 
 <!-- 7. STOK & MUTASI (Dropdown Lengkap) -->
