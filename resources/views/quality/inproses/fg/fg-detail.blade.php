@@ -188,6 +188,7 @@
             <table class="info-table">
                 <tr><td>Shift Kerja</td><td>: {{ $header->shift }}</td></tr>
                 <tr><td>Line Produksi</td><td>: {{ $header->line_produksi }}</td></tr>
+                <tr><td>Jumlah Output</td><td>: {{ $header->jumlah_output ?? 0 }}</td></tr>
                 <tr>
                     <td colspan="2" style="padding-top: 15px;">
                         Tipe Inspeksi : <br>

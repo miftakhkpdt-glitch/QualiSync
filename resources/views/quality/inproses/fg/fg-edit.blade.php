@@ -103,6 +103,13 @@
                     </div>
                 </div>
 
+                <div class="header-grid">
+                    <div class="form-group">
+                        <label class="form-label">Jumlah Output</label>
+                        <input type="number" name="jumlah_output" class="modern-input" value="{{ old('jumlah_output', $header->jumlah_output ?? 0) }}" min="0" required>
+                    </div>
+                </div>
+
                 <div class="section-divider">
                     <span style="font-weight: 600; color: #64748b; font-size: 14px;">DETAIL TEMUAN</span>
                 </div>

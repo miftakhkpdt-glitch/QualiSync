@@ -52,10 +52,11 @@ class InprosesFgController extends Controller
             'line_produksi' => 'required',
             'pic'           => 'required|array', 
             'pic.*'         => 'required',
+            'jumlah_output' => 'nullable|integer|min:0',
             'no_box'        => 'nullable|array',
             'no_box.*'      => 'nullable',          
             'jml_box'       => 'nullable|array',
-            'jml_box.*'     => 'nullable|numeric'   
+            'jml_box.*'     => 'nullable|numeric'
         ]);
 
         $duplicate = DB::table('fg_inspections')
@@ -79,6 +80,7 @@ class InprosesFgController extends Controller
     'item_name'       => $request->customer_id, // atau ganti sesuai data yang dikirim dari form select customer
     'shift'           => $request->shift ?? '-',
     'line_produksi'   => $request->line_produksi ?? '-',
+    'jumlah_output'   => $request->jumlah_output ?? 0,
     'inspection_type' => $request->inspection_type ?? 'Normal',
     'created_at'      => now(),
     'updated_at'      => now(),
@@ -387,6 +389,7 @@ class InprosesFgController extends Controller
             'no_mm'         => 'required',
             'shift'         => 'required',
             'line_produksi' => 'required',
+            'jumlah_output' => 'nullable|integer|min:0',
         ]);
 
         $duplicate = DB::table('fg_inspections')
@@ -410,6 +413,7 @@ class InprosesFgController extends Controller
                 'no_batch'        => $request->no_batch,
                 'no_mm'           => $request->no_mm,
                 'line_produksi'   => $request->line_produksi,
+                'jumlah_output'   => $request->jumlah_output ?? 0,
                 'shift'           => $request->shift,
                 'inspection_type' => $request->inspection_type,
                 'updated_at'      => now(),

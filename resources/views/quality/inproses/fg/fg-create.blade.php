@@ -252,6 +252,16 @@
                 </div>
             </div>
 
+            <div class="form-row-split">
+                <div class="form-col-split"></div>
+                <div class="form-col-split">
+                    <div class="form-group">
+                        <label class="form-label">Jumlah Output</label>
+                        <input type="number" name="jumlah_output" class="modern-input" value="{{ old('jumlah_output', 0) }}" min="0" required>
+                    </div>
+                </div>
+            </div>
+
             <!-- BARIS TAMBAHAN KHUSUS TIPE INSPEKSI -->
             <div class="form-row-split">
                 <div class="form-col-split" style="width: 100%;">
