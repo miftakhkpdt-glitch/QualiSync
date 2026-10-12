@@ -43,11 +43,27 @@ class HomeController extends Controller
                             ->count();
                             
             $woAktif = DB::table('work_orders')
-                            ->where('status', 'In Progress') 
+                            ->whereIn('status', ['On Progress', 'In Progress', 'In Production'])
                             ->count();
 
+            $paretoData = DB::table('fg_inspection_details')
+                            ->whereNotNull('defect')
+                            ->where('defect', '!=', '')
+                            ->select(
+                                'defect as jenis_reject',
+                                DB::raw('SUM(COALESCE(critical, 0) + COALESCE(major, 0) + COALESCE(minor, 0)) as total')
+                            )
+                            ->groupBy('defect')
+                            ->having('total', '>', 0)
+                            ->orderByDesc('total')
+                            ->limit(5)
+                            ->get();
+
+            $waktuDashboard = now()->locale('id')->translatedFormat('l, d F Y, H:i') . ' WIB';
+
             return view('dashboards.admin', compact(
-                'user', 'totalCoa', 'capaTerbuka', 'capaSelesai', 'prMenunggu', 'woAktif'
+                'user', 'totalCoa', 'capaTerbuka', 'capaSelesai', 'prMenunggu', 'woAktif',
+                'paretoData', 'waktuDashboard'
             ));
         } 
         

@@ -32,41 +32,42 @@ class QualityController extends Controller
             ->limit(5)
             ->get();
 
-        // --- 5. DATA REAL DARI TABEL `fg_inspections` & `fg_inspection_details` UNTUK GRAFIK ---
-        $tahunIni = now()->year;
-        $bulanIni = now()->month;
+        // --- 5. TREN INSPEKSI FG DAN CATATAN NG PER MINGGU ---
+        $awalBulan = now()->startOfMonth();
+        $hariIni = now()->startOfDay();
+        $jumlahHariDalamBulan = $awalBulan->daysInMonth;
 
-        $labels = ['Minggu 1', 'Minggu 2', 'Minggu 3', 'Minggu 4'];
+        $labels = [];
         $totalInspeksi = [];
         $totalReject = [];
-
-        $namaTabelFG = 'fg_inspections'; 
+        $mingguBerjalan = [];
 
         for ($i = 1; $i <= 4; $i++) {
             $startDay = ($i - 1) * 7 + 1;
-            $endDay = ($i * 7);
-            
-            if ($i == 4) {
-                $endDay = now()->daysInMonth;
+            $endDay = $i === 4 ? $jumlahHariDalamBulan : min($i * 7, $jumlahHariDalamBulan);
+            $startDate = $awalBulan->copy()->day($startDay)->startOfDay();
+            $endDate = $awalBulan->copy()->day($endDay)->endOfDay();
+            $sudahDimulai = $startDate->lte($hariIni);
+
+            $labels[] = $startDate->locale('id')->translatedFormat('j M') . ' - ' . $endDate->locale('id')->translatedFormat('j M');
+            $mingguBerjalan[] = $sudahDimulai;
+
+            if (!$sudahDimulai) {
+                $totalInspeksi[] = null;
+                $totalReject[] = null;
+                continue;
             }
 
-            $startDate = sprintf('%04d-%02d-%02d 00:00:00', $tahunIni, $bulanIni, max(1, min($startDay, now()->daysInMonth)));
-            $endDate = sprintf('%04d-%02d-%02d 23:59:59', $tahunIni, $bulanIni, max(1, min($endDay, now()->daysInMonth)));
-
-            // Hitung Total Inspeksi FG berdasarkan rentang tanggal `created_at`
-            $inspeksiCount = DB::table($namaTabelFG)
-                ->whereBetween('created_at', [$startDate, $endDate])
+            // Satu inspeksi adalah satu header; tanggal mengikuti tanggal inspeksi.
+            $inspeksiCount = DB::table('fg_inspections')
+                ->whereBetween('tanggal', [$startDate->toDateString(), $endDate->toDateString()])
                 ->count();
 
-            // Hitung Total Reject / NG menggunakan kolom `decision` pada tabel `fg_inspection_details`
+            // Satu NG adalah satu baris pemeriksaan detail dengan keputusan gagal.
             $rejectCount = DB::table('fg_inspection_details')
-                ->whereBetween('created_at', [$startDate, $endDate])
-                ->where(function($q) {
-                    $q->where('decision', 'NG')
-                      ->orWhere('decision', 'Reject')
-                      ->orWhere('decision', 'REJECT')
-                      ->orWhere('decision', 'BLOCKED');
-                })
+                ->join('fg_inspections', 'fg_inspection_details.inspection_id', '=', 'fg_inspections.id')
+                ->whereBetween('fg_inspections.tanggal', [$startDate->toDateString(), $endDate->toDateString()])
+                ->whereRaw('UPPER(fg_inspection_details.decision) IN (?, ?, ?)', ['NG', 'REJECT', 'BLOCKED'])
                 ->count();
 
             $totalInspeksi[] = $inspeksiCount;
@@ -87,6 +88,7 @@ class QualityController extends Controller
             'labels',
             'totalInspeksi',
             'totalReject',
+            'mingguBerjalan',
             'latestLogs'
         ));
     }

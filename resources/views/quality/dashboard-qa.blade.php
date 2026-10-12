@@ -45,9 +45,9 @@
         <!-- 1. KARTU GRAFIK INSPEKSI -->
         <div style="background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.03);">
             <h5 style="margin-top: 0; color: #1e293b; font-weight: bold; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px;">
-                <i class="fas fa-chart-bar" style="color: #6366f1; margin-right: 5px;"></i> Tren Inspeksi vs Reject (Bulan Ini)
+                <i class="fas fa-chart-bar" style="color: #6366f1; margin-right: 5px;"></i> Inspeksi dan Catatan NG per Minggu (Bulan Ini)
             </h5>
-            <div style="position: relative; height: 250px; width: 100%; margin-top: 15px;">
+            <div style="position: relative; height: 280px; width: 100%; margin-top: 15px;">
                 <!-- Canvas untuk Chart.js -->
                 <canvas id="qcTrendChart"></canvas>
             </div>
@@ -146,36 +146,45 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        const ctx = document.getElementById('qcTrendChart').getContext('2d');
+        const canvas = document.getElementById('qcTrendChart');
+        const ctx = canvas.getContext('2d');
         
         // Data dari Controller dikonversi ke format JSON JavaScript
         const chartLabels = {!! json_encode($labels) !!};
         const dataInspeksi = {!! json_encode($totalInspeksi) !!};
         const dataReject = {!! json_encode($totalReject) !!};
+        const mingguBerjalan = {!! json_encode($mingguBerjalan) !!};
+        const chartDisplayLabels = chartLabels.map((label, index) => (
+            mingguBerjalan[index] ? label : [label, 'Belum dimulai']
+        ));
 
         new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: chartLabels,
+                labels: chartDisplayLabels,
                 datasets: [
                     {
                         type: 'line',
-                        label: 'Reject (NG)',
+                        label: 'Catatan NG/Reject/Blocked',
                         data: dataReject,
                         borderColor: '#ef4444',
                         backgroundColor: '#ef4444',
                         borderWidth: 2,
+                        pointRadius: 4,
                         tension: 0.3,
-                        fill: false
+                        fill: false,
+                        yAxisID: 'yReject',
+                        spanGaps: false
                     },
                     {
                         type: 'bar',
-                        label: 'Total Inspeksi',
+                        label: 'Data Inspeksi',
                         data: dataInspeksi,
                         backgroundColor: 'rgba(59, 130, 246, 0.5)',
                         borderColor: '#3b82f6',
                         borderWidth: 1,
-                        borderRadius: 4
+                        borderRadius: 4,
+                        yAxisID: 'yInspeksi'
                     }
                 ]
             },
@@ -186,12 +195,47 @@
                     legend: {
                         position: 'bottom',
                         labels: { boxWidth: 12 }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            title: function(items) {
+                                const index = items[0].dataIndex;
+                                return mingguBerjalan[index]
+                                    ? chartLabels[index]
+                                    : chartLabels[index] + ' (Belum dimulai)';
+                            },
+                            label: function(context) {
+                                if (context.raw === null) {
+                                    return 'Belum ada data';
+                                }
+
+                                return context.dataset.label + ': ' + context.raw;
+                            }
+                        }
                     }
                 },
                 scales: {
-                    y: {
+                    yInspeksi: {
+                        type: 'linear',
+                        position: 'left',
                         beginAtZero: true,
-                        grid: { borderDash: [2, 4], color: '#e2e8f0' }
+                        title: {
+                            display: true,
+                            text: 'Data inspeksi'
+                        },
+                        grid: { borderDash: [2, 4], color: '#e2e8f0' },
+                        ticks: { precision: 0 }
+                    },
+                    yReject: {
+                        type: 'linear',
+                        position: 'right',
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Catatan NG'
+                        },
+                        grid: { drawOnChartArea: false },
+                        ticks: { precision: 0 }
                     },
                     x: {
                         grid: { display: false }

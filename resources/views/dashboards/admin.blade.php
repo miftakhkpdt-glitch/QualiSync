@@ -25,18 +25,24 @@
         color: #94a3b8;
         line-height: 1.5;
     }
+    .dashboard-admin .welcome-banner .waktu-dashboard {
+        display: block;
+        margin-top: 8px;
+        color: #cbd5e1;
+        font-size: 12px;
+    }
 
     .dashboard-admin .baris-kpi {
         display: grid;
         grid-template-columns: repeat(5, minmax(0, 1fr));
-        gap: 16px;
-        margin-bottom: 28px;
+        gap: 14px;
+        margin-bottom: 24px;
     }
     .dashboard-admin .kartu-kpi {
-        min-height: 128px;
+        min-height: 104px;
         box-sizing: border-box;
         background: #ffffff;
-        padding: 18px;
+        padding: 14px;
         border-radius: 12px;
         box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
         display: flex;
@@ -52,16 +58,16 @@
     }
     .dashboard-admin .kpi-teks { min-width: 0; }
     .dashboard-admin .kpi-teks h3 {
-        font-size: 12px;
+        font-size: 11px;
         color: var(--text-muted);
         font-weight: 600;
         line-height: 1.4;
-        margin: 0 0 8px;
+        margin: 0 0 6px;
         text-transform: uppercase;
         letter-spacing: 0.4px;
     }
     .dashboard-admin .kpi-teks .angka {
-        font-size: 32px;
+        font-size: 28px;
         font-weight: 700;
         color: var(--text-main);
         line-height: 1;
@@ -69,14 +75,14 @@
     }
 
     .dashboard-admin .icon-box {
-        width: 52px;
-        height: 52px;
-        flex: 0 0 52px;
-        border-radius: 14px;
+        width: 44px;
+        height: 44px;
+        flex: 0 0 44px;
+        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 22px;
+        font-size: 19px;
     }
     .dashboard-admin .icon-blue { background: #eff6ff; color: #2563eb; }
     .dashboard-admin .icon-red { background: #fef2f2; color: #dc2626; }
@@ -115,14 +121,53 @@
     }
     .dashboard-admin .wadah-todo {
         width: 100%;
-        height: 300px;
+        min-height: 300px;
+        box-sizing: border-box;
         background: #f8fafc;
         border-radius: 8px;
+        border: 1px dashed #cbd5e1;
+        padding: 8px 16px;
+    }
+    .dashboard-admin .daftar-tindakan {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+    .dashboard-admin .item-tindakan {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 16px 0;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    .dashboard-admin .item-tindakan:last-child { border-bottom: 0; }
+    .dashboard-admin .link-tindakan {
+        color: var(--text-main);
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+    }
+    .dashboard-admin .link-tindakan:hover { color: #2563eb; }
+    .dashboard-admin .jumlah-tindakan {
+        min-width: 32px;
+        padding: 5px 10px;
+        border-radius: 999px;
+        background: #eff6ff;
+        color: #2563eb;
+        font-size: 13px;
+        font-weight: 700;
+        text-align: center;
+    }
+    .dashboard-admin .tindakan-kosong {
+        min-height: 260px;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        border: 1px dashed #cbd5e1;
+        color: #64748b;
+        font-size: 14px;
+        text-align: center;
     }
 
     @media (max-width: 1199px) {
@@ -147,6 +192,7 @@
     <div class="welcome-banner">
         <h2>Halo, {{ $user->name }}! 👋</h2>
         <p>Selamat datang di Dashboard Admin. Semoga aktivitas hari ini berjalan lancar dan produktif!</p>
+        <span class="waktu-dashboard">{{ $waktuDashboard }}</span>
     </div>
 
     <h1>Dashboard Overview</h1>
@@ -200,7 +246,8 @@
         
         <!-- GRAFIK PARETO -->
         <div class="kartu-grafik">
-            <h3>Top 5 Jenis Reject (Pareto)</h3>
+            <h3>Top 5 Defect Hasil Pemeriksaan Quality</h3>
+            <p class="subtitle" style="margin-top: -8px; margin-bottom: 12px;">Berdasarkan jumlah temuan Critical, Major, dan Minor pada inspeksi produk jadi.</p>
             <div class="wadah-gambar">
                 <canvas id="paretoChart"></canvas>
             </div>
@@ -208,10 +255,35 @@
         
         <!-- TO-DO LIST / NOTIFIKASI -->
         <div class="kartu-grafik">
-            <h3>Perlu Tindakan Segera</h3>
-            <div class="wadah-todo">
-                <i class="fas fa-inbox" style="font-size: 40px; color: #cbd5e1; margin-bottom: 15px;"></i>
-                <p style="color: #64748b; font-size: 14px; text-align: center; margin: 0;">Belum ada notifikasi<br>baru hari ini.</p>
+            <h3>Perlu Perhatian</h3>
+            <div class="wadah-todo" aria-live="polite">
+                @if (($capaTerbuka ?? 0) > 0 || ($prMenunggu ?? 0) > 0 || ($woAktif ?? 0) > 0)
+                    <ul class="daftar-tindakan">
+                        @if (($capaTerbuka ?? 0) > 0)
+                            <li class="item-tindakan">
+                                <a class="link-tindakan" href="{{ url('/capa-8d/customer') }}">CAPA customer terbuka</a>
+                                <span class="jumlah-tindakan">{{ number_format($capaTerbuka, 0, ',', '.') }}</span>
+                            </li>
+                        @endif
+                        @if (($prMenunggu ?? 0) > 0)
+                            <li class="item-tindakan">
+                                <a class="link-tindakan" href="{{ url('/purchasing/purchase-request') }}">Purchase request menunggu</a>
+                                <span class="jumlah-tindakan">{{ number_format($prMenunggu, 0, ',', '.') }}</span>
+                            </li>
+                        @endif
+                        @if (($woAktif ?? 0) > 0)
+                            <li class="item-tindakan">
+                                <a class="link-tindakan" href="{{ url('/ppic/work-order') }}">Work order sedang berjalan</a>
+                                <span class="jumlah-tindakan">{{ number_format($woAktif, 0, ',', '.') }}</span>
+                            </li>
+                        @endif
+                    </ul>
+                @else
+                    <div class="tindakan-kosong">
+                        <i class="fas fa-inbox" style="font-size: 36px; color: #cbd5e1; margin-bottom: 12px;" aria-hidden="true"></i>
+                        <p style="margin: 0;">Tidak ada item yang perlu ditindaklanjuti saat ini.</p>
+                    </div>
+                @endif
             </div>
         </div>
         
@@ -231,9 +303,9 @@
         let chartLabels = rawParetoData.map(item => item.jenis_reject);
         let chartValues = rawParetoData.map(item => item.total);
 
-        // 2. Jika data kosong (karena database baru di-reset)
+        // 2. Beri label informatif saat belum ada catatan reject
         if(chartLabels.length === 0) {
-            chartLabels = ['Belum ada data reject'];
+            chartLabels = ['Belum ada data'];
             chartValues = [0];
         }
 
