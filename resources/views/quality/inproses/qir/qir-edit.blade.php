@@ -69,6 +69,10 @@
                             <option value="Line 3" {{ $qir->line_produksi == 'Line 3' ? 'selected' : '' }}>Line 3</option>
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label class="form-label">Nama Inspektor</label>
+                        <input type="text" name="inspector_name" class="modern-input" value="{{ $qir->inspector_name ?? '' }}" placeholder="Masukkan nama inspektor..." required>
+                    </div>
                 </div>
             </div>
 

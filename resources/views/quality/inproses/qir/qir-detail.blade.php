@@ -168,12 +168,13 @@
     
     <!-- TANDA TANGAN -->
     <div style="margin-top: 50px; display: flex; justify-content: flex-end; text-align: center;">
-        <div style="width: 220px;">
-            <p style="margin-bottom: 70px; font-weight: bold;">Inspector / QA</p>
-            <p style="border-bottom: 1px solid #1e293b; margin: 0; padding-bottom: 5px; font-weight: bold;">
-                {{ auth()->check() ? auth()->user()->name : '_________________________' }}
-            </p>
-            <p style="margin-top: 8px; font-size: 11px; color: #64748b;">Tanda Tangan & Nama Terang</p>
+        <div style="width: 260px;">
+            <p style="margin-bottom: 20px; font-weight: bold;">Inspector / QA</p>
+            <div style="border-bottom: 1px solid #1e293b; margin: 0; padding-bottom: 5px; min-height: 22px;">
+                {{ $qir->inspector_name ?? '_________________________' }}
+            </div>
+            <p style="margin-top: 8px; font-size: 11px; color: #64748b;">&nbsp;</p>
+            <p style="margin-top: 18px; font-size: 10px; color: #64748b; font-style: italic; text-align: center;">This QIR no need any sign because computerized</p>
         </div>
     </div>
 </div>

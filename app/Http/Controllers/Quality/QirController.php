@@ -37,11 +37,12 @@ class QirController extends Controller
     {
         // 1. Validasi Header Dasar
         $request->validate([
-            'tanggal'       => 'required|date',
-            'no_batch'      => 'required',
-            'no_mm'         => 'required',
-            'shift'         => 'required',
-            'line_produksi' => 'required',
+            'tanggal'        => 'required|date',
+            'no_batch'       => 'required',
+            'no_mm'          => 'required',
+            'shift'          => 'required',
+            'line_produksi'  => 'required',
+            'inspector_name' => 'required|string|max:255',
         ]);
         
         // Tolak hanya jika seluruh identitas inspeksi sama.
@@ -61,14 +62,15 @@ class QirController extends Controller
         try {
             // 2. Simpan Header ke qir_records
             $qir_id = DB::table('qir_records')->insertGetId([
-                'tanggal'       => $request->tanggal,
-                'no_batch'      => $request->no_batch,
-                'no_mm'         => $request->no_mm,
-                'shift'         => $request->shift,
-                'line_produksi' => $request->line_produksi,
-                'status'        => 'Approved',
-                'created_at'    => now(),
-                'updated_at'    => now(),
+                'tanggal'        => $request->tanggal,
+                'no_batch'       => $request->no_batch,
+                'no_mm'          => $request->no_mm,
+                'shift'          => $request->shift,
+                'line_produksi'  => $request->line_produksi,
+                'inspector_name' => $request->inspector_name,
+                'status'         => 'Approved',
+                'created_at'     => now(),
+                'updated_at'     => now(),
             ]);
 
             // 3. Ambil Standar Parameter untuk Validasi (Gerbang Blokir)
@@ -308,11 +310,12 @@ class QirController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'tanggal'       => 'required|date',
-            'no_batch'      => 'required',
-            'no_mm'         => 'required',
-            'shift'         => 'required',
-            'line_produksi' => 'required',
+            'tanggal'        => 'required|date',
+            'no_batch'       => 'required',
+            'no_mm'          => 'required',
+            'shift'          => 'required',
+            'line_produksi'  => 'required',
+            'inspector_name' => 'required|string|max:255',
         ]);
         
         // Tolak hanya jika seluruh identitas inspeksi sama, selain dokumen ini sendiri.
@@ -333,12 +336,13 @@ class QirController extends Controller
         try {
             // 1. Update Header
             DB::table('qir_records')->where('id', $id)->update([
-                'tanggal'       => $request->tanggal,
-                'no_batch'      => $request->no_batch,
-                'no_mm'         => $request->no_mm,
-                'shift'         => $request->shift,
-                'line_produksi' => $request->line_produksi,
-                'updated_at'    => now(),
+                'tanggal'        => $request->tanggal,
+                'no_batch'       => $request->no_batch,
+                'no_mm'          => $request->no_mm,
+                'shift'          => $request->shift,
+                'line_produksi'  => $request->line_produksi,
+                'inspector_name' => $request->inspector_name,
+                'updated_at'     => now(),
             ]);
 
             $standards = DB::table('master_item_standards')

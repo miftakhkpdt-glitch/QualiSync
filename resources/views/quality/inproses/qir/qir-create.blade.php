@@ -80,6 +80,10 @@
                             <option value="Line 3">Line 3</option>
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label class="form-label">Nama Inspektor</label>
+                        <input type="text" name="inspector_name" class="modern-input" placeholder="Masukkan nama inspektor..." required>
+                    </div>
                 </div>
             </div>
 
