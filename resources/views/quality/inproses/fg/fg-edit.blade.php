@@ -106,7 +106,10 @@
                 <div class="header-grid">
                     <div class="form-group">
                         <label class="form-label">Jumlah Output</label>
-                        <input type="number" name="jumlah_output" class="modern-input" value="{{ old('jumlah_output', $header->jumlah_output ?? 0) }}" min="0" required>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <input type="number" name="jumlah_output" class="modern-input" value="{{ old('jumlah_output', $header->jumlah_output ?? 0) }}" min="0" required>
+                            <span>PCS</span>
+                        </div>
                     </div>
                 </div>
 
