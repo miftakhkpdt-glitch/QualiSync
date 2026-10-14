@@ -13,13 +13,17 @@ class SupplierPerformanceController extends Controller
     public function index(Request $request)
     {
         $tahun = $request->tahun ?? date('Y');
-        
-        $performances = DB::table('supplier_performances')
+
+        $query = DB::table('supplier_performances')
             ->join('master_vendors', 'supplier_performances.supplier_id', '=', 'master_vendors.id')
             ->where('periode_tahun', $tahun)
-            ->select('supplier_performances.*', 'master_vendors.vendor_name')
-            ->orderBy('master_vendors.vendor_name')
-            ->get();
+            ->select('supplier_performances.*', 'master_vendors.vendor_name');
+
+        if ($request->filled('supplier_name')) {
+            $query->where('master_vendors.vendor_name', 'like', '%' . $request->supplier_name . '%');
+        }
+
+        $performances = $query->orderBy('master_vendors.vendor_name')->get();
             
         // Urutkan bulan secara kronologis (bukan abjad)
         $bulanOrder = ['Januari'=>1, 'Februari'=>2, 'Maret'=>3, 'April'=>4, 'Mei'=>5, 'Juni'=>6, 'Juli'=>7, 'Agustus'=>8, 'September'=>9, 'Oktober'=>10, 'November'=>11, 'Desember'=>12];
@@ -27,9 +31,43 @@ class SupplierPerformanceController extends Controller
             return $bulanOrder[$item->periode_bulan] ?? 99;
         });
 
+        $chartQuery = DB::table('supplier_performances')
+            ->join('master_vendors', 'supplier_performances.supplier_id', '=', 'master_vendors.id')
+            ->where('supplier_performances.periode_tahun', $tahun)
+            ->select(
+                'supplier_performances.periode_bulan',
+                'supplier_performances.skor_kuantitatif',
+                'supplier_performances.skor_kualitatif',
+                'master_vendors.vendor_name'
+            );
+
+        if ($request->filled('chart_supplier_id')) {
+            $chartQuery->where('supplier_performances.supplier_id', $request->chart_supplier_id);
+        }
+
+        $chartPerformances = $chartQuery->orderBy('master_vendors.vendor_name')->get();
+        $chartPerformances = $chartPerformances->sortBy(function ($performance) use ($bulanOrder) {
+            return $bulanOrder[$performance->periode_bulan] ?? 99;
+        })->values();
+
+        $chartLabels = $chartPerformances->map(fn ($performance) => [
+            $performance->periode_bulan,
+            $performance->vendor_name,
+        ])->values();
+        $chartQuantitativeScores = $chartPerformances->pluck('skor_kuantitatif')->map(fn ($score) => (float) $score)->values();
+        $chartQualitativeScores = $chartPerformances->pluck('skor_kualitatif')->map(fn ($score) => (float) $score)->values();
+
         $vendors = DB::table('master_vendors')->orderBy('vendor_name')->get();
 
-        return view('quality.performa.index', compact('performances', 'tahun', 'vendors'));
+        return view('quality.performa.index', compact(
+            'performances',
+            'chartPerformances',
+            'tahun',
+            'vendors',
+            'chartLabels',
+            'chartQuantitativeScores',
+            'chartQualitativeScores'
+        ));
     }
 
     // 2. HALAMAN FORM INPUT
@@ -106,6 +144,23 @@ class SupplierPerformanceController extends Controller
         ]);
 
         return redirect()->back()->with('success', 'Penilaian berhasil disimpan!');
+    }
+
+    public function destroy(Request $request, $id)
+    {
+        $deleted = DB::table('supplier_performances')->where('id', $id)->delete();
+
+        if (!$deleted) {
+            return redirect()->route('quality.supplier_performance.index', [
+                'tahun' => $request->input('tahun', date('Y')),
+                'supplier_name' => $request->input('supplier_name'),
+            ])->with('error', 'Data penilaian supplier tidak ditemukan atau sudah dihapus.');
+        }
+
+        return redirect()->route('quality.supplier_performance.index', [
+            'tahun' => $request->input('tahun', date('Y')),
+            'supplier_name' => $request->input('supplier_name'),
+        ])->with('success', 'Data penilaian supplier berhasil dihapus.');
     }
 
     // 4. EKSEKUSI CETAK (PRINT)

@@ -298,6 +298,7 @@ Route::prefix('quality/supplier-performance')->name('quality.supplier_performanc
     Route::get('/create', [SupplierPerformanceController::class, 'create'])->name('create');
     Route::post('/store', [SupplierPerformanceController::class, 'store'])->name('store');
     Route::post('/print', [SupplierPerformanceController::class, 'print'])->name('print');
+    Route::delete('/{id}', [SupplierPerformanceController::class, 'destroy'])->middleware('role:admin')->name('destroy');
 });
 
 Route::middleware(['role:admin,staff_quality'])
