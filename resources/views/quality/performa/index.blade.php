@@ -99,7 +99,7 @@
         </div>
         @if($chartPerformances->isNotEmpty())
             <div style="overflow-x: auto;">
-                <div style="position: relative; height: 360px; width: {{ max(900, $chartPerformances->count() * 110) }}px;">
+                <div style="position: relative; height: 280px; width: {{ max(760, $chartPerformances->count() * 90) }}px;">
                     <canvas id="supplier-performance-chart" aria-label="Grafik perbandingan skor kuantitatif dan kualitatif supplier" role="img"></canvas>
                 </div>
             </div>
@@ -235,14 +235,26 @@
                         y: {
                             beginAtZero: true,
                             max: 100,
+                            ticks: {
+                                stepSize: 20,
+                                font: {
+                                    size: 10
+                                }
+                            },
                             title: {
                                 display: true,
-                                text: 'Skor'
+                                text: 'Skor',
+                                font: {
+                                    size: 11
+                                }
                             }
                         },
                         x: {
                             ticks: {
-                                autoSkip: false
+                                autoSkip: false,
+                                font: {
+                                    size: 9
+                                }
                             }
                         }
                     },
