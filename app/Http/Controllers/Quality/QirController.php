@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\MasterItem;
+use App\Services\Quality\FgQirPackageService;
 
 class QirController extends Controller
 {
@@ -20,20 +21,39 @@ class QirController extends Controller
     // ==========================================
     // 2. TAMPILKAN FORM INPUT BARU
     // ==========================================
-    public function create()
+    public function create(Request $request, FgQirPackageService $packageService)
     {
+        $completionPackage = null;
+        if ($request->filled('completion_from') || $request->filled('completion_id')) {
+            $request->validate([
+                'completion_from' => 'required|in:fg,qir',
+                'completion_id' => 'required|integer',
+            ]);
+
+            $completionPackage = $packageService->findPendingPackage(
+                strtoupper($request->completion_from),
+                (int) $request->completion_id
+            );
+
+            if (!$completionPackage || $completionPackage->missing_document !== 'QIR') {
+                abort(404, 'Paket tertunda tidak ditemukan atau sudah dilengkapi.');
+            }
+        }
+
         // Hanya ambil material dengan kategori 'Finish Good'
         $masterItems = DB::table('master_materials')
                         ->where('kategori', 'Finish Good')
                         ->get(); 
-        
-        return view('quality.inproses.qir.qir-create', compact('masterItems'));
+
+        $pendingPackages = $packageService->pendingPackages();
+
+        return view('quality.inproses.qir.qir-create', compact('masterItems', 'pendingPackages', 'completionPackage'));
     }
 
     // ==========================================
     // PROSES SIMPAN DATA QIR (SISTEM DINAMIS EAV)
     // ==========================================
-    public function store(Request $request)
+    public function store(Request $request, FgQirPackageService $packageService)
     {
         // 1. Validasi Header Dasar
         $request->validate([
@@ -43,7 +63,29 @@ class QirController extends Controller
             'shift'          => 'required',
             'line_produksi'  => 'required',
             'inspector_name' => 'required|string|max:255',
+            'completion_from' => 'nullable|required_with:completion_id|in:fg,qir',
+            'completion_id' => 'nullable|required_with:completion_from|integer',
         ]);
+
+        $completionPackage = null;
+        if ($request->filled('completion_from')) {
+            $completionPackage = $packageService->findPendingPackage(
+                strtoupper($request->completion_from),
+                (int) $request->completion_id
+            );
+
+            if (
+                !$completionPackage
+                || $completionPackage->missing_document !== 'QIR'
+                || !$packageService->matchesPackage($completionPackage, $request->only([
+                    'tanggal', 'no_batch', 'no_mm', 'shift', 'line_produksi',
+                ]))
+            ) {
+                return redirect('/qir/create')
+                    ->withInput()
+                    ->with('error', 'Paket FG/QIR ini sudah tidak tertunda atau identitas paket tidak sesuai. Silakan pilih kembali paket yang belum lengkap.');
+            }
+        }
         
         // Tolak hanya jika seluruh identitas inspeksi sama.
         $cekBatch = DB::table('qir_records')

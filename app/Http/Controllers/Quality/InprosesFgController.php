@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\MasterItem; 
 use App\Models\TraceabilityLog;
+use App\Services\Quality\FgQirPackageService;
 use Illuminate\Support\Facades\DB;
 
 class InprosesFgController extends Controller
@@ -18,30 +19,48 @@ class InprosesFgController extends Controller
         return view('quality.inproses.fg.fg-menu');
     }
 
-    public function index()
-{
-    // 1. Query master materials khusus Finish Good
-    $masterItems = DB::table('master_materials')
-                ->where('kategori', 'Finish Good')
-                ->orderBy('no_mm', 'asc')
-                ->get();
+    public function index(Request $request, FgQirPackageService $packageService)
+    {
+        $completionPackage = null;
+        if ($request->filled('completion_from') || $request->filled('completion_id')) {
+            $request->validate([
+                'completion_from' => 'required|in:fg,qir',
+                'completion_id' => 'required|integer',
+            ]);
 
-    // 2. Ambil data customer dari tabel master_customers
-    $customers = DB::table('master_customers')
-                ->orderBy('nama_customer', 'asc')
-                ->get();
-                
-    // 3. Ambil data master defects
-    $defects = DB::table('master_defects')->orderBy('nama_defect', 'asc')->get();
+            $completionPackage = $packageService->findPendingPackage(
+                strtoupper($request->completion_from),
+                (int) $request->completion_id
+            );
 
-    // PERBAIKAN: Tambahkan 'defects' ke dalam compact()
-    return view('quality.inproses.fg.fg-create', compact('masterItems', 'customers', 'defects'));
-}
+            if (!$completionPackage || $completionPackage->missing_document !== 'FG') {
+                abort(404, 'Paket tertunda tidak ditemukan atau sudah dilengkapi.');
+            }
+        }
+
+        // 1. Query master materials khusus Finish Good
+        $masterItems = DB::table('master_materials')
+            ->where('kategori', 'Finish Good')
+            ->orderBy('no_mm', 'asc')
+            ->get();
+
+        // 2. Ambil data customer dari tabel master_customers
+        $customers = DB::table('master_customers')
+            ->orderBy('nama_customer', 'asc')
+            ->get();
+
+        // 3. Ambil data master defects
+        $defects = DB::table('master_defects')->orderBy('nama_defect', 'asc')->get();
+
+        $pendingPackages = $packageService->pendingPackages();
+
+        return view('quality.inproses.fg.fg-create', compact('masterItems', 'customers', 'defects', 'pendingPackages', 'completionPackage'));
+    }
 
     // ==========================================
     // SIMPAN DATA INSPEKSI (HEADER & DETAIL)
     // ==========================================
-    public function store(Request $request)
+    public function store(Request $request, FgQirPackageService $packageService)
     {
         $request->validate([
             'tanggal'       => 'required|date',
@@ -56,8 +75,31 @@ class InprosesFgController extends Controller
             'no_box'        => 'nullable|array',
             'no_box.*'      => 'nullable',          
             'jml_box'       => 'nullable|array',
-            'jml_box.*'     => 'nullable|numeric'
+            'jml_box.*'     => 'nullable|numeric',
+            'completion_from' => 'nullable|required_with:completion_id|in:fg,qir',
+            'completion_id' => 'nullable|required_with:completion_from|integer',
         ]);
+
+        $completionPackage = null;
+
+        if ($request->filled('completion_from')) {
+            $completionPackage = $packageService->findPendingPackage(
+                strtoupper($request->completion_from),
+                (int) $request->completion_id
+            );
+
+            if (
+                !$completionPackage
+                || $completionPackage->missing_document !== 'FG'
+                || !$packageService->matchesPackage($completionPackage, $request->only([
+                    'tanggal', 'no_batch', 'no_mm', 'shift', 'line_produksi',
+                ]))
+            ) {
+                return redirect('/in-proses/fg/create')
+                    ->withInput()
+                    ->with('error', 'Paket FG/QIR ini sudah tidak tertunda atau identitas paket tidak sesuai. Silakan pilih kembali paket yang belum lengkap.');
+            }
+        }
 
         $duplicate = DB::table('fg_inspections')
             ->where('tanggal', $request->tanggal)

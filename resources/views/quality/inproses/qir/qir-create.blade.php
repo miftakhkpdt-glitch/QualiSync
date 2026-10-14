@@ -29,7 +29,16 @@
 <div class="modern-container">
     <form action="{{ url('/qir/store') }}" method="POST" id="form-qir">
         @csrf
+        @if($completionPackage)
+            <input type="hidden" name="completion_from" value="{{ strtolower($completionPackage->source_type) }}">
+            <input type="hidden" name="completion_id" value="{{ $completionPackage->source_id }}">
+        @endif
         <div class="modern-card">
+            @if(session('error'))
+                <div role="alert" style="margin-bottom: 18px; padding: 12px 15px; border-radius: 7px; background: #fef2f2; color: #b91c1c;">
+                    {{ session('error') }}
+                </div>
+            @endif
             
             <!-- Tombol Kembali Ditambahkan di Sini -->
             <div style="margin-bottom: 20px;">
@@ -47,38 +56,48 @@
                 <div>
                     <div class="form-group">
                         <label class="form-label">Tanggal</label>
-                        <input type="date" name="tanggal" class="modern-input" value="{{ date('Y-m-d') }}" required>
+                        <input type="date" name="tanggal" class="modern-input" value="{{ old('tanggal', $completionPackage->tanggal ?? date('Y-m-d')) }}" @if($completionPackage) readonly @endif required>
                     </div>
                     <div class="form-group">
                         <label class="form-label">No. Batch</label>
-                        <input type="text" name="no_batch" class="modern-input" placeholder="Masukkan No Batch..." required>
+                        <input type="text" name="no_batch" class="modern-input" value="{{ old('no_batch', $completionPackage->no_batch ?? '') }}" placeholder="Masukkan No Batch..." @if($completionPackage) readonly @endif required>
                     </div>
                     <div class="form-group">
                         <label class="form-label">No. MM / Item Produk</label>
-                        <select name="no_mm" id="no_mm" class="modern-input select2" required>
+                        <select @if(!$completionPackage) name="no_mm" @else disabled @endif id="no_mm" class="modern-input select2" required>
                             <option value="">-- Pilih Item Produk --</option>
                             @foreach($masterItems as $item)
-                                <option value="{{ $item->no_mm }}">{{ $item->no_mm }} - {{ $item->nama_material }}</option>
+                                <option value="{{ $item->no_mm }}" @selected(old('no_mm', $completionPackage->no_mm ?? '') == $item->no_mm)>{{ $item->no_mm }} - {{ $item->nama_material }}</option>
                             @endforeach
                         </select>
+                        @if($completionPackage)
+                            <input type="hidden" name="no_mm" value="{{ $completionPackage->no_mm }}">
+                        @endif
                     </div>
                 </div>
                 <div>
                     <div class="form-group">
                         <label class="form-label">Shift Kerja</label>
-                        <select name="shift" class="modern-input" required>
-                            <option value="Shift 1">Shift 1</option>
-                            <option value="Shift 2">Shift 2</option>
-                            <option value="Shift 3">Shift 3</option>
+                        <select @if(!$completionPackage) name="shift" @else disabled @endif class="modern-input" required>
+                            <option value="Shift 1" @selected(old('shift', $completionPackage->shift ?? 'Shift 1') === 'Shift 1')>Shift 1</option>
+                            <option value="Shift 2" @selected(old('shift', $completionPackage->shift ?? 'Shift 1') === 'Shift 2')>Shift 2</option>
+                            <option value="Shift 3" @selected(old('shift', $completionPackage->shift ?? 'Shift 1') === 'Shift 3')>Shift 3</option>
                         </select>
+                        @if($completionPackage)
+                            <input type="hidden" name="shift" value="{{ $completionPackage->shift }}">
+                        @endif
                     </div>
                     <div class="form-group">
                         <label class="form-label">Line Produksi</label>
-                        <select name="line_produksi" class="modern-input" required>
-                            <option value="Line 1">Line 1</option>
-                            <option value="Line 2">Line 2</option>
-                            <option value="Line 3">Line 3</option>
+                        <select @if(!$completionPackage) name="line_produksi" @else disabled @endif class="modern-input" required>
+                            <option value="">-- Pilih Line --</option>
+                            <option value="Line 1" @selected(old('line_produksi', $completionPackage->line_produksi ?? '') === 'Line 1')>Line 1</option>
+                            <option value="Line 2" @selected(old('line_produksi', $completionPackage->line_produksi ?? '') === 'Line 2')>Line 2</option>
+                            <option value="Line 3" @selected(old('line_produksi', $completionPackage->line_produksi ?? '') === 'Line 3')>Line 3</option>
                         </select>
+                        @if($completionPackage)
+                            <input type="hidden" name="line_produksi" value="{{ $completionPackage->line_produksi }}">
+                        @endif
                     </div>
                     <div class="form-group">
                         <label class="form-label">Nama Inspektor</label>
@@ -116,6 +135,7 @@
             </div>
         </div>
     </form>
+    @include('quality.inproses.pending-packages-modal')
 </div>
 
 @push('scripts')
@@ -155,6 +175,10 @@
                 }
             });
         });
+
+        @if($completionPackage)
+            $('#no_mm').trigger('change');
+        @endif
 
         // FUNGSI MENGGAMBAR TABEL (KOLOM)
         function renderDynamicTable() {
