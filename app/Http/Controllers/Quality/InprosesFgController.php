@@ -123,19 +123,35 @@ class InprosesFgController extends Controller
         }
     }
 
-    public function riwayat()
-{
-    $riwayat = DB::table('fg_inspections')
-        ->leftJoin('master_materials', 'fg_inspections.no_mm', '=', 'master_materials.no_mm')
-        ->select(
-            'fg_inspections.*',
-            'master_materials.nama_material as nama_item'
-        )
-        ->orderBy('fg_inspections.tanggal', 'desc')
-        ->get();
+    public function riwayat(Request $request)
+    {
+        $query = DB::table('fg_inspections')
+            ->leftJoin('master_materials', 'fg_inspections.no_mm', '=', 'master_materials.no_mm')
+            ->select(
+                'fg_inspections.*',
+                'master_materials.nama_material as nama_item'
+            );
 
-    return view('quality.inproses.fg.fg-history', compact('riwayat'));
-}
+        if ($request->filled('tanggal')) {
+            $query->whereDate('fg_inspections.tanggal', $request->tanggal);
+        }
+
+        if ($request->filled('no_batch')) {
+            $query->where('fg_inspections.no_batch', 'like', '%' . $request->no_batch . '%');
+        }
+
+        if ($request->filled('no_mm')) {
+                $noMmOrItem = '%' . $request->no_mm . '%';
+                $query->where(function ($query) use ($noMmOrItem) {
+                    $query->where('fg_inspections.no_mm', 'like', $noMmOrItem)
+                        ->orWhere('master_materials.nama_material', 'like', $noMmOrItem);
+                });
+            }
+
+            $riwayat = $query->orderBy('fg_inspections.tanggal', 'desc')->get();
+
+            return view('quality.inproses.fg.fg-history', compact('riwayat'));
+        }
 
     // ==========================================
     // HALAMAN DETAIL / CETAK FG

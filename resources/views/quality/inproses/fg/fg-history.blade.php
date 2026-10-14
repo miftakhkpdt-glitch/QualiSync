@@ -57,6 +57,34 @@
         </div>
     @endif
 
+    <div style="background: #f8fafc; padding: 15px 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #e2e8f0;">
+        <form action="{{ url('/in-proses/fg/riwayat') }}" method="GET" style="display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap; margin: 0;">
+            <div style="flex: 1; min-width: 150px;">
+                <label style="font-size: 12px; font-weight: bold; color: #475569; display: block; margin-bottom: 5px;">TANGGAL</label>
+                <input type="date" name="tanggal" value="{{ request('tanggal') }}" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none; font-size: 13px;">
+            </div>
+
+            <div style="flex: 1; min-width: 150px;">
+                <label style="font-size: 12px; font-weight: bold; color: #475569; display: block; margin-bottom: 5px;">NO. BATCH</label>
+                <input type="text" name="no_batch" value="{{ request('no_batch') }}" placeholder="Cari No Batch..." style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none; font-size: 13px;">
+            </div>
+
+            <div style="flex: 1; min-width: 150px;">
+                <label style="font-size: 12px; font-weight: bold; color: #475569; display: block; margin-bottom: 5px;">NO. MM / ITEM</label>
+                <input type="text" name="no_mm" value="{{ request('no_mm') }}" placeholder="Cari No MM / Item..." style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none; font-size: 13px;">
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <button type="submit" style="background: #3b82f6; color: white; border: none; padding: 9px 18px; border-radius: 6px; cursor: pointer; font-weight: bold; display: inline-flex; align-items: center; gap: 6px; font-size: 13px; transition: 0.2s;">
+                    <i class="fas fa-search"></i> Terapkan Filter
+                </button>
+                <a href="{{ url('/in-proses/fg/riwayat') }}" style="background: #e2e8f0; color: #475569; text-decoration: none; padding: 9px 18px; border-radius: 6px; font-weight: bold; display: inline-flex; align-items: center; gap: 6px; font-size: 13px; transition: 0.2s;">
+                    <i class="fas fa-sync-alt"></i> Reset
+                </a>
+            </div>
+        </form>
+    </div>
+
     <table class="tabel-fg">
         <thead>
             <tr>

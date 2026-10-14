@@ -131,7 +131,7 @@
                             </tr>
                             <tr>
                                 <th>Critical</th><th>Major</th><th>Minor</th>
-                                <th>Jumlah Total</th><th>Sortir OK</th><th>Sortir NG</th>
+                                <th>Jumlah Total (PCS)</th><th>Hasil Sortir OK</th><th>Hasil Sortir NG</th>
                             </tr>
                         </thead>
                         <tbody id="dynamic-row-container">

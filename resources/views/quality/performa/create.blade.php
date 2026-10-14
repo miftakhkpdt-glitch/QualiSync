@@ -153,6 +153,102 @@
         </div>
     </form>
 
+    <div style="margin-top: 30px; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-top: 4px solid #6366f1;">
+        <h3 style="margin: 0 0 8px; color: #1e293b;"><i class="fas fa-calculator" style="color: #6366f1;"></i> Rumus Perhitungan Penilaian Supplier</h3>
+        <p style="margin: 0 0 20px; color: #64748b; font-size: 13px;">Gunakan rumus berikut untuk mendapatkan skor persentase yang dimasukkan pada bagian kuantitatif. Sistem kemudian mengonversi skor tersebut ke peringkat dan menghitung bobot secara otomatis.</p>
+
+        <h4 style="margin: 0 0 10px; color: #334155;">Kuantitatif</h4>
+        <div style="overflow-x: auto; margin-bottom: 20px;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 13px; text-align: left;">
+                <thead>
+                    <tr style="background: #f8fafc;">
+                        <th style="border: 1px solid #cbd5e1; padding: 10px;">Kriteria</th>
+                        <th style="border: 1px solid #cbd5e1; padding: 10px; text-align: center;">Bobot Kualitas</th>
+                        <th style="border: 1px solid #cbd5e1; padding: 10px;">Rumus Skor (%)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="border: 1px solid #cbd5e1; padding: 10px;">Total perbandingan item diterima</td>
+                        <td style="border: 1px solid #cbd5e1; padding: 10px; text-align: center;">30%</td>
+                        <td style="border: 1px solid #cbd5e1; padding: 10px;">(Jumlah pengiriman per item berstatus OK/accept ÷ jumlah total pengiriman) × 100%</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #cbd5e1; padding: 10px;">SCAR sesuai target</td>
+                        <td style="border: 1px solid #cbd5e1; padding: 10px; text-align: center;">20%</td>
+                        <td style="border: 1px solid #cbd5e1; padding: 10px;">(Jumlah SCAR yang dibalas sesuai target ÷ jumlah SCAR yang dikirim ke supplier) × 100%. Target: tanggapan pertama maksimal 1 × 24 jam dan SCAR ditutup maksimal 5 hari; selebihnya dianggap missed.</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #cbd5e1; padding: 10px;">Kesesuaian jumlah qty</td>
+                        <td style="border: 1px solid #cbd5e1; padding: 10px; text-align: center;">10%</td>
+                        <td style="border: 1px solid #cbd5e1; padding: 10px;">(Jumlah pengiriman dengan qty sesuai ÷ jumlah total pengiriman) × 100%</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #cbd5e1; padding: 10px;">Kesesuaian jenis item</td>
+                        <td style="border: 1px solid #cbd5e1; padding: 10px; text-align: center;">10%</td>
+                        <td style="border: 1px solid #cbd5e1; padding: 10px;">(Jumlah pengiriman dengan jenis item sesuai ÷ jumlah total pengiriman) × 100%</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #cbd5e1; padding: 10px;">Kelengkapan CoA</td>
+                        <td style="border: 1px solid #cbd5e1; padding: 10px; text-align: center;">20%</td>
+                        <td style="border: 1px solid #cbd5e1; padding: 10px;">(Jumlah pengiriman dengan CoA lengkap ÷ jumlah total pengiriman) × 100%</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #cbd5e1; padding: 10px;">Kualitas kemasan/packaging</td>
+                        <td style="border: 1px solid #cbd5e1; padding: 10px; text-align: center;">10%</td>
+                        <td style="border: 1px solid #cbd5e1; padding: 10px;">(Jumlah pengiriman dengan kondisi kemasan baik ÷ jumlah total pengiriman) × 100%</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #cbd5e1; padding: 10px;">Pengiriman tepat waktu</td>
+                        <td style="border: 1px solid #cbd5e1; padding: 10px; text-align: center;">100% (aspek pengiriman)</td>
+                        <td style="border: 1px solid #cbd5e1; padding: 10px;">(Jumlah pengiriman tepat waktu sesuai PO ÷ jumlah total pengiriman) × 100%. Sumber data: WH/PPIC.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div style="background: #f8fafc; padding: 12px 15px; border-radius: 6px; margin-bottom: 24px; color: #334155; font-size: 13px; line-height: 1.7;">
+            <strong>Konversi bobot:</strong> peringkat A = 100% bobot, B = 75% bobot, C = 50% bobot, dan D = 25% bobot (lihat Tabel 1).<br>
+            <strong>Total Kualitas</strong> = jumlah skor berbobot dari 6 kriteria kualitas di atas.<br>
+            <strong>Skor Kuantitatif</strong> = (70% × Total Kualitas) + (30% × skor Pengiriman tepat waktu).
+        </div>
+
+        <h4 style="margin: 0 0 10px; color: #334155;">Kualitatif</h4>
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 13px; text-align: left;">
+                <thead>
+                    <tr style="background: #f8fafc;">
+                        <th style="border: 1px solid #cbd5e1; padding: 10px;">Kriteria</th>
+                        <th style="border: 1px solid #cbd5e1; padding: 10px; text-align: center;">Bobot</th>
+                        <th style="border: 1px solid #cbd5e1; padding: 10px;">Dasar Penilaian</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="border: 1px solid #cbd5e1; padding: 10px;">Manajemen & cepat tanggap</td>
+                        <td style="border: 1px solid #cbd5e1; padding: 10px; text-align: center;">25%</td>
+                        <td rowspan="4" style="border: 1px solid #cbd5e1; padding: 10px;">Pilih peringkat berdasarkan pengalaman, komunikasi, dan praktik sehari-hari terkait kualitas dan pengiriman supplier. Gunakan rincian kriteria pada Tabel 2.</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #cbd5e1; padding: 10px;">Kompetensi & kemampuan teknis</td>
+                        <td style="border: 1px solid #cbd5e1; padding: 10px; text-align: center;">25%</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #cbd5e1; padding: 10px;">Efek terhadap internal proses</td>
+                        <td style="border: 1px solid #cbd5e1; padding: 10px; text-align: center;">25%</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #cbd5e1; padding: 10px;">Tingkat kritis masalah incoming</td>
+                        <td style="border: 1px solid #cbd5e1; padding: 10px; text-align: center;">25%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div style="background: #fffbeb; padding: 12px 15px; border-radius: 6px; margin-top: 12px; color: #78350f; font-size: 13px; line-height: 1.7;">
+            <strong>Skor Kualitatif</strong> = jumlah skor berbobot 4 kriteria. Untuk setiap kriteria, bobot 25 dikalikan nilai peringkat: A = 100% (25 poin), B = 75% (18,75 poin), C = 50% (12,5 poin), atau D = 25% (6,25 poin). Status akhir mengikuti konversi pada Tabel 1.
+        </div>
+    </div>
+
     <!-- ============================================== -->
     <!-- TABEL PANDUAN REFERENSI (Sesuai Gambar Excel) -->
     <!-- ============================================== -->
@@ -226,15 +322,23 @@
                             <td style="border: 1px solid #cbd5e1; padding: 10px;">Kompetensi <b>Sangat Kurang</b>. Akar masalah & perbaikan <b>>=6 hari</b> setelah claim.</td>
                         </tr>
                         <tr>
-                            <td style="border: 1px solid #cbd5e1; padding: 10px; font-weight: bold; text-align: left; background: #f8fafc;">Efek thd internal proses / Masalah Kritis</td>
+                            <td style="border: 1px solid #cbd5e1; padding: 10px; font-weight: bold; text-align: left; background: #f8fafc;">Efek terhadap internal proses</td>
                             <td style="border: 1px solid #cbd5e1; padding: 10px;">Tidak ada atau maksimum <b>1 kasus</b> terjadi (stop line, sortir, kurang barang).</td>
                             <td style="border: 1px solid #cbd5e1; padding: 10px;"><b>2 - 3 kasus</b> terjadi (stop line, sortir, kurang barang untuk produksi).</td>
                             <td style="border: 1px solid #cbd5e1; padding: 10px;"><b>4 - 5 kasus</b> terjadi (stop line, sortir, kurang barang untuk produksi).</td>
                             <td style="border: 1px solid #cbd5e1; padding: 10px;"><b>6 kasus atau lebih</b> terjadi (stop line, sortir, kurang barang untuk produksi).</td>
                         </tr>
+                        <tr>
+                            <td style="border: 1px solid #cbd5e1; padding: 10px; font-weight: bold; text-align: left; background: #f8fafc;">Tingkat kritis masalah incoming</td>
+                            <td style="border: 1px solid #cbd5e1; padding: 10px;"><b>0 - 1 kasus kritis</b></td>
+                            <td style="border: 1px solid #cbd5e1; padding: 10px;"><b>2 - 3 kasus kritis</b></td>
+                            <td style="border: 1px solid #cbd5e1; padding: 10px;"><b>4 - 5 kasus kritis</b></td>
+                            <td style="border: 1px solid #cbd5e1; padding: 10px;"><b>6 kasus kritis atau lebih</b></td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
+            <p style="margin: 12px 0 0; color: #475569; font-size: 12px; line-height: 1.6;"><strong>Kategori masalah kritis:</strong> barang tercampur (mixed up), kontaminasi, masalah terkait safety, karakter printing kurang (miss printed), dan salah arah gulungan label (wrong label direction).</p>
         </div>
     </div>
     

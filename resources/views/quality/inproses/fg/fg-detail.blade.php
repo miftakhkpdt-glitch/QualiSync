@@ -215,7 +215,7 @@
                 <th>Critical<br><small>{{ $aqlStandards['critical'] }}</small></th>
                 <th>Major<br><small>{{ $aqlStandards['major'] }}</small></th>
                 <th>Minor<br><small>{{ $aqlStandards['minor'] }}</small></th>
-                <th>Jumlah Total</th>
+                <th>Jumlah Total (PCS)</th>
                 <th>Hasil Sortir OK</th>
                 <th>Hasil Sortir NG</th>
             </tr>
@@ -238,9 +238,9 @@
                             <strong>OK</strong>
                         @endif
                     </td>
-                    <td>{{ $row->jml_box ?: '-' }}</td>
-                    <td>{{ $row->sortir_ok ?: '-' }}</td>
-                    <td>{{ $row->sortir_ng ?: '-' }}</td>
+                    <td>{{ $row->jml_box ? number_format((int) $row->jml_box, 0, ',', '.') : '-' }}</td>
+                    <td>{{ $row->sortir_ok ? number_format((int) $row->sortir_ok, 0, ',', '.') : '-' }}</td>
+                    <td>{{ $row->sortir_ng ? number_format((int) $row->sortir_ng, 0, ',', '.') : '-' }}</td>
                 </tr>
             @empty
                 <tr>

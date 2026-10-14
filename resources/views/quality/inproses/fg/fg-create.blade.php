@@ -413,9 +413,9 @@
 
             headerHtml += `
                 <th>Decision</th>
-                <th>Jml Box</th>
-                <th>Sortir OK</th>
-                <th>Sortir NG</th>
+                <th>Jumlah Total (PCS)</th>
+                <th>Hasil Sortir OK</th>
+                <th>Hasil Sortir NG</th>
                 <th style="text-align:center;">Aksi</th>
             `;
 
