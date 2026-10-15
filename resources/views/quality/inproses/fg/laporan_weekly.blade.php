@@ -325,8 +325,9 @@
                             type: 'linear',
                             position: 'left',
                             beginAtZero: true,
-                            max: data.totalDefects > 0 ? data.totalDefects : 10, 
-                            title: { display: true, text: 'Jumlah (Pcs)' }
+                            max: data.totalDefects > 0 ? data.totalDefects : 10,
+                            title: { display: true, text: 'Jumlah (Pcs)' },
+                            ticks: { stepSize: 10 }
                         },
                         'y-cumulative': {
                             type: 'linear',
@@ -336,6 +337,7 @@
                             title: { display: true, text: 'Kumulatif (%)' },
                             grid: { display: false }, 
                             ticks: {
+                                maxTicksLimit: 6,
                                 callback: function(value) {
                                     return value + '%'; 
                                 }
