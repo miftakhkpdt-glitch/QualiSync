@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB; 
+use App\Services\Quality\OperatorDashboardStatsService;
 
 class HomeController extends Controller
 {
@@ -68,15 +69,24 @@ class HomeController extends Controller
         } 
         
         // =========================================================
-// KELOMPOK 2: OPERATOR (Selalu memanggil Cangkang dashboards.operator)
-// =========================================================
-if (str_contains($role, 'operator')) {
-    return view('dashboards.operator', compact('user', 'departemen'));
-}
+        // KELOMPOK 2: OPERATOR
+        // =========================================================
+        if (str_contains($role, 'operator')) {
+            $dashboardStats = $role === 'operator_quality'
+                ? app(OperatorDashboardStatsService::class)->counts()
+                : [];
 
-// =========================================================
-// KELOMPOK 3: STAFF (Selalu memanggil Cangkang dashboards.staff)
-// =========================================================
-return view('dashboards.staff', compact('user', 'departemen')); 
+            return view('dashboards.operator', compact('user', 'departemen', 'dashboardStats'));
+        }
+
+        // =========================================================
+        // KELOMPOK 3: STAFF
+        // =========================================================
+        return view('dashboards.staff', compact('user', 'departemen'));
+    }
+
+    public function operatorQualityStats(OperatorDashboardStatsService $statsService)
+    {
+        return response()->json($statsService->counts());
     }
 }

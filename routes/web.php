@@ -143,6 +143,8 @@ Route::middleware(['auth'])->group(function () {
     // === KELOMPOK PORTAL QUALITY & QC LINE & OPERATOR ===
     Route::middleware(['role:staff_quality,operator_quality,admin'])->group(function () {
         
+        Route::get('/quality/operator-dashboard/stats', [HomeController::class, 'operatorQualityStats'])
+            ->name('quality.operator-dashboard.stats');
         Route::get('/dashboard-qa', [\App\Http\Controllers\Quality\QualityController::class, 'dashboard'])->name('quality.dashboard');
         Route::get('/quality/activity-logs', [\App\Http\Controllers\Quality\QualityController::class, 'activityLogs'])->name('quality.activity-logs');
         // Rute Rekap Stok Quality Baru

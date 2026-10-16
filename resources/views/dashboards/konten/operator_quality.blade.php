@@ -2,7 +2,11 @@
 {{-- KONTEN TENGAH OPERATOR QUALITY --}}
 
 <!-- GRID CARD STATISTIK RINGKASAN INSPEKSI -->
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 20px;">
+<div
+    data-operator-quality-stats
+    data-stats-url="{{ route('quality.operator-dashboard.stats') }}"
+    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 20px;"
+>
 
     <!-- Card 1: Incoming Material (Pending) -->
     <div style="background: #ffffff; padding: 18px 20px; border-radius: 10px; border: 1px solid #e2e8f0; border-left: 5px solid #0284c7; box-shadow: 0 2px 4px rgba(0,0,0,0.02); display: flex; align-items: center; justify-content: space-between;">
@@ -22,8 +26,8 @@
     <div style="background: #ffffff; padding: 18px 20px; border-radius: 10px; border: 1px solid #e2e8f0; border-left: 5px solid #ec4899; box-shadow: 0 2px 4px rgba(0,0,0,0.02); display: flex; align-items: center; justify-content: space-between;">
         <div>
             <span style="font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Inspeksi In-Proses</span>
-            <h3 style="margin: 4px 0 0 0; font-size: 24px; font-weight: bold; color: #0f172a;">
-                {{ $inProsesCount ?? 0 }}
+            <h3 id="operator-in-proses-count" style="margin: 4px 0 0 0; font-size: 24px; font-weight: bold; color: #0f172a;">
+                {{ $dashboardStats['inProsesCount'] ?? 0 }}
             </h3>
             <span style="font-size: 11px; color: #ec4899; font-weight: 500;">Aktif Hari Ini</span>
         </div>
@@ -36,8 +40,8 @@
     <div style="background: #ffffff; padding: 18px 20px; border-radius: 10px; border: 1px solid #e2e8f0; border-left: 5px solid #10b981; box-shadow: 0 2px 4px rgba(0,0,0,0.02); display: flex; align-items: center; justify-content: space-between;">
         <div>
             <span style="font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">COA Diterbitkan</span>
-            <h3 style="margin: 4px 0 0 0; font-size: 24px; font-weight: bold; color: #0f172a;">
-                {{ $coaCount ?? 0 }}
+            <h3 id="operator-coa-count" style="margin: 4px 0 0 0; font-size: 24px; font-weight: bold; color: #0f172a;">
+                {{ $dashboardStats['coaCount'] ?? 0 }}
             </h3>
             <span style="font-size: 11px; color: #10b981; font-weight: 500;">Bulan Ini</span>
         </div>
@@ -47,3 +51,33 @@
     </div>
 
 </div>
+
+<script>
+    (() => {
+        const statsElement = document.querySelector('[data-operator-quality-stats]');
+        if (!statsElement) return;
+
+        const refreshStats = async () => {
+            try {
+                const response = await fetch(statsElement.dataset.statsUrl, {
+                    headers: { Accept: 'application/json' },
+                    credentials: 'same-origin'
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Dashboard stats request failed with status ${response.status}`);
+                }
+
+                const stats = await response.json();
+                document.getElementById('operator-in-proses-count').textContent = stats.inProsesCount;
+                document.getElementById('operator-coa-count').textContent = stats.coaCount;
+            } catch (error) {
+                console.error('Gagal memperbarui statistik dashboard operator quality.', error);
+            } finally {
+                window.setTimeout(refreshStats, 15000);
+            }
+        };
+
+        refreshStats();
+    })();
+</script>

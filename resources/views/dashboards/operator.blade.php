@@ -80,12 +80,14 @@
 
             // 2. Update Shift Otomatis Berdasarkan Jam
             const hour = now.getHours();
+            const minute = now.getMinutes();
+            const timeInMinutes = hour * 60 + minute;
             const shiftEl = document.getElementById('live-shift');
             
             if (shiftEl) {
-                if (hour >= 7 && hour < 15) {
+                if (timeInMinutes >= 6 * 60 && timeInMinutes < 14 * 60) {
                     shiftEl.innerHTML = '<i class="fas fa-user-clock" style="font-size: 12px;"></i> Shift 1 (06:00 - 14:00)';
-                } else if (hour >= 15 && hour < 23) {
+                } else if (timeInMinutes >= 14 * 60 && timeInMinutes < 22 * 60) {
                     shiftEl.innerHTML = '<i class="fas fa-user-clock" style="font-size: 12px;"></i> Shift 2 (14:00 - 22:00)';
                 } else {
                     // Shift 3: Jam 22:00 - 06:00
