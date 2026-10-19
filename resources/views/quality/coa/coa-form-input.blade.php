@@ -154,9 +154,8 @@
                                 <!-- Kolom Hasil QIR (MUNCUL DI KEDUA MODE GENERAL & YASULOR) -->
                                 <th style="min-width: 170px; text-align: center; background-color: #eaecf4; color: #4e73df;">Result (MIN / AVG / MAX QIR)</th>
                                 
-                                <!-- Kolom Keputusan Yasulor -->
-                                <th class="yasulor-col" style="display: none; width: 90px;">Decision</th>
-                                <th class="yasulor-col" style="display: none; min-width: 130px;">Remark</th>
+                                <!-- Kolom keputusan untuk kedua format -->
+                                <th style="width: 90px;">Decision</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -170,6 +169,7 @@
                                 $valMin = is_array($qirResult) ? ($qirResult['min'] ?? '') : '';
                                 $valHasil = is_array($qirResult) ? ($qirResult['avg'] ?? '') : $qirResult;
                                 $valMax = is_array($qirResult) ? ($qirResult['max'] ?? '') : '';
+                                $hasNumericResult = is_numeric($valHasil);
                             @endphp
                             <tr>
                                 <td>
@@ -239,28 +239,30 @@
                                 <td style="text-align: center;">
                                     <input type="hidden" name="parameters[{{ $index }}][result_min]" value="{{ $valMin }}">
                                     <input type="hidden" name="parameters[{{ $index }}][result_max]" value="{{ $valMax }}">
-                                    <div style="font-size: 0.72rem; line-height: 1.5; color: #5a5c69; text-align: left; margin-bottom: 4px;">
-                                        <div>MIN: <strong>{{ $valMin !== '' ? $valMin : '-' }}</strong></div>
-                                        <div>MAX: <strong>{{ $valMax !== '' ? $valMax : '-' }}</strong></div>
-                                    </div>
-                                    <div style="font-size: 0.72rem; color: #5a5c69; text-align: left; margin-bottom: 3px;">AVG:</div>
-                                    <input type="text" 
-                                           name="parameters[{{ $index }}][result_avg]" 
-                                           class="t-input" 
-                                           style="text-align: center; font-weight: bold; color: #4e73df; background-color: #f8f9fc;" 
-                                           value="{{ $valHasil }}" 
-                                           placeholder="AVG QIR">
+                                    @if($hasNumericResult)
+                                        <div style="font-size: 0.72rem; line-height: 1.5; color: #5a5c69; text-align: left; margin-bottom: 4px;">
+                                            <div>MIN: <strong>{{ $valMin !== '' ? $valMin : '-' }}</strong></div>
+                                            <div>MAX: <strong>{{ $valMax !== '' ? $valMax : '-' }}</strong></div>
+                                        </div>
+                                        <div style="font-size: 0.72rem; color: #5a5c69; text-align: left; margin-bottom: 3px;">AVG:</div>
+                                        <input type="text"
+                                               name="parameters[{{ $index }}][result_avg]"
+                                               class="t-input"
+                                               style="text-align: center; font-weight: bold; color: #4e73df; background-color: #f8f9fc;"
+                                               value="{{ $valHasil }}"
+                                               placeholder="AVG QIR">
+                                    @else
+                                        <input type="hidden" name="parameters[{{ $index }}][result_avg]" value="{{ $valHasil }}">
+                                        <strong>-</strong>
+                                    @endif
                                 </td>
 
-                                <!-- Kolom Yasulor Decision & Remark -->
-                                <td class="yasulor-col" style="display: none;">
+                                <!-- Kolom keputusan untuk kedua format -->
+                                <td style="text-align: center;">
                                     <select name="parameters[{{ $index }}][decision]" class="t-input" style="font-weight: bold;">
                                         <option value="OK" style="color: green;">OK</option>
                                         <option value="NG" style="color: red;">NG</option>
                                     </select>
-                                </td>
-                                <td class="yasulor-col" style="display: none;">
-                                    <input type="text" name="parameters[{{ $index }}][remark]" class="t-input">
                                 </td>
                             </tr>
                             @endforeach

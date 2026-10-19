@@ -152,7 +152,6 @@
                 <th style="width: 6%;">n Sampl</th>
                 <th style="width: 11%;">Result<br>(Min / Avg / Max)</th>
                 <th style="width: 8%;">Decision</th>
-                <th style="width: 9%;">Remark</th>
             </tr>
         </thead>
         <tbody>
@@ -179,20 +178,23 @@
                 <td>{{ $detail->frequency ?? '-' }}</td>
                 <td>{{ $detail->n_sampling ?? '-' }}</td>
                 <td style="line-height: 1.4;">
-                    <div>MIN: <strong>{{ $detail->result_min ?? '-' }}</strong></div>
-                    <div>AVG: <strong>{{ $detail->result_avg ?? '-' }}</strong></div>
-                    <div>MAX: <strong>{{ $detail->result_max ?? '-' }}</strong></div>
+                    @if(is_numeric($detail->result_avg))
+                        <div>MIN: <strong>{{ $detail->result_min ?? '-' }}</strong></div>
+                        <div>AVG: <strong>{{ $detail->result_avg }}</strong></div>
+                        <div>MAX: <strong>{{ $detail->result_max ?? '-' }}</strong></div>
+                    @else
+                        -
+                    @endif
                 </td>
                 <td>
                     <span style="font-weight: bold; color: {{ $detail->decision === 'OK' ? 'green' : 'red' }};">
                         {{ $detail->decision ?? 'OK' }}
                     </span>
                 </td>
-                <td>{{ $detail->remark ?? '-' }}</td>
             </tr>
             @empty
             <tr>
-                <td colspan="11">Tidak ada detail parameter.</td>
+                <td colspan="10">Tidak ada detail parameter.</td>
             </tr>
             @endforelse
         </tbody>

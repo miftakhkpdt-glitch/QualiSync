@@ -196,17 +196,18 @@
         <table class="analysis-table">
             <thead>
                 <tr>
-                    <th colspan="5" class="analysis-sec-title">ANALYSIS SECTION</th>
+                    <th colspan="6" class="analysis-sec-title">ANALYSIS SECTION</th>
                 </tr>
                 <tr>
-                    <th style="width: 35%;" rowspan="2">CRITICAL PROPERTY</th>
-                    <th style="width: 12%;" rowspan="2">UOM</th>
-                    <th colspan="2" style="width: 36%;">STANDARD</th>
-                    <th style="width: 17%;" rowspan="2">TEST RESULT<br>(MIN / AVG / MAX)</th>
+                    <th style="width: 28%;" rowspan="2">CRITICAL PROPERTY</th>
+                    <th style="width: 9%;" rowspan="2">UOM</th>
+                    <th colspan="2" style="width: 30%;">STANDARD</th>
+                    <th style="width: 20%;" rowspan="2">TEST RESULT<br>(MIN / AVG / MAX)</th>
+                    <th style="width: 13%;" rowspan="2">DECISION</th>
                 </tr>
                 <tr>
-                    <th style="width: 18%;">MINIMUM</th>
-                    <th style="width: 18%;">MAXIMUM</th>
+                    <th style="width: 15%;">MINIMUM</th>
+                    <th style="width: 15%;">MAXIMUM</th>
                 </tr>
             </thead>
             <tbody>
@@ -219,6 +220,8 @@
                         $item = (object) $param;
                         $minValue = $item->min_val ?? $item->min_value ?? null;
                         $maxValue = $item->max_val ?? $item->max_value ?? null;
+                        $resultValue = $item->result_avg ?? $item->hasil ?? '-';
+                        $hasNumericResult = is_numeric($resultValue);
                         $standardText = trim((string) ($item->standar_text ?? $item->standar_teks ?? ''));
                     @endphp
                     <tr>
@@ -233,14 +236,21 @@
                         @endif
 
                         <td style="text-align: center; font-weight: bold; line-height: 1.5;">
-                            <div>MIN: {{ $item->result_min ?? '-' }}</div>
-                            <div>AVG: {{ $item->result_avg ?? $item->hasil ?? '-' }}</div>
-                            <div>MAX: {{ $item->result_max ?? '-' }}</div>
+                            @if($hasNumericResult)
+                                <div>MIN: {{ $item->result_min ?? '-' }}</div>
+                                <div>AVG: {{ $resultValue }}</div>
+                                <div>MAX: {{ $item->result_max ?? '-' }}</div>
+                            @else
+                                -
+                            @endif
+                        </td>
+                        <td style="text-align: center; font-weight: bold; color: {{ ($item->decision ?? '') === 'OK' ? 'green' : ((($item->decision ?? '') === 'NG') ? 'red' : '#000') }};">
+                            {{ $item->decision ?? '-' }}
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" style="text-align: center; padding: 12px; color: #666;">Tidak ada data parameter inspeksi.</td>
+                        <td colspan="6" style="text-align: center; padding: 12px; color: #666;">Tidak ada data parameter inspeksi.</td>
                     </tr>
                 @endforelse
             </tbody>
