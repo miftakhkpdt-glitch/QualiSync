@@ -19,6 +19,21 @@ class CpkController extends Controller
         $masterItems = DB::table('master_materials')->where('kategori', 'Finish Good')->get();
         $parameters = DB::table('master_parameters')->where('tipe_input', 'Angka')->get();
 
+        $frequentItems = DB::table('qir_records')
+            ->join('master_materials', 'qir_records.no_mm', '=', 'master_materials.no_mm')
+            ->where('master_materials.kategori', 'Finish Good')
+            ->whereBetween('qir_records.tanggal', [$startDate, $endDate])
+            ->select(
+                'qir_records.no_mm',
+                'master_materials.nama_material',
+                DB::raw('COUNT(*) as total_qir')
+            )
+            ->groupBy('qir_records.no_mm', 'master_materials.nama_material')
+            ->orderByDesc('total_qir')
+            ->orderBy('qir_records.no_mm')
+            ->limit(5)
+            ->get();
+
         // Ambil daftar No. Batch (Diperbaiki agar lolos validasi SQL strict mode)
         $availableBatches = [];
         if ($no_mm) {
@@ -133,7 +148,8 @@ class CpkController extends Controller
 
         return view('quality.inproses.fg.laporan_cpk', compact(
             'startDate', 'endDate', 'masterItems', 'parameters', 
-            'no_mm', 'selectedParams', 'availableBatches', 'selectedBatches', 'multiCpkResults'
+            'no_mm', 'selectedParams', 'availableBatches', 'selectedBatches', 'multiCpkResults',
+            'frequentItems'
         ));
     }
 }

@@ -55,6 +55,46 @@
         max-height: 140px;
         overflow-y: auto;
     }
+    .cpk-filter-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 20px;
+        margin-bottom: 15px;
+    }
+    .frequent-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 0;
+        border-bottom: 1px solid #e2e8f0;
+        font-size: 12px;
+    }
+    .frequent-item:last-child { border-bottom: 0; }
+    .frequent-item-rank {
+        color: #64748b;
+        font-weight: bold;
+        min-width: 18px;
+    }
+    .frequent-item-name {
+        flex: 1;
+        min-width: 0;
+        color: #334155;
+        overflow-wrap: anywhere;
+    }
+    .frequent-item-count {
+        color: #1d4ed8;
+        background: #dbeafe;
+        border-radius: 10px;
+        padding: 3px 7px;
+        white-space: nowrap;
+        font-weight: bold;
+    }
+    @media screen and (max-width: 900px) {
+        .cpk-filter-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media screen and (max-width: 600px) {
+        .cpk-filter-grid { grid-template-columns: minmax(0, 1fr); }
+    }
     .checkbox-item {
         display: flex;
         align-items: center;
@@ -145,7 +185,7 @@
             </div>
 
             <!-- GRID PILIHAN: BATCH (KIRI) & PARAMETER (KANAN) -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 15px;">
+            <div class="cpk-filter-grid">
                 
                 <!-- KOLOM KIRI: FILTER NO BATCH DENGAN SEARCH -->
                 <div>
@@ -182,6 +222,26 @@
                                 {{ $param->nama_parameter }} @if($param->satuan) <small>({{ $param->satuan }})</small> @endif
                             </label>
                         @endforeach
+                    </div>
+                </div>
+
+                <div>
+                    <label style="font-weight: bold; font-size: 12px; display: block; margin-bottom: 5px;">5 Item Sering Running</label>
+                    <div class="box-container">
+                        @forelse($frequentItems as $index => $item)
+                            <div class="frequent-item">
+                                <span class="frequent-item-rank">{{ $index + 1 }}.</span>
+                                <span class="frequent-item-name">
+                                    <strong>{{ $item->no_mm }}</strong><br>
+                                    {{ $item->nama_material }}
+                                </span>
+                                <span class="frequent-item-count">{{ $item->total_qir }} QIR</span>
+                            </div>
+                        @empty
+                            <div style="font-size: 12px; color: #94a3b8; text-align: center; padding: 20px;">
+                                Belum ada data QIR pada rentang tanggal ini.
+                            </div>
+                        @endforelse
                     </div>
                 </div>
 
