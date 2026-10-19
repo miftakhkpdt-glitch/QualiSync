@@ -110,9 +110,11 @@ class CoaController extends Controller
                 ->pluck('hasil_aktual')
                 ->filter(fn ($nilai) => is_numeric($nilai));
 
-            $rekomendasiHasil[$parameterId] = $nilaiAngka->isNotEmpty()
-                ? number_format($nilaiAngka->avg(), 2, '.', '')
-                : '';
+            $rekomendasiHasil[$parameterId] = [
+                'min' => $nilaiAngka->isNotEmpty() ? number_format($nilaiAngka->min(), 2, '.', '') : '',
+                'avg' => $nilaiAngka->isNotEmpty() ? number_format($nilaiAngka->avg(), 2, '.', '') : '',
+                'max' => $nilaiAngka->isNotEmpty() ? number_format($nilaiAngka->max(), 2, '.', '') : '',
+            ];
             continue;
         }
 
@@ -208,6 +210,8 @@ class CoaController extends Controller
                     'min_val'        => $param['min_val'] ?? null,
                     'max_val'        => $param['max_val'] ?? null,
                     'result_avg'     => $param['result_avg'] ?? null, // Untuk template General
+                    'result_min'     => $param['result_min'] ?? null,
+                    'result_max'     => $param['result_max'] ?? null,
 
                     // Tambahan untuk Yasulor
                     'control_method' => $param['control_method'] ?? null,

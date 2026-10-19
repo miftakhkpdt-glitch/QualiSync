@@ -152,7 +152,7 @@
                                 <th class="yasulor-col" style="display: none; width: 70px;">n sampling</th>
                                 
                                 <!-- Kolom Hasil QIR (MUNCUL DI KEDUA MODE GENERAL & YASULOR) -->
-                                <th style="min-width: 140px; text-align: center; background-color: #eaecf4; color: #4e73df;">Result (AVG QIR)</th>
+                                <th style="min-width: 170px; text-align: center; background-color: #eaecf4; color: #4e73df;">Result (MIN / AVG / MAX QIR)</th>
                                 
                                 <!-- Kolom Keputusan Yasulor -->
                                 <th class="yasulor-col" style="display: none; width: 90px;">Decision</th>
@@ -165,8 +165,11 @@
                                 // Mengambil ID parameter (menyesuaikan nama field di db)
                                 $pId = $param->parameter_id ?? $param->id;
                                 
-                                // Nilai Rata-rata dari QIR (jika ada)
-                                $valHasil = $rekomendasiHasil[$pId] ?? '';
+                                // Hasil min, rata-rata, dan max QIR (jika ada)
+                                $qirResult = $rekomendasiHasil[$pId] ?? '';
+                                $valMin = is_array($qirResult) ? ($qirResult['min'] ?? '') : '';
+                                $valHasil = is_array($qirResult) ? ($qirResult['avg'] ?? '') : $qirResult;
+                                $valMax = is_array($qirResult) ? ($qirResult['max'] ?? '') : '';
                             @endphp
                             <tr>
                                 <td>
@@ -232,14 +235,21 @@
                                     <input type="number" name="parameters[{{ $index }}][n_sampling]" class="t-input" value="{{ $param->n_sampling ?? $param->n ?? '' }}">
                                 </td>
 
-                                <!-- Result / Hasil AVG QIR (MUNCUL DI KEDUA MODE GENERAL MAUPUN YASULOR) -->
+                                <!-- Result min, average, dan max QIR (muncul di kedua mode) -->
                                 <td style="text-align: center;">
+                                    <input type="hidden" name="parameters[{{ $index }}][result_min]" value="{{ $valMin }}">
+                                    <input type="hidden" name="parameters[{{ $index }}][result_max]" value="{{ $valMax }}">
+                                    <div style="font-size: 0.72rem; line-height: 1.5; color: #5a5c69; text-align: left; margin-bottom: 4px;">
+                                        <div>MIN: <strong>{{ $valMin !== '' ? $valMin : '-' }}</strong></div>
+                                        <div>MAX: <strong>{{ $valMax !== '' ? $valMax : '-' }}</strong></div>
+                                    </div>
+                                    <div style="font-size: 0.72rem; color: #5a5c69; text-align: left; margin-bottom: 3px;">AVG:</div>
                                     <input type="text" 
                                            name="parameters[{{ $index }}][result_avg]" 
                                            class="t-input" 
                                            style="text-align: center; font-weight: bold; color: #4e73df; background-color: #f8f9fc;" 
                                            value="{{ $valHasil }}" 
-                                           placeholder="Otomatis QIR">
+                                           placeholder="AVG QIR">
                                 </td>
 
                                 <!-- Kolom Yasulor Decision & Remark -->

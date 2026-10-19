@@ -202,7 +202,7 @@
                     <th style="width: 35%;" rowspan="2">CRITICAL PROPERTY</th>
                     <th style="width: 12%;" rowspan="2">UOM</th>
                     <th colspan="2" style="width: 36%;">STANDARD</th>
-                    <th style="width: 17%;" rowspan="2">TEST RESULT (AVG)</th>
+                    <th style="width: 17%;" rowspan="2">TEST RESULT<br>(MIN / AVG / MAX)</th>
                 </tr>
                 <tr>
                     <th style="width: 18%;">MINIMUM</th>
@@ -232,7 +232,11 @@
                             <td colspan="2" style="text-align: center;">{{ $standardText !== '' ? $standardText : '-' }}</td>
                         @endif
 
-                        <td style="text-align: center; font-weight: bold;">{{ $item->result_avg ?? $item->hasil ?? '-' }}</td>
+                        <td style="text-align: center; font-weight: bold; line-height: 1.5;">
+                            <div>MIN: {{ $item->result_min ?? '-' }}</div>
+                            <div>AVG: {{ $item->result_avg ?? $item->hasil ?? '-' }}</div>
+                            <div>MAX: {{ $item->result_max ?? '-' }}</div>
+                        </td>
                     </tr>
                 @empty
                     <tr>

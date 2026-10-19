@@ -143,14 +143,14 @@
         <thead>
             <tr>
                 <th style="width: 4%;">No</th>
-                <th style="width: 17%;">Parameter</th>
-                <th style="width: 19%;">Standard Specification</th>
-                <th style="width: 11%;">Control Method</th>
+                <th style="width: 16%;">Parameter</th>
+                <th style="width: 18%;">Standard Specification</th>
+                <th style="width: 10%;">Control Method</th>
                 <th style="width: 7%;">Insp. Level</th>
                 <th style="width: 5%;">AQL</th>
                 <th style="width: 6%;">Freq.</th>
                 <th style="width: 6%;">n Sampl</th>
-                <th style="width: 8%;">Result</th>
+                <th style="width: 11%;">Result<br>(Min / Avg / Max)</th>
                 <th style="width: 8%;">Decision</th>
                 <th style="width: 9%;">Remark</th>
             </tr>
@@ -178,7 +178,11 @@
                 <td>{{ $detail->aql ?? '-' }}</td>
                 <td>{{ $detail->frequency ?? '-' }}</td>
                 <td>{{ $detail->n_sampling ?? '-' }}</td>
-                <td><strong>{{ $detail->result_avg ?? '-' }}</strong></td>
+                <td style="line-height: 1.4;">
+                    <div>MIN: <strong>{{ $detail->result_min ?? '-' }}</strong></div>
+                    <div>AVG: <strong>{{ $detail->result_avg ?? '-' }}</strong></div>
+                    <div>MAX: <strong>{{ $detail->result_max ?? '-' }}</strong></div>
+                </td>
                 <td>
                     <span style="font-weight: bold; color: {{ $detail->decision === 'OK' ? 'green' : 'red' }};">
                         {{ $detail->decision ?? 'OK' }}
