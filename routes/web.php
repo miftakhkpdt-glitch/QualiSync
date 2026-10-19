@@ -167,7 +167,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/qir/store-session', [QirController::class, 'storeSession']);
         Route::get('/qir/sheet', [QirController::class, 'index']);
         Route::get('/qir/riwayat', [QirController::class, 'history']);
-        Route::post('/qir/update/{id}', [App\Http\Controllers\Quality\QirController::class, 'update']);
+        Route::post('/qir/update/{id}', [App\Http\Controllers\Quality\QirController::class, 'update'])
+            ->middleware('role:admin,staff_quality');
         Route::post('/qir-detail', [QirController::class, 'store']);
         // 1. Route untuk AJAX (Tarik data master otomatis)
         Route::get('/qir/get-master-standard/{no_mm}', [App\Http\Controllers\Quality\QirController::class, 'getMasterStandard']);
@@ -178,7 +179,8 @@ Route::middleware(['auth'])->group(function () {
 Route::get('/qir/detail/{id}', [App\Http\Controllers\Quality\QirController::class, 'show']);
 
 // Rute untuk Halaman Edit
-Route::get('/qir/edit/{id}', [App\Http\Controllers\Quality\QirController::class, 'edit']);
+Route::get('/qir/edit/{id}', [App\Http\Controllers\Quality\QirController::class, 'edit'])
+    ->middleware('role:admin,staff_quality');
 Route::get('/qir/get-parameters/{no_mm}', [App\Http\Controllers\Quality\QirController::class, 'getParameters']);
 
 

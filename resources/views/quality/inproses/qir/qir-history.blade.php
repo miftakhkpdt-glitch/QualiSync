@@ -157,10 +157,11 @@
                                     <i class="fas fa-eye"></i> Lihat
                                 </a>
 
-                                <!-- Tombol Edit -->
+                                @if(in_array(strtolower(auth()->user()->role ?? ''), ['admin', 'staff_quality'], true))
                                 <a href="{{ url('/qir/edit/' . $row->id) }}" class="btn-edit">
                                     <i class="fas fa-edit"></i> Edit
                                 </a>
+                                @endif
 
                                 @if(strtolower(auth()->user()->role ?? '') === 'admin')
                                 <form action="{{ url('/qir/delete/' . $row->id) }}" method="POST" style="margin: 0;" onsubmit="return confirm('Yakin ingin menghapus seluruh riwayat QIR untuk Batch {{ $row->no_batch }} ini?');">
