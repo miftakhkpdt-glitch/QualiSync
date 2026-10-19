@@ -149,8 +149,14 @@
                             @php
                                 $nilai = $hasil_parameter[$param->id] ?? '-';
                                 $isNG = ($nilai === 'NG');
+                                $isOutOfRange = $param->tipe_input === 'Angka'
+                                    && is_numeric($nilai)
+                                    && (
+                                        ($param->min_value !== null && (float) $nilai < (float) $param->min_value)
+                                        || ($param->max_value !== null && (float) $nilai > (float) $param->max_value)
+                                    );
                             @endphp
-                            <td style="{{ $isNG ? 'color: red; font-weight: bold;' : '' }}">
+                            <td style="{{ $isNG || $isOutOfRange ? 'color: #b91c1c; background-color: #fee2e2; font-weight: bold; border: 2px solid #ef4444;' : '' }}">
                                 {{ $nilai }}
                             </td>
                         @endforeach

@@ -145,18 +145,17 @@ class QirController extends Controller
                         $std = $standards->get($param_id);
                         $status_hasil = 'OK';
 
-                        // LOGIKA GERBANG BLOKIR
                         if ($std) {
                             $nama_param = $std->nama_parameter;
 
                             if ($std->tipe_input === 'Angka') {
                                 $nilai_angka = (float) $nilai_aktual;
                                 
-                                if ($std->min_value !== null && $nilai_angka < $std->min_value) {
-                                    throw new \Exception("Sampel $sampleNo: $nama_param ($nilai_angka) di bawah standar minimum ($std->min_value).");
-                                }
-                                if ($std->max_value !== null && $nilai_angka > $std->max_value) {
-                                    throw new \Exception("Sampel $sampleNo: $nama_param ($nilai_angka) melebihi standar maksimum ($std->max_value).");
+                                if (
+                                    ($std->min_value !== null && $nilai_angka < $std->min_value)
+                                    || ($std->max_value !== null && $nilai_angka > $std->max_value)
+                                ) {
+                                    $status_hasil = 'NG';
                                 }
                             } else { // Jika tipe Teks/Visual (OK/NG)
                                 if ($nilai_aktual == 'NG') {
@@ -413,12 +412,17 @@ class QirController extends Controller
 
                     foreach ($hasilSampelIni as $param_id => $nilai_aktual) {
                         $std = $standards->get($param_id);
+                        $status_hasil = 'OK';
                         
                         if ($std) {
                             if ($std->tipe_input === 'Angka') {
                                 $nilai_angka = (float) $nilai_aktual;
-                                if ($std->min_value !== null && $nilai_angka < $std->min_value) throw new \Exception("Sampel $sampleNo: $std->nama_parameter ($nilai_angka) di bawah standar ($std->min_value).");
-                                if ($std->max_value !== null && $nilai_angka > $std->max_value) throw new \Exception("Sampel $sampleNo: $std->nama_parameter ($nilai_angka) melebihi standar ($std->max_value).");
+                                if (
+                                    ($std->min_value !== null && $nilai_angka < $std->min_value)
+                                    || ($std->max_value !== null && $nilai_angka > $std->max_value)
+                                ) {
+                                    $status_hasil = 'NG';
+                                }
                             } else {
                                 if ($nilai_aktual == 'NG') throw new \Exception("Sampel $sampleNo: Pengecekan $std->nama_parameter berstatus NG.");
                             }
@@ -428,7 +432,7 @@ class QirController extends Controller
                             'qir_detail_id' => $detail_id,
                             'parameter_id'  => $param_id,
                             'hasil_aktual'  => $nilai_aktual,
-                            'status'        => 'OK',
+                            'status'        => $status_hasil,
                         ]);
                     }
                 }

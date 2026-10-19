@@ -22,6 +22,8 @@
     .modern-table td { padding: 8px; border: 1px solid #e2e8f0; }
     .std-row { background-color: #fffbeb; font-size: 12px; font-weight: bold; color: #d97706; }
     .input-sm { width: 100%; padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center; }
+    .out-of-range-cell { background-color: #fef2f2; }
+    .input-sm.out-of-range { border: 2px solid #ef4444; background-color: #fee2e2; color: #b91c1c; }
 </style>
 @endpush
 
@@ -256,12 +258,6 @@
         function validateNumberRange(inputEl) {
             const $input = $(inputEl);
             const raw = $input.val();
-            if (raw === '' || raw === null) {
-                $input.data('range-alerted', false);
-                $input.css('border-color', '#cbd5e1');
-                return true;
-            }
-
             const name = $input.attr('name');
             const match = name.match(/hasil_aktual\[\d+\]\[(\d+)\]/);
             if (!match) return true;
@@ -273,40 +269,23 @@
             const value = Number(raw);
             const min = param.min_value !== null && param.min_value !== '' ? Number(param.min_value) : null;
             const max = param.max_value !== null && param.max_value !== '' ? Number(param.max_value) : null;
+            const outOfRange = raw !== '' && raw !== null
+                && ((min !== null && value < min) || (max !== null && value > max));
+            const $cell = $input.closest('td');
 
-            if ((min !== null && value < min) || (max !== null && value > max)) {
-                $input.css('border-color', '#ef4444');
-                const alerted = $input.data('range-alerted') === true;
-                if (!alerted) {
-                    $input.data('range-alerted', true);
-                    $input.focus();
-                    alert('Nilai di luar range standar untuk parameter: ' + (param.nama_parameter || 'this parameter'));
-                }
-                return false;
-            }
+            $input.toggleClass('out-of-range', outOfRange);
+            $cell.toggleClass('out-of-range-cell', outOfRange);
 
-            $input.data('range-alerted', false);
-            $input.css('border-color', '#cbd5e1');
             return true;
         }
 
         function attachNumericValidation() {
-            $('#table-body input[type="number"]').off('blur.rangeCheck keydown.rangeCheck input.rangeCheck').on('blur.rangeCheck', function(e) {
-                if (!validateNumberRange(this)) {
-                    e.preventDefault();
-                    this.focus();
-                    return false;
-                }
-            }).on('keydown.rangeCheck', function(e) {
-                if (e.key === 'Enter' || e.key === 'Tab') {
-                    if (!validateNumberRange(this)) {
-                        e.preventDefault();
-                        return false;
-                    }
-                }
-            }).on('input.rangeCheck', function() {
-                $(this).data('range-alerted', false);
-                $(this).css('border-color', '#cbd5e1');
+            $('#table-body').off('input.rangeCheck change.rangeCheck', 'input[type="number"]')
+                .on('input.rangeCheck change.rangeCheck', 'input[type="number"]', function() {
+                    validateNumberRange(this);
+                });
+            $('#table-body input[type="number"]').each(function() {
+                validateNumberRange(this);
             });
         }
 
@@ -325,12 +304,6 @@
                 const tag = e.target.tagName;
                 const type = e.target.type;
                 if (tag !== 'TEXTAREA' && type !== 'submit' && type !== 'button' && !e.target.isContentEditable) {
-                    if (tag === 'INPUT' && type === 'number') {
-                        if (!validateNumberRange(e.target)) {
-                            e.preventDefault();
-                            return false;
-                        }
-                    }
                     e.preventDefault();
                     return false;
                 }
