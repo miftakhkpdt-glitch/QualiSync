@@ -1,3 +1,6 @@
+@php
+    $batchDisplay = implode(', ', array_filter(array_map('trim', explode(',', (string) $coa->no_batch)), fn ($value) => $value !== ''));
+@endphp
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -115,8 +118,6 @@
         <tr>
             <td class="fw">Material Name</td>
             <td>: {{ $master->nama_material ?? $master->nama_item ?? '-' }}</td>
-            <td class="fw">PO Number</td>
-            <td>: {{ $coa->po_number ?? '-' }}</td>
             <td class="fw">Cavity / Mandrel</td>
             <td>: {{ $coa->cavity_mandrel ?? '1-4/1-32' }}</td>
         </tr>
@@ -130,7 +131,7 @@
         </tr>
         <tr>
             <td class="fw">Batch No.</td>
-            <td>: {{ $coa->no_batch }}</td>
+            <td>: {{ $batchDisplay }}</td>
             <td class="fw">Sample Qty DS</td>
             <td>: {{ $coa->sample_quantity ?? '-' }} Pcs</td>
             <td></td>

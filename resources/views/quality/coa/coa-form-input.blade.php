@@ -1,6 +1,9 @@
 @extends('layouts.staff-layout')
 
 @section('konten')
+@php
+    $batchDisplay = implode(', ', array_filter(array_map('trim', explode(',', (string) $batch)), fn ($value) => $value !== ''));
+@endphp
 <!-- Custom CSS Mandiri untuk Form Modern -->
 <style>
     .coa-form-card { background: #fff; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #eaecf4; overflow: hidden; margin-bottom: 25px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
@@ -57,7 +60,7 @@
         <div class="coa-form-header">
             <h5><i class="fas fa-file-signature" style="margin-right: 8px;"></i> Penerbitan Dokumen COA</h5>
             <div class="header-badge">
-                <i class="fas fa-box" style="margin-right: 5px;"></i> MM: {{ $mm }} | Batch: {{ $batch }}
+                <i class="fas fa-box" style="margin-right: 5px;"></i> MM: {{ $mm }} | Batch: {{ $batchDisplay }}
             </div>
         </div>
 
@@ -98,10 +101,6 @@
                     <div class="c-col-4">
                         <label class="c-label">Item Code Customer</label>
                         <input type="text" name="item_code_customer" class="c-input" placeholder="Kode item di pihak customer">
-                    </div>
-                    <div class="c-col-4">
-                        <label class="c-label">PO Number</label>
-                        <input type="text" name="po_number" class="c-input" placeholder="Nomor Purchase Order">
                     </div>
                     <div class="c-col-6">
                         <label class="c-label">Delivery Quantity (Pcs)</label>

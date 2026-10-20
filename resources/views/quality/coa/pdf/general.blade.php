@@ -1,3 +1,7 @@
+@php
+    $batchNumber = $coa->no_batch ?? ($savedCoa->no_batch ?? ($batch ?? '-'));
+    $batchDisplay = implode(', ', array_filter(array_map('trim', explode(',', (string) $batchNumber)), fn ($value) => $value !== ''));
+@endphp
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -147,6 +151,10 @@
     <!-- 3. GENERAL INFORMATION TABLE -->
     <table class="info-grid" style="width: 100%; border-collapse: collapse; border: none;">
         <tr>
+            <td class="info-label" style="border: none; padding: 4px 8px 4px 0; font-weight: bold; width: 25%;">Customer Name</td>
+            <td class="info-colon-val" style="border: none; padding: 4px 0;">: {{ $coa->customer_name ?: '-' }}</td>
+        </tr>
+        <tr>
             <td class="info-label" style="border: none; padding: 4px 8px 4px 0; font-weight: bold; width: 25%;">Supplier Name</td>
             <td class="info-colon-val" style="border: none; padding: 4px 0;">: PT KIMPAI DYNA TUBE</td>
         </tr>
@@ -167,12 +175,8 @@
             <td class="info-colon-val" style="border: none; padding: 4px 0;">: {{ $coa->item_code_customer ?? ($savedCoa->item_code_customer ?? '-') }}</td>
         </tr>
         <tr>
-            <td class="info-label" style="border: none; padding: 4px 8px 4px 0; font-weight: bold;">PO Number</td>
-            <td class="info-colon-val" style="border: none; padding: 4px 0;">: {{ $coa->po_number ?? ($savedCoa->po_number ?? '-') }}</td>
-        </tr>
-        <tr>
             <td class="info-label" style="border: none; padding: 4px 8px 4px 0; font-weight: bold;">Batch Number</td>
-            <td class="info-colon-val" style="border: none; padding: 4px 0;">: {{ $coa->no_batch ?? ($savedCoa->no_batch ?? ($batch ?? '-')) }}</td>
+            <td class="info-colon-val" style="border: none; padding: 4px 0;">: {{ $batchDisplay }}</td>
         </tr>
         <tr>
             <td class="info-label" style="border: none; padding: 4px 8px 4px 0; font-weight: bold;">Cavity / Mandrel</td>
