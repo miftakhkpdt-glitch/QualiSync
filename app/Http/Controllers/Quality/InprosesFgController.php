@@ -167,6 +167,18 @@ class InprosesFgController extends Controller
 
     public function riwayat(Request $request)
     {
+        $filters = $request->validate([
+            'tanggal' => 'nullable|date_format:Y-m-d',
+            'tanggal_dari' => 'nullable|date_format:Y-m-d',
+            'tanggal_sampai' => 'nullable|date_format:Y-m-d|after_or_equal:tanggal_dari',
+            'no_batch' => 'nullable|string|max:100',
+            'no_mm' => 'nullable|string|max:255',
+            'nama_item' => 'nullable|string|max:255',
+            'shift' => 'nullable|string|max:50',
+            'line_produksi' => 'nullable|string|max:100',
+            'inspection_type' => 'nullable|string|max:100',
+        ]);
+
         $query = DB::table('fg_inspections')
             ->leftJoin('master_materials', 'fg_inspections.no_mm', '=', 'master_materials.no_mm')
             ->select(
@@ -174,26 +186,76 @@ class InprosesFgController extends Controller
                 'master_materials.nama_material as nama_item'
             );
 
-        if ($request->filled('tanggal')) {
-            $query->whereDate('fg_inspections.tanggal', $request->tanggal);
+        if (!empty($filters['tanggal'])) {
+            $query->whereDate('fg_inspections.tanggal', $filters['tanggal']);
         }
 
-        if ($request->filled('no_batch')) {
-            $query->where('fg_inspections.no_batch', 'like', '%' . $request->no_batch . '%');
+        if (!empty($filters['tanggal_dari'])) {
+            $query->whereDate('fg_inspections.tanggal', '>=', $filters['tanggal_dari']);
         }
 
-        if ($request->filled('no_mm')) {
-                $noMmOrItem = '%' . $request->no_mm . '%';
+        if (!empty($filters['tanggal_sampai'])) {
+            $query->whereDate('fg_inspections.tanggal', '<=', $filters['tanggal_sampai']);
+        }
+
+        if (!empty($filters['no_batch'])) {
+            $query->where('fg_inspections.no_batch', 'like', '%' . $filters['no_batch'] . '%');
+        }
+
+        if (!empty($filters['no_mm'])) {
+            $noMmOrItem = '%' . $filters['no_mm'] . '%';
+            if (!empty($filters['nama_item'])) {
+                $query->where('fg_inspections.no_mm', 'like', $noMmOrItem);
+            } else {
                 $query->where(function ($query) use ($noMmOrItem) {
                     $query->where('fg_inspections.no_mm', 'like', $noMmOrItem)
                         ->orWhere('master_materials.nama_material', 'like', $noMmOrItem);
                 });
             }
-
-            $riwayat = $query->orderBy('fg_inspections.tanggal', 'desc')->get();
-
-            return view('quality.inproses.fg.fg-history', compact('riwayat'));
         }
+
+        if (!empty($filters['nama_item'])) {
+            $query->where('master_materials.nama_material', 'like', '%' . $filters['nama_item'] . '%');
+        }
+
+        foreach ([
+            'shift' => 'fg_inspections.shift',
+            'line_produksi' => 'fg_inspections.line_produksi',
+            'inspection_type' => 'fg_inspections.inspection_type',
+        ] as $filter => $column) {
+            if (!empty($filters[$filter])) {
+                $query->where($column, $filters[$filter]);
+            }
+        }
+
+        $riwayat = $query->orderBy('fg_inspections.tanggal', 'desc')->get();
+
+        $shiftOptions = DB::table('fg_inspections')
+            ->whereNotNull('shift')
+            ->where('shift', '<>', '')
+            ->distinct()
+            ->orderBy('shift')
+            ->pluck('shift');
+        $lineOptions = DB::table('fg_inspections')
+            ->whereNotNull('line_produksi')
+            ->where('line_produksi', '<>', '')
+            ->distinct()
+            ->orderBy('line_produksi')
+            ->pluck('line_produksi');
+        $inspectionTypeOptions = DB::table('fg_inspections')
+            ->whereNotNull('inspection_type')
+            ->where('inspection_type', '<>', '')
+            ->distinct()
+            ->orderBy('inspection_type')
+            ->pluck('inspection_type');
+
+        return view('quality.inproses.fg.fg-history', compact(
+            'riwayat',
+            'shiftOptions',
+            'lineOptions',
+            'inspectionTypeOptions'
+        ));
+    }
 
     // ==========================================
     // HALAMAN DETAIL / CETAK FG

@@ -58,6 +58,40 @@
     .empty-row { text-align: center; padding: 30px; color: #64748b; font-style: italic; }
     
     .badge-shift { background: #e2e8f0; color: #334155; padding: 4px 10px; border-radius: 6px; font-weight: bold; font-size: 12px; }
+
+    .filter-toolbar {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+    .filter-toolbar button,
+    .filter-toolbar a {
+        border: 0;
+        border-radius: 6px;
+        padding: 8px 12px;
+        font-size: 12px;
+        font-weight: bold;
+        text-decoration: none;
+        cursor: pointer;
+    }
+    .filter-toolbar button { background: #3b82f6; color: #fff; }
+    .filter-toolbar a { background: #e2e8f0; color: #475569; }
+    .filter-row th { background: #fff; text-transform: none; }
+    .filter-input {
+        width: 100%;
+        min-width: 95px;
+        box-sizing: border-box;
+        padding: 7px 8px;
+        border: 1px solid #cbd5e1;
+        border-radius: 5px;
+        background: #fff;
+        color: #334155;
+        font: inherit;
+        font-weight: normal;
+        text-transform: none;
+    }
+    .filter-date-range { display: grid; gap: 5px; min-width: 130px; }
 </style>
 @endpush
 
@@ -77,44 +111,12 @@
             <i class="fas fa-info-circle" style="margin-right: 5px;"></i> Catatan: Riwayat dokumen QIR akan dihapus secara otomatis oleh sistem apabila usianya telah melebihi 2 tahun dari tanggal pembuatan.
         </div>
         
-        <!-- ========================================== -->
-        <!-- FORM FILTER PENCARIAN (BARU)               -->
-        <!-- ========================================== -->
-        <div style="background: #f8fafc; padding: 15px 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #e2e8f0;">
-            <form action="{{ url('/qir/riwayat') }}" method="GET" style="display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap; margin: 0;">
-                
-                <div style="flex: 1; min-width: 150px;">
-                    <label style="font-size: 12px; font-weight: bold; color: #475569; display: block; margin-bottom: 5px;">TANGGAL</label>
-                    <input type="date" name="tanggal" value="{{ request('tanggal') }}" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none; font-size: 13px;">
-                </div>
-                
-                <div style="flex: 1; min-width: 150px;">
-                    <label style="font-size: 12px; font-weight: bold; color: #475569; display: block; margin-bottom: 5px;">NO. BATCH</label>
-                    <input type="text" name="no_batch" value="{{ request('no_batch') }}" placeholder="Cari No Batch..." style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none; font-size: 13px;">
-                </div>
-                
-                <div style="flex: 1; min-width: 150px;">
-                    <label style="font-size: 12px; font-weight: bold; color: #475569; display: block; margin-bottom: 5px;">NO. MM</label>
-                    <input type="text" name="no_mm" value="{{ request('no_mm') }}" placeholder="Cari No MM..." style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none; font-size: 13px;">
-                </div>
-                
-                <div style="display: flex; gap: 10px;">
-                    <button type="submit" style="background: #3b82f6; color: white; border: none; padding: 9px 18px; border-radius: 6px; cursor: pointer; font-weight: bold; display: inline-flex; align-items: center; gap: 6px; font-size: 13px; transition: 0.2s;">
-                        <i class="fas fa-search"></i> Terapkan Filter
-                    </button>
-                    <a href="{{ url('/qir/riwayat') }}" style="background: #e2e8f0; color: #475569; text-decoration: none; padding: 9px 18px; border-radius: 6px; font-weight: bold; display: inline-flex; align-items: center; gap: 6px; font-size: 13px; transition: 0.2s;">
-                        <i class="fas fa-sync-alt"></i> Reset
-                    </a>
-                </div>
-            </form>
-        </div>
-        <!-- ========================================== -->
-
-        <!-- Tabel Anda -->
-        <div style="overflow-x: auto;">
-            <table class="tabel-custom">
-                <!-- ... header dan isi tabel Anda ... -->
-
+        <form id="qir-filters" action="{{ url('/qir/riwayat') }}" method="GET">
+            <div class="filter-toolbar">
+                <button type="submit"><i class="fas fa-search"></i> Terapkan Filter</button>
+                <a href="{{ url('/qir/riwayat') }}"><i class="fas fa-sync-alt"></i> Reset</a>
+            </div>
+        </form>
         <div style="overflow-x: auto;">
             <table class="tabel-custom">
                 <thead>
@@ -131,6 +133,51 @@
                         <th>Hasil QIR</th>
                         @endif
                         <th style="width: 240px;">Aksi</th>
+                    </tr>
+                    <tr class="filter-row">
+                        <th></th>
+                        <th>
+                            <div class="filter-date-range">
+                                <input class="filter-input" form="qir-filters" type="date" name="tanggal_dari" value="{{ request('tanggal_dari') }}" aria-label="Tanggal dari" title="Tanggal dari">
+                                <input class="filter-input" form="qir-filters" type="date" name="tanggal_sampai" value="{{ request('tanggal_sampai') }}" aria-label="Tanggal sampai" title="Tanggal sampai">
+                            </div>
+                        </th>
+                        <th><input class="filter-input" form="qir-filters" type="search" name="no_batch" value="{{ request('no_batch') }}" placeholder="Cari batch..." aria-label="Filter No. Batch"></th>
+                        <th><input class="filter-input" form="qir-filters" type="search" name="no_mm" value="{{ request('no_mm') }}" placeholder="Cari No. MM..." aria-label="Filter No. MM"></th>
+                        <th><input class="filter-input" form="qir-filters" type="search" name="nama_item" value="{{ request('nama_item') }}" placeholder="Cari nama item..." aria-label="Filter nama item"></th>
+                        <th>
+                            <select class="filter-input" form="qir-filters" name="shift" aria-label="Filter shift">
+                                <option value="">Semua</option>
+                                @foreach($shiftOptions as $shift)
+                                    <option value="{{ $shift }}" @selected(request('shift') === $shift)>{{ $shift }}</option>
+                                @endforeach
+                            </select>
+                        </th>
+                        <th>
+                            <select class="filter-input" form="qir-filters" name="line" aria-label="Filter line">
+                                <option value="">Semua</option>
+                                @foreach($lineOptions as $line)
+                                    <option value="{{ $line }}" @selected(request('line') === $line)>{{ $line }}</option>
+                                @endforeach
+                            </select>
+                        </th>
+                        <th>
+                            <select class="filter-input" form="qir-filters" name="status_edit" aria-label="Filter status edit">
+                                <option value="">Semua</option>
+                                <option value="baru" @selected(request('status_edit') === 'baru')>Baru</option>
+                                <option value="diedit" @selected(request('status_edit') === 'diedit')>Pernah Diedit</option>
+                            </select>
+                        </th>
+                        @if($canSeeOutOfStandard)
+                        <th>
+                            <select class="filter-input" form="qir-filters" name="hasil_qir" aria-label="Filter hasil QIR">
+                                <option value="">Semua</option>
+                                <option value="di_luar_standar" @selected(request('hasil_qir') === 'di_luar_standar')>Di Luar Standar</option>
+                                <option value="sesuai_standar" @selected(request('hasil_qir') === 'sesuai_standar')>Sesuai Standar</option>
+                            </select>
+                        </th>
+                        @endif
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>

@@ -192,8 +192,26 @@ class QirController extends Controller
     // ==========================================
     // 4. TAMPILKAN RIWAYAT QIR (DENGAN FILTER)
     // ==========================================
-    public function history(Request $request) // <-- Tambahkan Request $request di sini
+    public function history(Request $request)
     {
+        $role = strtolower(auth()->user()->role ?? '');
+        $canSeeOutOfStandard = in_array($role, ['admin', 'staff_quality'], true);
+
+        $filters = $request->validate([
+            'tanggal' => 'nullable|date_format:Y-m-d',
+            'tanggal_dari' => 'nullable|date_format:Y-m-d',
+            'tanggal_sampai' => 'nullable|date_format:Y-m-d|after_or_equal:tanggal_dari',
+            'no_batch' => 'nullable|string|max:100',
+            'no_mm' => 'nullable|string|max:100',
+            'nama_item' => 'nullable|string|max:255',
+            'shift' => 'nullable|string|max:50',
+            'line' => 'nullable|string|max:50',
+            'status_edit' => 'nullable|in:baru,diedit',
+            'hasil_qir' => $canSeeOutOfStandard
+                ? 'nullable|in:di_luar_standar,sesuai_standar'
+                : 'prohibited',
+        ]);
+
         // Mulai query dasar
         $query = DB::table('qir_records')
             ->leftJoin('master_materials', 'qir_records.no_mm', '=', 'master_materials.no_mm')
@@ -202,48 +220,63 @@ class QirController extends Controller
                 'master_materials.nama_material'
             );
 
-        // --- MULAI LOGIKA FILTER ---
-        // Jika user mengisi filter Tanggal
-        if ($request->filled('tanggal')) {
-            $query->whereDate('qir_records.tanggal', $request->tanggal);
+        if (!empty($filters['tanggal_dari'])) {
+            $query->whereDate('qir_records.tanggal', '>=', $filters['tanggal_dari']);
         }
 
-        // Jika user mengisi filter No Batch (gunakan LIKE agar bisa cari sebagian angka)
-        if ($request->filled('no_batch')) {
-            $query->where('qir_records.no_batch', 'like', '%' . $request->no_batch . '%');
+        if (!empty($filters['tanggal_sampai'])) {
+            $query->whereDate('qir_records.tanggal', '<=', $filters['tanggal_sampai']);
         }
 
-        // Jika user mengisi filter No MM
-        if ($request->filled('no_mm')) {
-            $query->where('qir_records.no_mm', 'like', '%' . $request->no_mm . '%');
+        if (!empty($filters['tanggal'])) {
+            $query->whereDate('qir_records.tanggal', $filters['tanggal']);
         }
-        // --- SELESAI LOGIKA FILTER ---
 
-        // Eksekusi query dan urutkan dari yang terbaru
-        $riwayat = $query->orderBy('qir_records.created_at', 'desc')->get();
+        foreach (['no_batch' => 'qir_records.no_batch', 'no_mm' => 'qir_records.no_mm', 'nama_item' => 'master_materials.nama_material'] as $filter => $column) {
+            if (!empty($filters[$filter])) {
+                $query->where($column, 'like', '%' . $filters[$filter] . '%');
+            }
+        }
 
-        $role = strtolower(auth()->user()->role ?? '');
-        $canSeeOutOfStandard = in_array($role, ['admin', 'staff_quality'], true);
+        if (!empty($filters['shift'])) {
+            $query->where('qir_records.shift', $filters['shift']);
+        }
 
-        if ($canSeeOutOfStandard && $riwayat->isNotEmpty()) {
-            $results = DB::table('qir_records')
-                ->join('qir_details', 'qir_details.qir_id', '=', 'qir_records.id')
-                ->join('qir_results', 'qir_results.qir_detail_id', '=', 'qir_details.id')
-                ->leftJoin('master_item_standards', function ($join) {
-                    $join->on('master_item_standards.no_mm', '=', 'qir_records.no_mm')
-                        ->on('master_item_standards.parameter_id', '=', 'qir_results.parameter_id');
-                })
-                ->leftJoin('master_parameters', 'master_parameters.id', '=', 'qir_results.parameter_id')
-                ->whereIn('qir_records.id', $riwayat->pluck('id'))
-                ->select(
-                    'qir_records.id as qir_id',
-                    'qir_results.hasil_aktual',
-                    'qir_results.status',
-                    'master_parameters.tipe_input',
-                    'master_item_standards.min_value',
-                    'master_item_standards.max_value'
-                )
-                ->get();
+        if (!empty($filters['line'])) {
+            $query->where('qir_records.line_produksi', $filters['line']);
+        }
+
+        if (($filters['status_edit'] ?? null) === 'diedit') {
+            $query->whereColumn('qir_records.updated_at', '>', 'qir_records.created_at');
+        } elseif (($filters['status_edit'] ?? null) === 'baru') {
+            $query->whereColumn('qir_records.updated_at', '<=', 'qir_records.created_at');
+        }
+
+        $outsideStandardIds = collect();
+        if ($canSeeOutOfStandard) {
+            $candidateIds = (clone $query)->pluck('qir_records.id');
+            $results = collect();
+
+            if ($candidateIds->isNotEmpty()) {
+                $results = DB::table('qir_records')
+                    ->join('qir_details', 'qir_details.qir_id', '=', 'qir_records.id')
+                    ->join('qir_results', 'qir_results.qir_detail_id', '=', 'qir_details.id')
+                    ->leftJoin('master_item_standards', function ($join) {
+                        $join->on('master_item_standards.no_mm', '=', 'qir_records.no_mm')
+                            ->on('master_item_standards.parameter_id', '=', 'qir_results.parameter_id');
+                    })
+                    ->leftJoin('master_parameters', 'master_parameters.id', '=', 'qir_results.parameter_id')
+                    ->whereIn('qir_records.id', $candidateIds)
+                    ->select(
+                        'qir_records.id as qir_id',
+                        'qir_results.hasil_aktual',
+                        'qir_results.status',
+                        'master_parameters.tipe_input',
+                        'master_item_standards.min_value',
+                        'master_item_standards.max_value'
+                    )
+                    ->get();
+            }
 
             $outsideStandardIds = $results
                 ->filter(function ($result) {
@@ -264,12 +297,45 @@ class QirController extends Controller
                 ->pluck('qir_id')
                 ->unique();
 
-            foreach ($riwayat as $row) {
+            if (($filters['hasil_qir'] ?? null) === 'di_luar_standar') {
+                $query->whereIn('qir_records.id', $outsideStandardIds);
+            } elseif (($filters['hasil_qir'] ?? null) === 'sesuai_standar') {
+                $query->whereNotIn('qir_records.id', $outsideStandardIds);
+            }
+        }
+
+        // Eksekusi query dan urutkan dari yang terbaru
+        $riwayat = $query->orderBy('qir_records.created_at', 'desc')->get();
+
+        foreach ($riwayat as $row) {
+            $row->pernah_diedit = $row->created_at !== null
+                && $row->updated_at !== null
+                && \Carbon\Carbon::parse($row->updated_at)->gt($row->created_at);
+
+            if ($canSeeOutOfStandard) {
                 $row->ada_nilai_di_luar_standar = $outsideStandardIds->contains($row->id);
             }
         }
 
-        return view('quality.inproses.qir.qir-history', compact('riwayat', 'canSeeOutOfStandard'));
+        $shiftOptions = DB::table('qir_records')
+            ->whereNotNull('shift')
+            ->where('shift', '<>', '')
+            ->distinct()
+            ->orderBy('shift')
+            ->pluck('shift');
+        $lineOptions = DB::table('qir_records')
+            ->whereNotNull('line_produksi')
+            ->where('line_produksi', '<>', '')
+            ->distinct()
+            ->orderBy('line_produksi')
+            ->pluck('line_produksi');
+
+        return view('quality.inproses.qir.qir-history', compact(
+            'riwayat',
+            'canSeeOutOfStandard',
+            'shiftOptions',
+            'lineOptions'
+        ));
     }
 
     // ==========================================

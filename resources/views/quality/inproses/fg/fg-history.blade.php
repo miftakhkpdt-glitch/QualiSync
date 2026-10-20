@@ -32,6 +32,39 @@
     .btn-delete:hover { background-color: #dc2626; }
     
     .aksi-group { display: flex; gap: 6px; justify-content: center; align-items: center; }
+
+    .filter-toolbar {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+    .filter-toolbar button,
+    .filter-toolbar a {
+        border: 0;
+        border-radius: 6px;
+        padding: 8px 12px;
+        font-size: 12px;
+        font-weight: bold;
+        text-decoration: none;
+        cursor: pointer;
+    }
+    .filter-toolbar button { background: #3b82f6; color: #fff; }
+    .filter-toolbar a { background: #e2e8f0; color: #475569; }
+    .filter-row th { background: #fff !important; }
+    .filter-input {
+        width: 100%;
+        min-width: 85px;
+        box-sizing: border-box;
+        padding: 7px 8px;
+        border: 1px solid #cbd5e1;
+        border-radius: 5px;
+        background: #fff;
+        color: #334155;
+        font: inherit;
+        font-weight: normal;
+    }
+    .filter-date-range { display: grid; gap: 5px; min-width: 125px; }
 </style>
 @endpush
 
@@ -57,34 +90,14 @@
         </div>
     @endif
 
-    <div style="background: #f8fafc; padding: 15px 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #e2e8f0;">
-        <form action="{{ url('/in-proses/fg/riwayat') }}" method="GET" style="display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap; margin: 0;">
-            <div style="flex: 1; min-width: 150px;">
-                <label style="font-size: 12px; font-weight: bold; color: #475569; display: block; margin-bottom: 5px;">TANGGAL</label>
-                <input type="date" name="tanggal" value="{{ request('tanggal') }}" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none; font-size: 13px;">
-            </div>
+    <form id="fg-history-filters" action="{{ url('/in-proses/fg/riwayat') }}" method="GET">
+        <div class="filter-toolbar">
+            <button type="submit"><i class="fas fa-search"></i> Terapkan Filter</button>
+            <a href="{{ url('/in-proses/fg/riwayat') }}"><i class="fas fa-sync-alt"></i> Reset</a>
+        </div>
+    </form>
 
-            <div style="flex: 1; min-width: 150px;">
-                <label style="font-size: 12px; font-weight: bold; color: #475569; display: block; margin-bottom: 5px;">NO. BATCH</label>
-                <input type="text" name="no_batch" value="{{ request('no_batch') }}" placeholder="Cari No Batch..." style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none; font-size: 13px;">
-            </div>
-
-            <div style="flex: 1; min-width: 150px;">
-                <label style="font-size: 12px; font-weight: bold; color: #475569; display: block; margin-bottom: 5px;">NO. MM / ITEM</label>
-                <input type="text" name="no_mm" value="{{ request('no_mm') }}" placeholder="Cari No MM / Item..." style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none; font-size: 13px;">
-            </div>
-
-            <div style="display: flex; gap: 10px;">
-                <button type="submit" style="background: #3b82f6; color: white; border: none; padding: 9px 18px; border-radius: 6px; cursor: pointer; font-weight: bold; display: inline-flex; align-items: center; gap: 6px; font-size: 13px; transition: 0.2s;">
-                    <i class="fas fa-search"></i> Terapkan Filter
-                </button>
-                <a href="{{ url('/in-proses/fg/riwayat') }}" style="background: #e2e8f0; color: #475569; text-decoration: none; padding: 9px 18px; border-radius: 6px; font-weight: bold; display: inline-flex; align-items: center; gap: 6px; font-size: 13px; transition: 0.2s;">
-                    <i class="fas fa-sync-alt"></i> Reset
-                </a>
-            </div>
-        </form>
-    </div>
-
+    <div style="overflow-x: auto;">
     <table class="tabel-fg">
         <thead>
             <tr>
@@ -97,6 +110,45 @@
                 <th>Line Produksi</th>
                 <th>Tipe Inspeksi</th>
                 <th>Aksi</th>
+            </tr>
+            <tr class="filter-row">
+                <th></th>
+                <th>
+                    <div class="filter-date-range">
+                        <input class="filter-input" form="fg-history-filters" type="date" name="tanggal_dari" value="{{ request('tanggal_dari') }}" aria-label="Tanggal dari" title="Tanggal dari">
+                        <input class="filter-input" form="fg-history-filters" type="date" name="tanggal_sampai" value="{{ request('tanggal_sampai') }}" aria-label="Tanggal sampai" title="Tanggal sampai">
+                    </div>
+                </th>
+                <th><input class="filter-input" form="fg-history-filters" type="search" name="no_batch" value="{{ request('no_batch') }}" placeholder="Cari batch..." aria-label="Filter No. Batch"></th>
+                <th><input class="filter-input" form="fg-history-filters" type="search" name="no_mm" value="{{ request('no_mm') }}" placeholder="Cari No. MM..." aria-label="Filter No. MM"></th>
+                <th><input class="filter-input" form="fg-history-filters" type="search" name="nama_item" value="{{ request('nama_item') }}" placeholder="Cari item..." aria-label="Filter nama item"></th>
+                <th>
+                    <select class="filter-input" form="fg-history-filters" name="shift" aria-label="Filter shift">
+                        <option value="">Semua</option>
+                        @foreach($shiftOptions as $shift)
+                            <option value="{{ $shift }}" @selected(request('shift') === $shift)>{{ $shift }}</option>
+                        @endforeach
+                    </select>
+                </th>
+                <th>
+                    <select class="filter-input" form="fg-history-filters" name="line_produksi" aria-label="Filter line produksi">
+                        <option value="">Semua</option>
+                        @foreach($lineOptions as $line)
+                            <option value="{{ $line }}" @selected(request('line_produksi') === $line)>{{ $line }}</option>
+                        @endforeach
+                    </select>
+                </th>
+                <th>
+                    <select class="filter-input" form="fg-history-filters" name="inspection_type" aria-label="Filter tipe inspeksi">
+                        <option value="">Semua</option>
+                        @foreach($inspectionTypeOptions as $inspectionType)
+                            <option value="{{ $inspectionType }}" @selected(request('inspection_type') === $inspectionType)>
+                                {{ $inspectionType === 'Normal Inspection' || $inspectionType === 'Normal' ? 'Normal' : 'Tightened' }}
+                            </option>
+                        @endforeach
+                    </select>
+                </th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
@@ -116,7 +168,7 @@
                     <td>{{ $data->line_produksi ?? $data->line ?? '-' }}</td>
                     
                     <td>
-                        @if($data->inspection_type == 'Normal Inspection')
+                        @if(in_array($data->inspection_type, ['Normal Inspection', 'Normal'], true))
                             <span style="background: #e0e7ff; color: #4f46e5; padding: 4px 8px; border-radius: 4px; font-weight: bold;">Normal</span>
                         @else
                             <span style="background: #fef08a; color: #854d0e; padding: 4px 8px; border-radius: 4px; font-weight: bold;">Tightened</span>
@@ -156,5 +208,6 @@
             @endforelse
         </tbody>
     </table>
+    </div>
 </div>
 @endsection

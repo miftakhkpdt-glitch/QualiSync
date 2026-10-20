@@ -127,6 +127,27 @@ class QirOutOfStandardIndicatorTest extends TestCase
         }
     }
 
+    public function test_column_filters_can_be_combined_and_filter_out_of_standard_results(): void
+    {
+        Auth::setUser(new User(['role' => 'admin']));
+
+        $view = app(QirController::class)->history(Request::create('/qir/riwayat', 'GET', [
+            'tanggal_dari' => '2026-10-20',
+            'tanggal_sampai' => '2026-10-20',
+            'no_batch' => 'OUT',
+            'no_mm' => 'MM-001',
+            'nama_item' => 'Produk Uji',
+            'shift' => 'Shift 1',
+            'line' => 'Line 1',
+            'status_edit' => 'baru',
+            'hasil_qir' => 'di_luar_standar',
+        ]));
+
+        $rows = $view->getData()['riwayat'];
+        $this->assertCount(1, $rows);
+        $this->assertSame('BATCH-OUT', $rows->first()->no_batch);
+    }
+
     protected function tearDown(): void
     {
         Schema::dropIfExists('master_parameters');
