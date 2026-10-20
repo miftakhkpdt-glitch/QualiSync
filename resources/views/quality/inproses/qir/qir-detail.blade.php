@@ -77,6 +77,9 @@
 @endpush
 
 @section('konten')
+@php
+    $canSeeOutOfStandard = in_array(strtolower(auth()->user()->role ?? ''), ['admin', 'staff_quality'], true);
+@endphp
 <div style="max-width: 1100px; margin: 0 auto 20px auto; display: flex; gap: 10px;" class="no-print">
     <a href="{{ url('/qir/riwayat') }}" class="btn-action btn-back"><i class="fas fa-arrow-left"></i> Kembali ke Riwayat</a>
     <button onclick="window.print()" class="btn-action btn-print"><i class="fas fa-print"></i> Cetak / Print Dokumen</button>
@@ -148,16 +151,23 @@
                         @foreach($parameters as $param)
                             @php
                                 $nilai = $hasil_parameter[$param->id] ?? '-';
-                                $isNG = ($nilai === 'NG');
-                                $isOutOfRange = $param->tipe_input === 'Angka'
+                                $isNG = $canSeeOutOfStandard && strtoupper((string) $nilai) === 'NG';
+                                $isOutOfRange = $canSeeOutOfStandard
+                                    && $param->tipe_input === 'Angka'
                                     && is_numeric($nilai)
                                     && (
                                         ($param->min_value !== null && (float) $nilai < (float) $param->min_value)
                                         || ($param->max_value !== null && (float) $nilai > (float) $param->max_value)
                                     );
                             @endphp
-                            <td style="{{ $isNG || $isOutOfRange ? 'color: #b91c1c; background-color: #fee2e2; font-weight: bold; border: 2px solid #ef4444;' : '' }}">
+                            <td
+                                style="{{ $isNG || $isOutOfRange ? 'color: #b91c1c; background-color: #fee2e2; font-weight: bold; border: 2px solid #ef4444;' : '' }}"
+                                @if($isNG || $isOutOfRange) title="Nilai di luar standar" @endif
+                            >
                                 {{ $nilai }}
+                                @if($isNG || $isOutOfRange)
+                                    <br><small>DI LUAR STANDAR</small>
+                                @endif
                             </td>
                         @endforeach
                     </tr>

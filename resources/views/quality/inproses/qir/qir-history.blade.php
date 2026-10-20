@@ -127,6 +127,9 @@
                         <th>Shift</th>
                         <th>Line</th>
                         <th>Status Edit</th>
+                        @if($canSeeOutOfStandard)
+                        <th>Hasil QIR</th>
+                        @endif
                         <th style="width: 240px;">Aksi</th>
                     </tr>
                 </thead>
@@ -150,6 +153,19 @@
                                 <span style="color: #16a34a; font-weight: bold;"><i class="fas fa-check-circle"></i> Baru</span>
                             @endif
                         </td>
+                        @if($canSeeOutOfStandard)
+                        <td>
+                            @if($row->ada_nilai_di_luar_standar ?? false)
+                                <span style="color: #b91c1c; font-weight: bold;" title="Ada hasil inspeksi di luar standar">
+                                    <i class="fas fa-exclamation-triangle"></i> Di Luar Standar
+                                </span>
+                            @else
+                                <span style="color: #16a34a; font-weight: bold;">
+                                    <i class="fas fa-check-circle"></i> Sesuai Standar
+                                </span>
+                            @endif
+                        </td>
+                        @endif
                         <td>
                             <div style="display: flex; gap: 6px; justify-content: center;">
                                 <!-- Tombol Lihat -->
@@ -178,7 +194,7 @@
                     @empty
                     <tr>
                         <!-- Colspan menyesuaikan jumlah kolom tabel -->
-                        <td colspan="9" class="empty-row">
+                        <td colspan="{{ $canSeeOutOfStandard ? 10 : 9 }}" class="empty-row">
                             <i class="fas fa-folder-open" style="font-size: 24px; color: #cbd5e1; display: block; margin-bottom: 10px;"></i>
                             Belum ada riwayat inspeksi QIR yang tersimpan.
                         </td>

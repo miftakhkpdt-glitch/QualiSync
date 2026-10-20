@@ -222,7 +222,54 @@ class QirController extends Controller
         // Eksekusi query dan urutkan dari yang terbaru
         $riwayat = $query->orderBy('qir_records.created_at', 'desc')->get();
 
-        return view('quality.inproses.qir.qir-history', compact('riwayat'));
+        $role = strtolower(auth()->user()->role ?? '');
+        $canSeeOutOfStandard = in_array($role, ['admin', 'staff_quality'], true);
+
+        if ($canSeeOutOfStandard && $riwayat->isNotEmpty()) {
+            $results = DB::table('qir_records')
+                ->join('qir_details', 'qir_details.qir_id', '=', 'qir_records.id')
+                ->join('qir_results', 'qir_results.qir_detail_id', '=', 'qir_details.id')
+                ->leftJoin('master_item_standards', function ($join) {
+                    $join->on('master_item_standards.no_mm', '=', 'qir_records.no_mm')
+                        ->on('master_item_standards.parameter_id', '=', 'qir_results.parameter_id');
+                })
+                ->leftJoin('master_parameters', 'master_parameters.id', '=', 'qir_results.parameter_id')
+                ->whereIn('qir_records.id', $riwayat->pluck('id'))
+                ->select(
+                    'qir_records.id as qir_id',
+                    'qir_results.hasil_aktual',
+                    'qir_results.status',
+                    'master_parameters.tipe_input',
+                    'master_item_standards.min_value',
+                    'master_item_standards.max_value'
+                )
+                ->get();
+
+            $outsideStandardIds = $results
+                ->filter(function ($result) {
+                    if (strtoupper((string) $result->status) === 'NG'
+                        || strtoupper((string) $result->hasil_aktual) === 'NG') {
+                        return true;
+                    }
+
+                    if ($result->tipe_input !== 'Angka' || !is_numeric($result->hasil_aktual)) {
+                        return false;
+                    }
+
+                    $value = (float) $result->hasil_aktual;
+
+                    return ($result->min_value !== null && $value < (float) $result->min_value)
+                        || ($result->max_value !== null && $value > (float) $result->max_value);
+                })
+                ->pluck('qir_id')
+                ->unique();
+
+            foreach ($riwayat as $row) {
+                $row->ada_nilai_di_luar_standar = $outsideStandardIds->contains($row->id);
+            }
+        }
+
+        return view('quality.inproses.qir.qir-history', compact('riwayat', 'canSeeOutOfStandard'));
     }
 
     // ==========================================
