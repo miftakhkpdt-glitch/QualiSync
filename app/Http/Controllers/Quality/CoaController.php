@@ -10,6 +10,9 @@ use App\Models\CoaDetail;
 
 class CoaController extends Controller
 {
+    private const MAX_COA_BATCHES = 50;
+    private const MAX_BATCH_NUMBER_LENGTH = 50;
+
     public function index(Request $request)
     {
         $query = Coa::query();
@@ -56,18 +59,40 @@ class CoaController extends Controller
 
     public function process(Request $request)
     {
-        $batch = $request->input('no_batch');
-        $mm    = $request->input('no_mm');
+        $batchInput = $request->input('no_batch');
+        $mm = $request->input('no_mm');
 
-        if (empty($batch) || empty($mm)) {
+        if ((!is_string($batchInput) && !is_array($batchInput)) || !is_string($mm) || trim($mm) === '') {
             return redirect()->back()->with('error', 'Nomor Batch dan No. MM wajib diisi!');
         }
 
-        if (is_array($batch)) {
-            $batch = implode(',', array_filter(array_map('trim', $batch), fn ($value) => $value !== ''));
+        $batchValues = is_array($batchInput) ? $batchInput : explode(',', $batchInput);
+        $batchArray = [];
+        foreach ($batchValues as $value) {
+            if (!is_string($value) && !is_numeric($value)) {
+                return redirect()->back()->with('error', 'Format Nomor Batch tidak valid.');
+            }
+
+            $value = trim((string) $value);
+            if ($value !== '') {
+                if (strlen($value) > self::MAX_BATCH_NUMBER_LENGTH) {
+                    return redirect()->back()->with('error', 'Nomor Batch melebihi batas panjang yang diizinkan.');
+                }
+
+                $batchArray[] = $value;
+            }
         }
 
-        $batchArray = array_map('trim', array_filter(explode(',', (string) $batch), fn ($value) => $value !== ''));
+        $batchArray = array_values(array_unique($batchArray));
+        $mm = trim($mm);
+
+        if ($batchArray === []) {
+            return redirect()->back()->with('error', 'Nomor Batch dan No. MM wajib diisi!');
+        }
+
+        if (count($batchArray) > self::MAX_COA_BATCHES) {
+            return redirect()->back()->with('error', 'Maksimal pilih 50 nomor batch dalam satu dokumen COA.');
+        }
 
         // Cek apakah QIR untuk batch tersebut ada
         $records = DB::table('qir_records')
@@ -75,71 +100,108 @@ class CoaController extends Controller
             ->whereIn('no_batch', $batchArray)
             ->get();
 
-        if ($records->isEmpty()) {
+        $foundBatches = $records->pluck('no_batch')->unique()->all();
+        $missingBatches = array_diff($batchArray, $foundBatches);
+        if ($missingBatches !== []) {
             return redirect()->back()->with('error', 'Data QIR untuk Nomor Batch dan MM tersebut belum diinput atau tidak ditemukan!');
         }
 
-        return redirect("/coa/form-input?batch=" . urlencode($batch) . "&mm={$mm}");
+        $batch = implode(',', $batchArray);
+
+        return redirect('/coa/form-input?' . http_build_query([
+            'batch' => $batch,
+            'mm' => $mm,
+        ]));
     }
 
     public function formInput(Request $request)
-{
-    $batch = $request->get('batch');
-    $mm = $request->get('mm');
+    {
+        $validated = $request->validate([
+            'batch' => 'required|string|max:2549',
+            'mm' => 'required|string|max:50',
+        ]);
 
-    // 1. Ambil hasil QIR untuk batch dan MM ini.
-    $hasilQir = DB::table('qir_records')
-        ->join('qir_details', 'qir_records.id', '=', 'qir_details.qir_id')
-        ->join('qir_results', 'qir_details.id', '=', 'qir_results.qir_detail_id')
-        ->join('master_parameters', 'qir_results.parameter_id', '=', 'master_parameters.id')
-        ->where('qir_records.no_batch', $batch)
-        ->where('qir_records.no_mm', $mm)
-        ->select(
-            'qir_results.parameter_id',
-            'qir_results.hasil_aktual',
-            'qir_results.status',
-            'master_parameters.tipe_input'
-        )
-        ->get()
-        ->groupBy('parameter_id');
+        $batchArray = array_values(array_unique(array_filter(
+            array_map('trim', explode(',', $validated['batch'])),
+            fn ($value) => $value !== ''
+        )));
+        $mm = trim($validated['mm']);
 
-    $rekomendasiHasil = [];
-    foreach ($hasilQir as $parameterId => $hasilParameter) {
-        if ($hasilParameter->first()->tipe_input === 'Angka') {
-            $nilaiAngka = $hasilParameter
-                ->pluck('hasil_aktual')
-                ->filter(fn ($nilai) => is_numeric($nilai));
-
-            $rekomendasiHasil[$parameterId] = [
-                'min' => $nilaiAngka->isNotEmpty() ? number_format($nilaiAngka->min(), 2, '.', '') : '',
-                'avg' => $nilaiAngka->isNotEmpty() ? number_format($nilaiAngka->avg(), 2, '.', '') : '',
-                'max' => $nilaiAngka->isNotEmpty() ? number_format($nilaiAngka->max(), 2, '.', '') : '',
-            ];
-            continue;
+        if (
+            $batchArray === []
+            || count($batchArray) > self::MAX_COA_BATCHES
+            || $mm === ''
+            || collect($batchArray)->contains(fn ($value) => strlen($value) > self::MAX_BATCH_NUMBER_LENGTH)
+        ) {
+            abort(404, 'Nomor Batch atau No. MM tidak valid.');
         }
 
-        $rekomendasiHasil[$parameterId] = $hasilParameter->contains(function ($hasil) {
-            return strtoupper((string) $hasil->hasil_aktual) === 'NG'
-                || strtoupper((string) $hasil->status) === 'NG';
-        }) ? 'NG' : 'OK';
+        $foundBatches = DB::table('qir_records')
+            ->where('no_mm', $mm)
+            ->whereIn('no_batch', $batchArray)
+            ->distinct()
+            ->pluck('no_batch')
+            ->all();
+
+        if (array_diff($batchArray, $foundBatches) !== []) {
+            abort(404, 'Satu atau beberapa batch tidak ditemukan untuk material ini.');
+        }
+
+        $batch = implode(',', $batchArray);
+
+        // 1. Ambil hasil QIR seluruh batch terpilih untuk material ini.
+        $hasilQir = DB::table('qir_records')
+            ->join('qir_details', 'qir_records.id', '=', 'qir_details.qir_id')
+            ->join('qir_results', 'qir_details.id', '=', 'qir_results.qir_detail_id')
+            ->join('master_parameters', 'qir_results.parameter_id', '=', 'master_parameters.id')
+            ->whereIn('qir_records.no_batch', $batchArray)
+            ->where('qir_records.no_mm', $mm)
+            ->select(
+                'qir_results.parameter_id',
+                'qir_results.hasil_aktual',
+                'qir_results.status',
+                'master_parameters.tipe_input'
+            )
+            ->get()
+            ->groupBy('parameter_id');
+
+        $rekomendasiHasil = [];
+        foreach ($hasilQir as $parameterId => $hasilParameter) {
+            if ($hasilParameter->first()->tipe_input === 'Angka') {
+                $nilaiAngka = $hasilParameter
+                    ->pluck('hasil_aktual')
+                    ->filter(fn ($nilai) => is_numeric($nilai));
+
+                $rekomendasiHasil[$parameterId] = [
+                    'min' => $nilaiAngka->isNotEmpty() ? number_format($nilaiAngka->min(), 2, '.', '') : '',
+                    'avg' => $nilaiAngka->isNotEmpty() ? number_format($nilaiAngka->avg(), 2, '.', '') : '',
+                    'max' => $nilaiAngka->isNotEmpty() ? number_format($nilaiAngka->max(), 2, '.', '') : '',
+                ];
+                continue;
+            }
+
+            $rekomendasiHasil[$parameterId] = $hasilParameter->contains(function ($hasil) {
+                return strtoupper((string) $hasil->hasil_aktual) === 'NG'
+                    || strtoupper((string) $hasil->status) === 'NG';
+            }) ? 'NG' : 'OK';
+        }
+
+        // 2. Ambil Master Parameter Spesifikasi Item.
+        $parameters = DB::table('master_item_standards')
+            ->join('master_parameters', 'master_item_standards.parameter_id', '=', 'master_parameters.id')
+            ->where('master_item_standards.no_mm', $mm)
+            ->select(
+                'master_parameters.id as parameter_id',
+                'master_parameters.nama_parameter',
+                'master_parameters.satuan',
+                'master_item_standards.*'
+            )
+            ->get();
+
+        $customers = DB::table('master_customers')->get();
+
+        return view('quality.coa.coa-form-input', compact('batch', 'mm', 'parameters', 'rekomendasiHasil', 'customers'));
     }
-
-    // 2. Ambil Master Parameter Spesifikasi Item
-    $parameters = DB::table('master_item_standards')
-        ->join('master_parameters', 'master_item_standards.parameter_id', '=', 'master_parameters.id')
-        ->where('master_item_standards.no_mm', $mm)
-        ->select(
-            'master_parameters.id as parameter_id',
-            'master_parameters.nama_parameter',
-            'master_parameters.satuan',
-            'master_item_standards.*'
-        )
-        ->get();
-
-    $customers = DB::table('master_customers')->get();
-
-    return view('quality.coa.coa-form-input', compact('batch', 'mm', 'parameters', 'rekomendasiHasil', 'customers'));
-}
 
     public function store(Request $request)
 {
