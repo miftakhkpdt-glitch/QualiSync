@@ -128,32 +128,12 @@ class InprosesFgController extends Controller
     'updated_at'      => now(),
 ]);
 
-            $details = [];
             $pics = $request->pic;
 
             for ($i = 0; $i < count($pics); $i++) {
                 if (!empty($pics[$i])) {
-                    $details[] = [
-                        'inspection_id' => $headerId,
-                        'pic'           => $pics[$i],
-                        'no_box'        => $request->no_box[$i] ?? '-',
-                        'defect'        => $request->defect[$i] ?? null,
-                        // REVISI: Disesuaikan dengan name="aql_col_X[]" yang dikirim oleh skrip JS dinamis form
-                        'critical'      => is_numeric($request->aql_col_0[$i] ?? null) ? $request->aql_col_0[$i] : 0, 
-                        'major'         => is_numeric($request->aql_col_1[$i] ?? null) ? $request->aql_col_1[$i] : 0, 
-                        'minor'         => is_numeric($request->aql_col_2[$i] ?? null) ? $request->aql_col_2[$i] : 0, 
-                        'decision'      => $request->decision[$i] ?? 'OK',
-                        'jml_box'       => $request->jml_box[$i] ?? 0,
-                        'sortir_ok'     => $request->sortir_ok[$i] ?? 0,
-                        'sortir_ng'     => $request->sortir_ng[$i] ?? 0,
-                        'created_at'    => now(),
-                        'updated_at'    => now(),
-                    ];
+                    $this->insertInspectionDetail($request, $headerId, $i, $pics[$i]);
                 }
-            }
-
-            if (count($details) > 0) {
-                DB::table('fg_inspection_details')->insert($details);
             }
 
             DB::commit(); 
@@ -278,13 +258,56 @@ class InprosesFgController extends Controller
             ->where('customer_id', $customer->id ?? $header->item_name)
             ->orWhere('customer_name', $customerName)
             ->first();
+        $hasZeroDefect = $masterAql
+            && $masterAql->aql_zero_defect !== null
+            && $masterAql->aql_zero_defect !== ''
+            && $masterAql->aql_zero_defect !== '-';
         $aqlStandards = [
-            'critical' => $masterAql->aql_critical ?? 0.65,
-            'major'    => $masterAql->aql_major ?? 2.5,
-            'minor'    => $masterAql->aql_minor ?? 4.0,
+            'zero defect' => $masterAql->aql_zero_defect ?? 0,
+            'critical'    => $masterAql->aql_critical ?? 0.65,
+            'major'       => $masterAql->aql_major ?? 2.5,
+            'minor'       => $masterAql->aql_minor ?? 4.0,
+            'amber'       => $masterAql->crqs_amber ?? '-',
+            'red'         => $masterAql->crqs_red ?? '-',
         ];
 
-        return view('quality.inproses.fg.fg-detail', compact('header', 'details', 'namaItem', 'aqlStandards'));
+        $detailIds = $details->pluck('id');
+        $savedAqlValues = $detailIds->isEmpty()
+            ? collect()
+            : DB::table('fg_inspection_defect_aqls')
+                ->whereIn('fg_inspection_detail_id', $detailIds)
+                ->orderBy('id')
+                ->get()
+                ->groupBy('fg_inspection_detail_id');
+
+        $aqlCategories = collect();
+        foreach ($details as $row) {
+            $row->aql_values = [];
+            $rowAqlValues = $savedAqlValues->get($row->id, collect());
+            foreach ($rowAqlValues as $savedAql) {
+                $row->aql_values[$savedAql->kategori_standar] = $savedAql->jumlah_temuan;
+                if (!$aqlCategories->contains($savedAql->kategori_standar)) {
+                    $aqlCategories->push($savedAql->kategori_standar);
+                }
+            }
+
+            if ($rowAqlValues->isEmpty() && $hasZeroDefect) {
+                $row->aql_values = [
+                    'Zero Defect' => $row->critical,
+                    'Critical'    => $row->major,
+                    'Major'       => $row->minor,
+                    'Minor'       => 0,
+                ];
+            }
+        }
+
+        if ($aqlCategories->isEmpty()) {
+            $aqlCategories = $hasZeroDefect
+                ? collect(['Zero Defect', 'Critical', 'Major', 'Minor'])
+                : collect(['Critical', 'Major', 'Minor']);
+        }
+
+        return view('quality.inproses.fg.fg-detail', compact('header', 'details', 'namaItem', 'aqlStandards', 'aqlCategories'));
     }
 
     // ==========================================
@@ -492,13 +515,68 @@ class InprosesFgController extends Controller
         $header = DB::table('fg_inspections')->where('id', $id)->first();
         if (!$header) abort(404, 'Data tidak ditemukan');
 
-        $details = DB::table('fg_inspection_details')->where('inspection_id', $id)->get();
+        $details = DB::table('fg_inspection_details')->where('inspection_id', $id)->orderBy('id')->get();
         $masterItems = DB::table('master_materials')->where('kategori', 'Finish Good')->get();
         $customers = DB::table('master_customers')->orderBy('nama_customer', 'asc')->get();
         $defects = DB::table('master_defects')->orderBy('nama_defect', 'asc')->get();
+        $customer = DB::table('master_customers')->where('id', $header->item_name)->first();
+        $customerName = ($customer->nama_customer ?? $header->item_name) ?: '-';
+        $masterAql = DB::table('master_aql_standards')
+            ->where('customer_id', $customer->id ?? $header->item_name)
+            ->orWhere('customer_name', $customerName)
+            ->first();
+        $hasZeroDefect = $masterAql
+            && $masterAql->aql_zero_defect !== null
+            && $masterAql->aql_zero_defect !== ''
+            && $masterAql->aql_zero_defect !== '-';
 
-        // Tambahkan 'defects' ke dalam compact
-        return view('quality.inproses.fg.fg-edit', compact('header', 'details', 'masterItems', 'customers', 'defects'));
+        $detailIds = $details->pluck('id');
+        $savedAqlValues = $detailIds->isEmpty()
+            ? collect()
+            : DB::table('fg_inspection_defect_aqls')
+                ->whereIn('fg_inspection_detail_id', $detailIds)
+                ->orderBy('id')
+                ->get()
+                ->groupBy('fg_inspection_detail_id');
+        $aqlCategories = collect();
+
+        foreach ($details as $row) {
+            $row->aql_values = [];
+            $rowAqlValues = $savedAqlValues->get($row->id, collect());
+            foreach ($rowAqlValues as $savedAql) {
+                $row->aql_values[$savedAql->kategori_standar] = $savedAql->jumlah_temuan;
+                if (!$aqlCategories->contains($savedAql->kategori_standar)) {
+                    $aqlCategories->push($savedAql->kategori_standar);
+                }
+            }
+        }
+
+        if ($aqlCategories->isEmpty()) {
+            $aqlCategories = $hasZeroDefect
+                ? collect(['Zero Defect', 'Critical', 'Major', 'Minor'])
+                : collect(['Critical', 'Major', 'Minor']);
+        }
+
+        foreach ($details as $row) {
+            if ($row->aql_values) {
+                continue;
+            }
+
+            $row->aql_values = $hasZeroDefect
+                ? [
+                    'Zero Defect' => $row->critical,
+                    'Critical'    => $row->major,
+                    'Major'       => $row->minor,
+                    'Minor'       => 0,
+                ]
+                : [
+                    'Critical' => $row->critical,
+                    'Major'    => $row->major,
+                    'Minor'    => $row->minor,
+                ];
+        }
+
+        return view('quality.inproses.fg.fg-edit', compact('header', 'details', 'masterItems', 'customers', 'defects', 'aqlCategories', 'customerName'));
     }
 
     public function update(Request $request, $id)
@@ -546,21 +624,7 @@ class InprosesFgController extends Controller
             if ($request->has('pic')) {
                 foreach ($request->pic as $index => $pic) {
                     if (!empty($pic) || !empty($request->defect[$index])) {
-                        DB::table('fg_inspection_details')->insert([
-                            'inspection_id' => $id,
-                            'pic'           => $pic,
-                            'no_box'        => $request->no_box[$index] ?? '-',
-                            'defect'        => $request->defect[$index] ?? null,
-                            'critical'      => is_numeric($request->aql_col_0[$index] ?? ($request->critical[$index] ?? null)) ? ($request->aql_col_0[$index] ?? $request->critical[$index]) : 0,
-                            'major'         => is_numeric($request->aql_col_1[$index] ?? ($request->major[$index] ?? null)) ? ($request->aql_col_1[$index] ?? $request->major[$index]) : 0,
-                            'minor'         => is_numeric($request->aql_col_2[$index] ?? ($request->minor[$index] ?? null)) ? ($request->aql_col_2[$index] ?? $request->minor[$index]) : 0,
-                            'decision'      => $request->decision[$index] ?? 'OK',
-                            'jml_box'       => $request->jml_box[$index] ?? 0,
-                            'sortir_ok'     => $request->sortir_ok[$index] ?? 0,
-                            'sortir_ng'     => $request->sortir_ng[$index] ?? 0,
-                            'created_at'    => now(),
-                            'updated_at'    => now(),
-                        ]);
+                        $this->insertInspectionDetail($request, $id, $index, $pic);
                     }
                 }
             }
@@ -571,6 +635,71 @@ class InprosesFgController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Terjadi kesalahan sistem: ' . $e->getMessage())->withInput();
+        }
+    }
+
+    private function insertInspectionDetail(Request $request, int $inspectionId, int $index, string $pic): void
+    {
+        $labels = $request->input('aql_labels', []);
+        $categoryValues = [];
+
+        foreach ($labels as $categoryIndex => $label) {
+            $value = $request->input("aql_col_{$categoryIndex}.{$index}", 0);
+            $categoryValues[(string) $label] = is_numeric($value) ? $value : 0;
+        }
+
+        $valueFor = function (string $category, string $legacyField, int $fallbackIndex) use ($categoryValues, $request, $index) {
+            foreach ($categoryValues as $label => $value) {
+                if (mb_strtolower(trim($label)) === mb_strtolower($category)) {
+                    return $value;
+                }
+            }
+
+            if (!$categoryValues) {
+                $value = $request->input("aql_col_{$fallbackIndex}.{$index}", $request->input("{$legacyField}.{$index}", 0));
+                return is_numeric($value) ? $value : 0;
+            }
+
+            return 0;
+        };
+
+        $detailId = DB::table('fg_inspection_details')->insertGetId([
+            'inspection_id' => $inspectionId,
+            'pic'           => $pic,
+            'no_box'        => $request->input("no_box.{$index}", '-'),
+            'defect'        => $request->input("defect.{$index}"),
+            'critical'      => $valueFor('critical', 'critical', 0),
+            'major'         => $valueFor('major', 'major', 1),
+            'minor'         => $valueFor('minor', 'minor', 2),
+            'decision'      => $request->input("decision.{$index}", 'OK'),
+            'jml_box'       => $request->input("jml_box.{$index}", 0),
+            'sortir_ok'     => $request->input("sortir_ok.{$index}", 0),
+            'sortir_ng'     => $request->input("sortir_ng.{$index}", 0),
+            'created_at'    => now(),
+            'updated_at'    => now(),
+        ]);
+
+        if (!$categoryValues) {
+            $categoryValues = [
+                'Critical' => $valueFor('critical', 'critical', 0),
+                'Major'    => $valueFor('major', 'major', 1),
+                'Minor'    => $valueFor('minor', 'minor', 2),
+            ];
+        }
+
+        $aqlRows = [];
+        foreach ($categoryValues as $category => $value) {
+            $aqlRows[] = [
+                'fg_inspection_detail_id' => $detailId,
+                'kategori_standar'       => $category,
+                'jumlah_temuan'          => (int) $value,
+                'created_at'             => now(),
+                'updated_at'             => now(),
+            ];
+        }
+
+        if ($aqlRows) {
+            DB::table('fg_inspection_defect_aqls')->insert($aqlRows);
         }
     }
 

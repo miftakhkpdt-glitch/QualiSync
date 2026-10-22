@@ -207,14 +207,15 @@
                 <th rowspan="2">Nama PIC<br><small>(QA Inspector)</small></th>
                 <th rowspan="2">NO. BOX</th>
                 <th rowspan="2">DEFECT</th>
-                <th colspan="3">AQL (Jumlah Temuan)</th>
+                <th colspan="{{ $aqlCategories->count() }}">AQL (Jumlah Temuan)</th>
                 <th rowspan="2">Decision<br>(OK/Reject/Sortir)</th>
                 <th colspan="3">Remark</th>
             </tr>
             <tr>
-                <th>Critical<br><small>{{ $aqlStandards['critical'] }}</small></th>
-                <th>Major<br><small>{{ $aqlStandards['major'] }}</small></th>
-                <th>Minor<br><small>{{ $aqlStandards['minor'] }}</small></th>
+                @foreach($aqlCategories as $category)
+                    @php($categoryKey = mb_strtolower(trim($category)))
+                    <th>{{ $category }}<br><small>{{ $aqlStandards[$categoryKey] ?? '-' }}</small></th>
+                @endforeach
                 <th>Jumlah Total (PCS)</th>
                 <th>Hasil Sortir OK</th>
                 <th>Hasil Sortir NG</th>
@@ -226,9 +227,11 @@
                     <td>{{ $row->pic }}</td>
                     <td>{{ $row->no_box ?: '-' }}</td>
                     <td>{{ $row->defect ?: '-' }}</td>
-                    <td>{{ $row->critical }}</td>
-                    <td>{{ $row->major }}</td>
-                    <td>{{ $row->minor }}</td>
+                    @foreach($aqlCategories as $category)
+                        @php($categoryKey = mb_strtolower(trim($category)))
+                        @php($legacyValue = $categoryKey === 'critical' ? $row->critical : ($categoryKey === 'major' ? $row->major : ($categoryKey === 'minor' ? $row->minor : 0)))
+                        <td>{{ $row->aql_values[$category] ?? $legacyValue }}</td>
+                    @endforeach
                     <td>
                         @if(strtoupper($row->decision) == 'SORTIR')
                             <strong style="color: #d97706;">SORTIR</strong>
@@ -244,7 +247,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="10" style="padding: 20px; font-style: italic;">
+                    <td colspan="{{ 7 + $aqlCategories->count() }}" style="padding: 20px; font-style: italic;">
                         Tidak ada data detail temuan untuk inspeksi ini.
                     </td>
                 </tr>

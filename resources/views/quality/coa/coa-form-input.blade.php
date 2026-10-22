@@ -100,7 +100,7 @@
 
                     <div class="c-col-4">
                         <label class="c-label">Item Code Customer</label>
-                        <input type="text" name="item_code_customer" class="c-input" placeholder="Kode item di pihak customer">
+                        <input type="text" name="item_code_customer" class="c-input" value="{{ $itemCodeCustomer }}" placeholder="Kode item di pihak customer" readonly>
                     </div>
                     <div class="c-col-6">
                         <label class="c-label">Delivery Quantity (Pcs)</label>

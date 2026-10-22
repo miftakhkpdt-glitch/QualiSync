@@ -199,8 +199,10 @@ class CoaController extends Controller
             ->get();
 
         $customers = DB::table('master_customers')->get();
+        $masterMaterial = DB::table('master_materials')->where('no_mm', $mm)->first();
+        $itemCodeCustomer = $masterMaterial->item_code_customer ?? '';
 
-        return view('quality.coa.coa-form-input', compact('batch', 'mm', 'parameters', 'rekomendasiHasil', 'customers'));
+        return view('quality.coa.coa-form-input', compact('batch', 'mm', 'parameters', 'rekomendasiHasil', 'customers', 'itemCodeCustomer'));
     }
 
     public function store(Request $request)
@@ -213,6 +215,9 @@ class CoaController extends Controller
         $lastRecord = Coa::orderBy('id', 'desc')->first();
         $nextNoUrut = $lastRecord ? ($lastRecord->id + 1) : 1;
         $autoNoCoa  = "COA/{$bulan}/{$tahun}/" . str_pad($nextNoUrut, 4, '0', STR_PAD_LEFT);
+        $itemCodeCustomer = DB::table('master_materials')
+            ->where('no_mm', $request->input('no_mm'))
+            ->value('item_code_customer');
 
         // 2. Simpan Header COA (Snapshot)
         $coa = Coa::create([
@@ -221,7 +226,7 @@ class CoaController extends Controller
             'no_batch'           => $request->input('no_batch'),
             'template_type'      => $request->input('template_type', 'GENERAL'),
             'customer_name'      => $request->input('customer_name'),
-            'item_code_customer' => $request->input('item_code_customer'),
+            'item_code_customer' => $itemCodeCustomer,
             'po_number'          => $request->input('po_number'),
             'delivery_quantity'  => $request->input('delivery_quantity'),
             'delivery_date'      => $request->input('delivery_date'),

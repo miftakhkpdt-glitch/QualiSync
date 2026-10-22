@@ -156,7 +156,7 @@
         </tr>
         <tr>
             <td class="info-label" style="border: none; padding: 4px 8px 4px 0; font-weight: bold; width: 25%;">Supplier Name</td>
-            <td class="info-colon-val" style="border: none; padding: 4px 0;">: PT KIMPAI DYNA TUBE</td>
+            <td class="info-colon-val" style="border: none; padding: 4px 0;">: PT Kimpai Dyna Tube</td>
         </tr>
         <tr>
             <td class="info-label" style="border: none; padding: 4px 8px 4px 0; font-weight: bold;">Company Address</td>

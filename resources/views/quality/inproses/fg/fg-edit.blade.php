@@ -75,6 +75,10 @@
                             @endforeach
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label class="form-label">Customer</label>
+                        <input type="text" class="modern-input" value="{{ $customerName }}" readonly>
+                    </div>
                 </div>
 
                 <div class="header-grid">
@@ -124,13 +128,18 @@
                                 <th rowspan="2">Nama PIC</th>
                                 <th rowspan="2">NO. BOX</th>
                                 <th rowspan="2" style="min-width: 220px;">CACAT (DEFECT)</th>
-                                <th colspan="3">AQL</th>
+                                <th colspan="{{ $aqlCategories->count() }}">AQL</th>
                                 <th rowspan="2">Keputusan</th>
                                 <th colspan="3">Keterangan</th>
                                 <th rowspan="2">Aksi</th>
                             </tr>
                             <tr>
-                                <th>Critical</th><th>Major</th><th>Minor</th>
+                                @foreach($aqlCategories as $category)
+                                    <th>
+                                        {{ $category }}
+                                        <input type="hidden" name="aql_labels[]" value="{{ $category }}">
+                                    </th>
+                                @endforeach
                                 <th>Jumlah Total (PCS)</th><th>Hasil Sortir OK</th><th>Hasil Sortir NG</th>
                             </tr>
                         </thead>
@@ -149,9 +158,9 @@
                                         @endforeach
                                     </select>
                                 </td>
-                                <td><input type="number" name="critical[]" class="modern-input" value="{{ $row->critical }}" required></td>
-                                <td><input type="number" name="major[]" class="modern-input" value="{{ $row->major }}" required></td>
-                                <td><input type="number" name="minor[]" class="modern-input" value="{{ $row->minor }}" required></td>
+                                @foreach($aqlCategories as $categoryIndex => $category)
+                                    <td><input type="number" step="any" name="aql_col_{{ $categoryIndex }}[]" class="modern-input" value="{{ $row->aql_values[$category] ?? 0 }}" min="0" required></td>
+                                @endforeach
                                 <td>
                                     <select name="decision[]" class="modern-input">
                                         <option value="OK" {{ $row->decision == 'OK' ? 'selected' : '' }}>OK</option>
@@ -193,6 +202,7 @@
 
 <script>
 var defectOptions = `<option value="">-- Pilih Cacat --</option>`;
+var aqlCategories = @json($aqlCategories);
 @foreach($defects as $defect)
     defectOptions += `<option value="{{ $defect->nama_defect }}">{{ $defect->nama_defect }}</option>`;
 @endforeach
@@ -208,9 +218,7 @@ var defectOptions = `<option value="">-- Pilih Cacat --</option>`;
                     ${defectOptions}
                 </select>
             </td>
-            <td><input type="number" name="critical[]" value="0" class="modern-input" required></td>
-            <td><input type="number" name="major[]" value="0" class="modern-input" required></td>
-            <td><input type="number" name="minor[]" value="0" class="modern-input" required></td>
+            ${aqlCategories.map((category, index) => `<td><input type="number" step="any" name="aql_col_${index}[]" value="0" class="modern-input" min="0" required></td>`).join('')}
             <td>
                 <select name="decision[]" class="modern-input">
                     <option value="OK">OK</option>

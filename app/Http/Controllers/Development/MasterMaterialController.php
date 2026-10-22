@@ -23,6 +23,7 @@ class MasterMaterialController extends Controller
             'nama_material' => 'required',
             'kategori' => 'required',
             'satuan' => 'required',
+            'item_code_customer' => 'nullable|string|max:255',
         ]);
 
         DB::table('master_materials')->insert([
@@ -30,6 +31,7 @@ class MasterMaterialController extends Controller
             'nama_material' => $request->nama_material,
             'kategori' => $request->kategori,
             'satuan' => $request->satuan,
+            'item_code_customer' => $request->item_code_customer,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -48,6 +50,7 @@ class MasterMaterialController extends Controller
             'nama_material' => 'required',
             'kategori' => 'required',
             'satuan' => 'required',
+            'item_code_customer' => 'nullable|string|max:255',
         ]);
 
         DB::table('master_materials')->where('id', $id)->update([
@@ -55,6 +58,7 @@ class MasterMaterialController extends Controller
             'nama_material' => $validated['nama_material'],
             'kategori' => $validated['kategori'],
             'satuan' => $validated['satuan'],
+            'item_code_customer' => $validated['item_code_customer'] ?? null,
             'updated_at' => now(),
         ]);
 

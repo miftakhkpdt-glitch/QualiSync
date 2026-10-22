@@ -30,6 +30,7 @@
             @csrf
             <input type="text" name="no_mm" placeholder="No. MM (Contoh: MM-001)" required style="padding: 8px; flex: 1; min-width: 180px;">
             <input type="text" name="nama_material" placeholder="Nama Material / Produk" required style="padding: 8px; flex: 2; min-width: 220px;">
+            <input type="text" name="item_code_customer" placeholder="Item Code Customer" style="padding: 8px; flex: 1; min-width: 180px;">
             <select name="kategori" required style="padding: 8px; flex: 1; min-width: 150px;">
                 <option value="">Pilih Kategori</option>
                 <option value="Raw Material">Raw Material</option>
@@ -60,6 +61,7 @@
                 <tr>
                     <th style="padding: 10px;">No. MM</th>
                     <th style="padding: 10px;">Nama Material / Produk</th>
+                    <th style="padding: 10px;">Item Code Customer</th>
                     <th style="padding: 10px;">Kategori</th>
                     <th style="padding: 10px;">Satuan</th>
                     <th style="padding: 10px; width: 100px; text-align: center;">Aksi</th>
@@ -70,6 +72,7 @@
                 <tr>
                     <td style="padding: 10px;"><b>{{ $mat->no_mm }}</b></td>
                     <td style="padding: 10px;">{{ $mat->nama_material }}</td>
+                    <td style="padding: 10px;">{{ $mat->item_code_customer ?: '-' }}</td>
                     <td style="padding: 10px;">
                         <span style="padding: 3px 8px; border-radius: 4px; font-size: 12px; background: {{ $mat->kategori == 'Raw Material' ? '#e0f2fe; color: #0369a1;' : '#dcfce7; color: #15803d;' }}">
                             {{ $mat->kategori }}
@@ -77,7 +80,7 @@
                     </td>
                     <td style="padding: 10px;">{{ $mat->satuan }}</td>
                     <td style="padding: 10px; text-align: center;">
-                        <button type="button" class="edit-material-button" data-update-url="{{ route('development.master-material.update', $mat->id) }}" data-no-mm="{{ $mat->no_mm }}" data-nama-material="{{ $mat->nama_material }}" data-kategori="{{ $mat->kategori }}" data-satuan="{{ $mat->satuan }}" style="background-color: #2563eb; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin-right: 4px;">
+                        <button type="button" class="edit-material-button" data-update-url="{{ route('development.master-material.update', $mat->id) }}" data-no-mm="{{ $mat->no_mm }}" data-nama-material="{{ $mat->nama_material }}" data-item-code-customer="{{ $mat->item_code_customer }}" data-kategori="{{ $mat->kategori }}" data-satuan="{{ $mat->satuan }}" style="background-color: #2563eb; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin-right: 4px;">
                             <i class="fas fa-edit"></i> Edit
                         </button>
                         <form action="{{ url('/development/master-material/' . $mat->id) }}" method="POST" style="display:inline-block;" 
@@ -106,6 +109,9 @@
             </label>
             <label>Nama Material / Produk
                 <input type="text" name="nama_material" id="edit-nama-material" value="{{ old('nama_material') }}" required style="display: block; box-sizing: border-box; width: 100%; padding: 8px; margin-top: 4px;">
+            </label>
+            <label>Item Code Customer
+                <input type="text" name="item_code_customer" id="edit-item-code-customer" value="{{ old('item_code_customer') }}" style="display: block; box-sizing: border-box; width: 100%; padding: 8px; margin-top: 4px;">
             </label>
             <label>Kategori
                 <select name="kategori" id="edit-kategori" required style="display: block; box-sizing: border-box; width: 100%; padding: 8px; margin-top: 4px;">
@@ -150,6 +156,7 @@
             document.getElementById('edit-material-id').value = button.dataset.updateUrl.split('/').pop();
             document.getElementById('edit-no-mm').value = button.dataset.noMm;
             document.getElementById('edit-nama-material').value = button.dataset.namaMaterial;
+            document.getElementById('edit-item-code-customer').value = button.dataset.itemCodeCustomer || '';
             document.getElementById('edit-kategori').value = button.dataset.kategori;
             document.getElementById('edit-satuan').value = button.dataset.satuan;
             editMaterialDialog.showModal();
