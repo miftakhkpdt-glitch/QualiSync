@@ -184,7 +184,7 @@
         </tr>
         <tr>
             <td class="info-label" style="border: none; padding: 4px 8px 4px 0; font-weight: bold;">Quantity</td>
-            <td class="info-colon-val" style="border: none; padding: 4px 0;">: {{ isset($coa->delivery_quantity) ? number_format((float)$coa->delivery_quantity, 0, ',', '.') : ($savedCoa->delivery_quantity ?? '-') }}</td>
+            <td class="info-colon-val" style="border: none; padding: 4px 0;">: {{ isset($coa->delivery_quantity) ? number_format((float)$coa->delivery_quantity, 0, ',', '.') . ' Pcs' : (($savedCoa->delivery_quantity ?? null) !== null ? number_format((float)$savedCoa->delivery_quantity, 0, ',', '.') . ' Pcs' : '-') }}</td>
         </tr>
         <tr>
             <td class="info-label" style="border: none; padding: 4px 8px 4px 0; font-weight: bold;">Delivery Date</td>
@@ -195,6 +195,11 @@
         <div class="expire-note">
             Supplier Expire Date/Best Before Use Date: <span>1 Year after date of manufacture</span>
         </div>
+        @if($coa->box_qty_note)
+            <div class="expire-note">
+                Box Quantity Note: <span>{{ $coa->box_qty_note }}</span>
+            </div>
+        @endif
 
         <!-- 3. ANALYSIS SECTION TABLE -->
         <table class="analysis-table">
@@ -263,7 +268,9 @@
         <!-- 4. CONCLUSION BOX -->
         <div class="conclusion-box">
             <strong>CONCLUSION :</strong> &nbsp;&nbsp;&nbsp;&nbsp;
-            [ <strong>{{ (isset($coa->status_decision) && $coa->status_decision == 'PASSED') ? 'v' : 'v' }}</strong> ] PASSED &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            @foreach(['PASSED', 'PASSED WITH NOTE'] as $status)
+                [ <strong>{{ $coa->status_decision === $status ? 'v' : ' ' }}</strong> ] {{ $status }} &nbsp;&nbsp;
+            @endforeach
         </div>
 
         <!-- 5. REMARK & SIGNATURE BOX -->

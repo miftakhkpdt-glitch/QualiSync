@@ -207,6 +207,10 @@ class CoaController extends Controller
 
     public function store(Request $request)
 {
+    $request->validate([
+        'status_decision' => 'required|in:PASSED,PASSED WITH NOTE',
+    ]);
+
     DB::beginTransaction();
     try {
         // 1. Generate Nomor COA (Format: COA/Bulan/Tahun/0001)
@@ -301,6 +305,91 @@ class CoaController extends Controller
         return redirect()->back()->with('error', 'Gagal menyimpan COA: ' . $e->getMessage());
     }
 }
+
+    public function edit($id)
+    {
+        $coa = Coa::with('details')->findOrFail($id);
+        $customers = DB::table('master_customers')->get();
+
+        return view('quality.coa.coa-edit', compact('coa', 'customers'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'template_type' => 'required|in:GENERAL,YASULOR',
+            'customer_name' => 'nullable|string|max:255',
+            'delivery_quantity' => 'nullable|integer|min:0',
+            'delivery_date' => 'nullable|date',
+            'machine_no' => 'nullable|string|max:255',
+            'sample_quantity' => 'nullable|integer|min:0',
+            'status_decision' => 'required|in:PASSED,PASSED WITH NOTE',
+            'remark' => 'nullable|string',
+            'box_qty_note' => 'nullable|string|max:255',
+            'prepared_by' => 'required|string|max:255',
+            'approved_by' => 'required|string|max:255',
+            'parameters' => 'nullable|array',
+            'parameters.*.id' => 'required|integer|distinct',
+            'parameters.*.result_avg' => 'nullable|string|max:255',
+            'parameters.*.standar_text' => 'nullable|string|max:255',
+            'parameters.*.control_method' => 'nullable|string|max:255',
+            'parameters.*.insp_level' => 'nullable|string|max:255',
+            'parameters.*.aql' => 'nullable|string|max:255',
+            'parameters.*.frequency' => 'nullable|string|max:255',
+            'parameters.*.n_sampling' => 'nullable|integer|min:0',
+            'parameters.*.decision' => 'nullable|in:OK,NG',
+            'parameters.*.remark' => 'nullable|string|max:255',
+        ]);
+
+        $coa = Coa::with('details')->findOrFail($id);
+        $detailsById = $coa->details->keyBy('id');
+        $submittedIds = collect($validated['parameters'] ?? [])
+            ->pluck('id')
+            ->map(fn ($detailId) => (int) $detailId)
+            ->sort()
+            ->values()
+            ->all();
+        $existingIds = $detailsById->keys()->map(fn ($detailId) => (int) $detailId)
+            ->sort()
+            ->values()
+            ->all();
+
+        if ($submittedIds !== $existingIds) {
+            abort(422, 'Detail parameter COA tidak sesuai.');
+        }
+
+        DB::transaction(function () use ($coa, $validated, $detailsById) {
+            $coa->update([
+                'template_type' => $validated['template_type'],
+                'customer_name' => $validated['customer_name'] ?? null,
+                'delivery_quantity' => $validated['delivery_quantity'] ?? null,
+                'delivery_date' => $validated['delivery_date'] ?? null,
+                'machine_no' => $validated['machine_no'] ?? null,
+                'sample_quantity' => $validated['sample_quantity'] ?? null,
+                'status_decision' => $validated['status_decision'],
+                'remark' => $validated['remark'] ?? null,
+                'box_qty_note' => $validated['box_qty_note'] ?? null,
+                'prepared_by' => $validated['prepared_by'],
+                'approved_by' => $validated['approved_by'],
+            ]);
+
+            foreach ($validated['parameters'] ?? [] as $parameter) {
+                $detailsById->get($parameter['id'])->update([
+                    'result_avg' => $parameter['result_avg'] ?? null,
+                    'standar_text' => $parameter['standar_text'] ?? null,
+                    'control_method' => $parameter['control_method'] ?? null,
+                    'insp_level' => $parameter['insp_level'] ?? null,
+                    'aql' => $parameter['aql'] ?? null,
+                    'frequency' => $parameter['frequency'] ?? null,
+                    'n_sampling' => $parameter['n_sampling'] ?? null,
+                    'decision' => $parameter['decision'] ?? null,
+                    'remark' => $parameter['remark'] ?? null,
+                ]);
+            }
+        });
+
+        return redirect()->route('coa.index')->with('success', 'Dokumen COA berhasil diperbarui.');
+    }
 
     public function print($id)
     {

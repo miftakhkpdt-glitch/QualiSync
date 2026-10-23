@@ -30,6 +30,8 @@
     
     .btn-delete { background-color: #fff0f0; color: #e74a3b !important; border: 1px solid #e74a3b; padding: 5px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: 500; transition: 0.2s; cursor: pointer; }
     .btn-delete:hover { background-color: #e74a3b; color: white !important; }
+    .btn-edit { background-color: #fff8e7; color: #b7791f !important; border: 1px solid #d69e2e; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 0.8rem; font-weight: 500; transition: 0.2s; display: inline-block; }
+    .btn-edit:hover { background-color: #d69e2e; color: white !important; }
 </style>
 
 <div class="container-fluid" style="padding: 25px 15px;">
@@ -136,6 +138,12 @@
                                 <a href="{{ url('/print-coa/' . $item->id) }}" target="_blank" class="btn-print" title="Cetak Dokumen">
                                     <i class="fas fa-print"></i> Cetak
                                 </a>
+
+                                @if(in_array(strtolower(auth()->user()->role ?? ''), ['admin', 'staff_quality'], true))
+                                <a href="{{ route('coa.edit', $item->id) }}" class="btn-edit" title="Edit Dokumen">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+                                @endif
 
                                 @if(strtolower(auth()->user()->role ?? '') === 'admin')
                                 <form action="{{ url('/coa/' . $item->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus dokumen {{ $item->no_coa }} ini?');" style="display: inline;">

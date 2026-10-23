@@ -136,6 +136,10 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/in-proses/fg/delete/{id}', [App\Http\Controllers\Quality\InprosesFgController::class, 'destroy']);
         Route::delete('/coa/{id}', [CoaController::class, 'destroy'])->name('coa.destroy');
     });
+    Route::middleware(['role:admin,staff_quality'])->group(function () {
+        Route::get('/coa/{id}/edit', [CoaController::class, 'edit'])->name('coa.edit');
+        Route::put('/coa/{id}', [CoaController::class, 'update'])->name('coa.update');
+    });
     Route::get('/home', [HomeController::class, 'index'])->name('home');
     Route::post('/home', [HomeController::class, 'index']);
     Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');

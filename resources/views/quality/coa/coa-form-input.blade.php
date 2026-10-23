@@ -277,8 +277,6 @@
                             <select name="status_decision" class="c-select" style="font-weight: bold; border-color: #1cc88a;" required>
                                 <option value="PASSED">PASSED</option>
                                 <option value="PASSED WITH NOTE">PASSED WITH NOTE</option>
-                                <option value="RELEASE">RELEASE</option>
-                                <option value="BLOCKED">BLOCKED</option>
                             </select>
                         </div>
                         <div class="c-col-9">

@@ -134,8 +134,8 @@
             <td>: {{ $batchDisplay }}</td>
             <td class="fw">Sample Qty DS</td>
             <td>: {{ $coa->sample_quantity ?? '-' }} Pcs</td>
-            <td></td>
-            <td></td>
+            <td class="fw">Delivery Date</td>
+            <td>: {{ $coa->delivery_date ? \Carbon\Carbon::parse($coa->delivery_date)->format('m/d/Y') : '-' }}</td>
         </tr>
     </table>
 
