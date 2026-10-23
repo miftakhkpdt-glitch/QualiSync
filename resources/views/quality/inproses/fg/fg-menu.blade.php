@@ -2,54 +2,61 @@
 
 @push('styles')
 <style>
-    .menu-container {
-        max-width: 1100px; /* Diperlebar agar 3 kartu muat sebaris */
+    .fg-clay-page {
+        max-width: 1200px;
         margin: 50px auto;
-        padding: 20px;
+        padding: 30px;
+        border: 1px solid #eee8dd;
+        border-radius: 28px;
+        background: linear-gradient(145deg, #f4f8f1, #fff4eb 58%, #f5f0f8);
+        box-shadow: 0 14px 34px rgba(107, 91, 72, .08);
     }
-    .menu-header {
+    .fg-clay-page .menu-header {
         text-align: center;
-        margin-bottom: 40px;
+        margin-bottom: 32px;
     }
-    .menu-header h2 {
+    .fg-clay-page .menu-header h2 {
         font-size: 24px;
         font-weight: 800;
-        color: #1e293b;
+        color: #51443d;
         text-transform: uppercase;
         letter-spacing: 0.5px;
         margin-bottom: 8px;
     }
-    .menu-header p {
-        color: #64748b;
+    .fg-clay-page .menu-header h2 i {
+        color: #df987e !important;
+    }
+    .fg-clay-page .menu-header p {
+        color: #887b73;
         font-size: 14px;
         margin: 0;
     }
-    .menu-grid {
+    .fg-clay-page .menu-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
         gap: 20px;
     }
-    .menu-card {
-        background: #ffffff;
-        border: 1px solid #e2e8f0;
-        border-radius: 12px;
+    .fg-clay-page .menu-card {
+        background: #fffdf9;
+        border: 1px solid #efe7dc;
+        border-radius: 22px;
         padding: 30px;
         text-decoration: none;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+        transition: all 0.25s ease;
+        box-shadow: 0 8px 18px rgba(107, 91, 72, .07), inset 0 1px 0 rgba(255, 255, 255, .85);
         display: flex;
         flex-direction: column;
         align-items: flex-start;
     }
-    .menu-card:hover {
+    .fg-clay-page .menu-card:hover {
         transform: translateY(-4px);
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
-        border-color: #cbd5e1;
+        box-shadow: 0 14px 24px rgba(107, 91, 72, .12);
+        border-color: #e7c8b5;
     }
-    .card-icon {
+    .fg-clay-page .card-icon {
         width: 50px;
         height: 50px;
-        border-radius: 10px;
+        border-radius: 16px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -57,43 +64,49 @@
         margin-bottom: 20px;
     }
     
-    /* Warna Ikon Masing-masing Kartu */
-    .icon-create {
-        background: #eff6ff;
-        color: #2563eb;
+    .fg-clay-page .icon-create {
+        background: #f8dfd4;
+        color: #c87862;
     }
-    .icon-history {
-        background: #f0fdf4;
-        color: #16a34a;
+    .fg-clay-page .icon-history {
+        background: #dceee5;
+        color: #5a9278;
     }
-    .icon-report {
-        background: #f3e8ff; /* Ungu Muda */
-        color: #9333ea; /* Ungu Tua */
+    .fg-clay-page .icon-report {
+        background: #eee2f1;
+        color: #9875a5;
     }
-    .icon-cpk {
-        background-color: #ffedd5;
-        color: #f97316;
+    .fg-clay-page .icon-cpk {
+        background-color: #f8e8c9;
+        color: #b88748;
     }
 
-    .menu-card h3 {
+    .fg-clay-page .menu-card h3 {
         font-size: 18px;
         font-weight: 700;
-        color: #1e293b;
+        color: #51443d;
         margin: 0 0 8px 0;
     }
-    .menu-card p {
+    .fg-clay-page .menu-card p {
         font-size: 13px;
-        color: #64748b;
+        color: #887b73;
         margin: 0;
         line-height: 1.5;
+    }
+    .fg-clay-page .menu-card[style*="border-top"] {
+        border-top: 1px solid #efe7dc !important;
+    }
+    @media(max-width: 600px) {
+        .fg-clay-page { margin: 20px 10px; padding: 20px 15px; border-radius: 20px; }
+        .fg-clay-page .menu-grid { grid-template-columns: 1fr; }
     }
 </style>
 @endpush
 
 @section('konten')
-<div class="menu-container">
+<div class="menu-container fg-clay-page">
     <div class="menu-header">
-        <h2><i class="fas fa-boxes" style="color: #2563eb; margin-right: 8px;"></i> Menu In-Proses Finished Goods (FG)</h2>
+        <h2><i class="fas fa-boxes" style="color: #df987e; margin-right: 8px;"></i> Menu In-Proses Finished Goods (FG)</h2>
         <p>Pilih menu di bawah ini untuk mengelola input data atau melihat riwayat inspeksi Finished Goods.</p>
     </div>
 

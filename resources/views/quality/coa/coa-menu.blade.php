@@ -3,42 +3,63 @@
 @section('konten')
 <!-- Custom CSS Tambahan -->
 <style>
-    .coa-card { background: #fff; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #eee; overflow: hidden; }
-    .coa-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 25px; border-bottom: 1px solid #f5f5f5; flex-wrap: wrap; gap: 15px; }
-    .coa-title h4 { margin: 0; font-weight: 600; color: #2c3e50; font-size: 1.25rem; }
-    .coa-title p { margin: 4px 0 0; font-size: 0.85rem; color: #7f8c8d; }
-    .btn-create { background: #4e73df; color: white !important; padding: 8px 18px; border-radius: 6px; text-decoration: none; font-weight: 500; font-size: 0.9rem; transition: 0.3s; box-shadow: 0 2px 6px rgba(78, 115, 223, 0.4); border: none; }
-    .btn-create:hover { background: #2e59d9; transform: translateY(-1px); }
-    
-    /* Filter Bar Style */
-    .filter-bar { background-color: #f8f9fc; padding: 15px 25px; border-bottom: 1px solid #eaecf4; }
-    
-    .coa-table { width: 100%; border-collapse: collapse; margin: 0; font-size: 0.9rem; }
-    .coa-table th { background-color: #f8f9fc; padding: 15px; color: #4e73df; font-weight: 600; border-bottom: 2px solid #eaecf4; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.5px; }
-    .coa-table td { padding: 15px; border-bottom: 1px solid #eaecf4; vertical-align: middle; color: #5a5c69; }
-    .coa-table tr:hover { background-color: #f8f9fc; }
-    .badge-modern { padding: 5px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.3px; }
-    .bg-green { background-color: #1cc88a; color: white; }
-    .bg-blue { background-color: #36b9cc; color: white; }
-    .bg-red { background-color: #e74a3b; color: white; }
-    .bg-orange { background-color: #f6c23e; color: white; }
-    .bg-gray { background-color: #858796; color: white; }
-    
-    /* Tombol Aksi */
-    .btn-print { background-color: #f8f9fc; color: #4e73df !important; border: 1px solid #4e73df; padding: 6px 10px; border-radius: 4px; text-decoration: none; font-size: 0.8rem; font-weight: 500; transition: 0.2s; display: inline-block; }
-    .btn-print:hover { background-color: #4e73df; color: white !important; }
-    
-    .btn-delete { background-color: #fff0f0; color: #e74a3b !important; border: 1px solid #e74a3b; padding: 5px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: 500; transition: 0.2s; cursor: pointer; }
-    .btn-delete:hover { background-color: #e74a3b; color: white !important; }
-    .btn-edit { background-color: #fff8e7; color: #b7791f !important; border: 1px solid #d69e2e; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 0.8rem; font-weight: 500; transition: 0.2s; display: inline-block; }
-    .btn-edit:hover { background-color: #d69e2e; color: white !important; }
+    .coa-list-page { min-height: 100%; padding: 25px 15px; border-radius: 24px; background: linear-gradient(145deg, #f5f8f2, #fbf5ed 55%, #f4f1fa); }
+    .coa-list-page .coa-card { overflow: hidden; border: 1px solid #efe8dc; border-radius: 22px; background: #fffdf9; box-shadow: 0 12px 32px rgba(107, 91, 72, .10), 0 3px 8px rgba(107, 91, 72, .05); }
+    .coa-list-page .coa-header { display: flex; justify-content: space-between; align-items: center; gap: 18px; flex-wrap: wrap; padding: 25px 28px; background: linear-gradient(115deg, #fbe3da, #fff0df 62%, #f8e8d5); border-bottom: 1px solid #f1e5d9; }
+    .coa-list-page .coa-title h4 { margin: 0; color: #51443d; font-size: 1.3rem; font-weight: 700; }
+    .coa-list-page .coa-title h4 i { color: #df8e76 !important; }
+    .coa-list-page .coa-title p { margin: 5px 0 0; color: #887b73; font-size: .88rem; }
+    .coa-list-page .btn-create { display: inline-block; padding: 11px 18px; border: 0; border-radius: 14px; background: #e9947c; color: #fff !important; box-shadow: 0 5px 12px rgba(205, 123, 99, .22); text-decoration: none; font-size: .9rem; font-weight: 700; transition: .2s ease; }
+    .coa-list-page .btn-create:hover { transform: translateY(-2px); background: #dc8069; box-shadow: 0 8px 16px rgba(205, 123, 99, .28); }
+    .coa-list-page .filter-bar { padding: 17px 25px; border-bottom: 1px solid #eee8de; background: #fffaf3; }
+    .coa-list-page .filter-bar .form-control { min-height: 38px; border: 1px solid #e8dfd2; border-radius: 12px !important; background: #fff; color: #5d5149; }
+    .coa-list-page .filter-bar .form-control:focus { border-color: #dfaa91; box-shadow: 0 0 0 3px rgba(223, 170, 145, .18); }
+    .coa-list-page .filter-bar .btn { min-height: 36px; padding: 6px 15px !important; border: 0; border-radius: 11px; }
+    .coa-list-page .filter-bar .btn-primary { background: #8db9aa; }
+    .coa-list-page .filter-bar .btn-primary:hover { background: #76a795; }
+    .coa-list-page .filter-bar .btn-secondary { background: #e8e2d8; color: #625951; }
+    .coa-list-page .coa-table { width: 100%; min-width: 780px; margin: 0; border-collapse: separate; border-spacing: 0; font-size: .9rem; }
+    .coa-list-page .coa-table th { padding: 15px; border-bottom: 1px solid #eee7dc; background: #faf6ee; color: #877568; font-size: .73rem; font-weight: 700; letter-spacing: .55px; text-transform: uppercase; }
+    .coa-list-page .coa-table td { padding: 15px; border-bottom: 1px solid #f0ebe3; background: #fffdf9; color: #625a53; vertical-align: middle; transition: background .18s ease; }
+    .coa-list-page .coa-table tbody tr:nth-child(even) td { background: #f7faf6; }
+    .coa-list-page .coa-table tbody tr:hover td { background: #fff1e9; }
+    .coa-list-page .coa-table td strong { color: #51443d !important; }
+    .coa-list-page .coa-table td small { color: #988b80 !important; }
+    .coa-list-page .coa-table td > span[style*="background"] { display: inline-block; margin-top: 4px; border-radius: 8px !important; background: #e9f0eb !important; color: #60796c !important; }
+    .coa-list-page .badge-modern { display: inline-block; padding: 6px 11px; border-radius: 999px; font-size: .72rem; font-weight: 700; letter-spacing: .25px; }
+    .coa-list-page .bg-green { background: #d9eee3; color: #39775a; }
+    .coa-list-page .bg-blue { background: #dcecf3; color: #47788b; }
+    .coa-list-page .bg-red { background: #f6deda; color: #a85b50; }
+    .coa-list-page .bg-orange { background: #f8e6bd; color: #94703a; }
+    .coa-list-page .bg-gray { background: #e9e5ec; color: #716879; }
+    .coa-list-page .coa-actions { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 6px; }
+    .coa-list-page .btn-print, .coa-list-page .btn-edit, .coa-list-page .btn-delete { display: inline-block; padding: 8px 10px; border: 1px solid transparent; border-radius: 11px; font-size: .78rem; font-weight: 700; text-decoration: none; transition: .18s ease; }
+    .coa-list-page .btn-print { border-color: #cbded4; background: #e8f2ec; color: #527968 !important; }
+    .coa-list-page .btn-print:hover { background: #d6e9dd; }
+    .coa-list-page .btn-edit { border-color: #f0d8a8; background: #fff2d7; color: #94703a !important; }
+    .coa-list-page .btn-edit:hover { background: #f8e5b9; }
+    .coa-list-page .btn-delete { border-color: #f0d2cd; background: #fbe9e5; color: #ab6258 !important; cursor: pointer; }
+    .coa-list-page .btn-delete:hover { background: #f4d6d0; }
+    .coa-list-page .coa-empty { padding: 50px 20px; text-align: center; }
+    .coa-list-page .coa-empty i { display: block; margin-bottom: 15px; color: #dfc8b7; font-size: 40px; }
+    .coa-list-page .coa-empty h6 { margin: 0; color: #63574f; }
+    .coa-list-page .coa-empty p { margin-top: 5px; color: #95877d; font-size: .85rem; }
+    .coa-list-page .coa-footer-info { padding: 14px 25px; border-top: 1px solid #eee8de; background: #faf6ee; color: #82766c; font-size: .8rem; }
+    .coa-list-page .coa-footer-info i { margin-right: 5px; color: #8db9aa; }
+    .coa-list-page .coa-success { margin-bottom: 18px; padding: 13px 18px; border: 1px solid #cfe3d6; border-left: 5px solid #82b79a; border-radius: 13px; background: #eaf4ed; color: #426d54; }
+    @media (max-width: 767px) {
+        .coa-list-page { padding: 14px 8px; border-radius: 16px; }
+        .coa-list-page .coa-header { padding: 20px; }
+        .coa-list-page .filter-bar { padding: 15px; }
+        .coa-list-page .coa-table th, .coa-list-page .coa-table td { padding: 12px 10px; }
+    }
 </style>
 
-<div class="container-fluid" style="padding: 25px 15px;">
+<div class="container-fluid coa-list-page">
     
     <!-- Alert Notifikasi Sukses -->
     @if(session('success'))
-        <div style="background-color: #d4edda; color: #155724; padding: 12px 20px; border-radius: 6px; margin-bottom: 20px; border-left: 5px solid #28a745;">
+        <div class="coa-success">
             <i class="fas fa-check-circle" style="margin-right: 8px;"></i> {{ session('success') }}
         </div>
     @endif
@@ -134,7 +155,7 @@
                             @endswitch
                         </td>
                         <td style="text-align: center;">
-                            <div style="display: flex; justify-content: center; gap: 6px;">
+                            <div class="coa-actions">
                                 <a href="{{ url('/print-coa/' . $item->id) }}" target="_blank" class="btn-print" title="Cetak Dokumen">
                                     <i class="fas fa-print"></i> Cetak
                                 </a>
@@ -159,10 +180,10 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" style="text-align: center; padding: 50px 20px;">
-                            <i class="fas fa-folder-open" style="font-size: 40px; color: #ddd; margin-bottom: 15px; display: block;"></i>
-                            <h6 style="color: #666; margin: 0;">Belum ada dokumen COA</h6>
-                            <p style="color: #999; font-size: 0.85rem; margin-top: 5px;">Data tidak ditemukan atau klik "Buat COA Baru" untuk membuat dokumen baru.</p>
+                        <td colspan="7" class="coa-empty">
+                            <i class="fas fa-folder-open"></i>
+                            <h6>Belum ada dokumen COA</h6>
+                            <p>Data tidak ditemukan atau klik "Buat COA Baru" untuk membuat dokumen baru.</p>
                         </td>
                     </tr>
                     @endforelse
@@ -171,8 +192,8 @@
         </div>
         
         <!-- Footer Info -->
-        <div style="background-color: #f8f9fc; padding: 12px 25px; border-top: 1px solid #eaecf4; font-size: 0.8rem; color: #858796;">
-            <i class="fas fa-info-circle" style="color: #4e73df; margin-right: 5px;"></i> Dokumen COA yang dicetak bersifat statis (snapshot) sesuai hasil QIR pada waktu pembuatan. Dokumen > 2 tahun akan dihapus otomatis oleh sistem.
+        <div class="coa-footer-info">
+            <i class="fas fa-info-circle"></i> Dokumen COA yang dicetak bersifat statis (snapshot) sesuai hasil QIR pada waktu pembuatan. Dokumen &gt; 2 tahun akan dihapus otomatis oleh sistem.
         </div>
     </div>
 </div>

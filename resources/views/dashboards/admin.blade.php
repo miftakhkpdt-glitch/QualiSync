@@ -4,16 +4,61 @@
 
 @push('styles')
 <style>
-    .dashboard-admin h1 { font-size: 26px; color: var(--text-main); margin: 0 0 8px; }
-    .dashboard-admin .subtitle { color: var(--text-muted); font-size: 14px; margin: 0 0 24px; }
-    .dashboard-admin .welcome-banner {
-        background: linear-gradient(135deg, #1e293b, #0f172a);
-        color: #ffffff;
-        padding: 22px 28px;
+    .dashboard-admin {
+        padding: 28px;
+        border: 1px solid #eee8dd;
+        border-radius: 28px;
+        background: linear-gradient(145deg, #f4f8f1, #fff4eb 58%, #f5f0f8);
+    }
+    body:has(.dashboard-admin) .sidebar {
+        background: linear-gradient(180deg, #f1f6ef, #e7efe8 52%, #f4eee5);
+        color: #665b52;
+        box-shadow: 5px 0 22px rgba(107, 91, 72, .10);
+        border-right: 1px solid #e2e8dc;
+    }
+    body:has(.dashboard-admin) .sidebar-judul {
+        padding: 25px 20px;
+        border-bottom: 1px solid #e0e8dc;
+        background: rgba(255, 253, 249, .72);
+    }
+    body:has(.dashboard-admin) .sidebar-judul h2 { color: #5b5048; }
+    body:has(.dashboard-admin) .sidebar .menu-list { scrollbar-color: #c7d7c8 transparent; }
+    body:has(.dashboard-admin) .sidebar .menu-list a {
+        color: #70645b;
         border-radius: 12px;
-        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        transition: background .18s ease, color .18s ease, transform .18s ease;
+    }
+    body:has(.dashboard-admin) .sidebar .menu-list a i { color: #9a8879; }
+    body:has(.dashboard-admin) .sidebar .menu-list > li:first-child > a {
+        background: #fffdf9;
+        color: #665348;
+        box-shadow: 0 4px 10px rgba(107, 91, 72, .08);
+    }
+    body:has(.dashboard-admin) .sidebar .menu-list > li:first-child > a i { color: #df987e; }
+    body:has(.dashboard-admin) .sidebar .menu-list a:hover {
+        background: #fff6ed;
+        color: #665348;
+        transform: translateX(2px);
+    }
+    body:has(.dashboard-admin) .sidebar .menu-list a:hover i { color: #cb8c72; }
+    body:has(.dashboard-admin) .sidebar .sub-menu li a {
+        color: #83766d;
+        background: transparent;
+    }
+    body:has(.dashboard-admin) .sidebar .sub-menu li a:hover {
+        color: #665348;
+        background: #fff6ed;
+    }
+    .dashboard-admin h1 { font-size: 26px; color: #51443d; margin: 0 0 8px; }
+    .dashboard-admin .subtitle { color: #887b73; font-size: 14px; margin: 0 0 24px; }
+    .dashboard-admin .welcome-banner {
+        background: linear-gradient(115deg, #f8dfd4, #fff0df 62%, #f7e7d6);
+        color: #51443d;
+        padding: 25px 30px;
+        border-radius: 22px;
+        box-shadow: 0 10px 24px rgba(107, 91, 72, .09);
         margin-bottom: 24px;
-        border-left: 6px solid #3b82f6;
+        border-left: 6px solid #e9947c;
     }
     .dashboard-admin .welcome-banner h2 {
         margin: 0 0 6px;
@@ -22,13 +67,13 @@
     .dashboard-admin .welcome-banner p {
         margin: 0;
         font-size: 13px;
-        color: #94a3b8;
+        color: #887b73;
         line-height: 1.5;
     }
     .dashboard-admin .welcome-banner .waktu-dashboard {
         display: block;
         margin-top: 8px;
-        color: #cbd5e1;
+        color: #74665d;
         font-size: 12px;
     }
 
@@ -41,25 +86,25 @@
     .dashboard-admin .kartu-kpi {
         min-height: 104px;
         box-sizing: border-box;
-        background: #ffffff;
+        background: #fffdf9;
         padding: 14px;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+        border-radius: 20px;
+        box-shadow: 0 8px 18px rgba(107, 91, 72, .07);
         display: flex;
         justify-content: space-between;
         align-items: center;
         gap: 10px;
-        border: 1px solid #e2e8f0;
+        border: 1px solid #efe7dc;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
     .dashboard-admin .kartu-kpi:hover {
         transform: translateY(-3px);
-        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.09);
+        box-shadow: 0 12px 24px rgba(107, 91, 72, .12);
     }
     .dashboard-admin .kpi-teks { min-width: 0; }
     .dashboard-admin .kpi-teks h3 {
         font-size: 11px;
-        color: var(--text-muted);
+        color: #82766c;
         font-weight: 600;
         line-height: 1.4;
         margin: 0 0 6px;
@@ -69,7 +114,7 @@
     .dashboard-admin .kpi-teks .angka {
         font-size: 28px;
         font-weight: 700;
-        color: var(--text-main);
+        color: #51443d;
         line-height: 1;
         margin: 0;
     }
@@ -78,16 +123,25 @@
         width: 44px;
         height: 44px;
         flex: 0 0 44px;
-        border-radius: 12px;
+        border-radius: 15px;
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 19px;
     }
-    .dashboard-admin .icon-blue { background: #eff6ff; color: #2563eb; }
-    .dashboard-admin .icon-red { background: #fef2f2; color: #dc2626; }
-    .dashboard-admin .icon-green { background: #f0fdf4; color: #16a34a; }
-    .dashboard-admin .icon-orange { background: #fffbeb; color: #d97706; }
+    .dashboard-admin .icon-blue { background: #e4edf8; color: #6689ba; }
+    .dashboard-admin .icon-red { background: #f8e1dc; color: #c87568; }
+    .dashboard-admin .icon-green { background: #dceee5; color: #5a9278; }
+    .dashboard-admin .icon-orange { background: #f8e8c9; color: #b88748; }
+    .dashboard-admin .baris-kpi .kartu-kpi:nth-child(1) { background: #fffdf9; }
+    .dashboard-admin .baris-kpi .kartu-kpi:nth-child(2) { background: #fff5f1; }
+    .dashboard-admin .baris-kpi .kartu-kpi:nth-child(3) { background: #f3faf5; }
+    .dashboard-admin .baris-kpi .kartu-kpi:nth-child(4) { background: #fff9ed; }
+    .dashboard-admin .baris-kpi .kartu-kpi:nth-child(5) { background: #f2f7fc; }
+    .dashboard-admin .baris-kpi .kartu-kpi:nth-child(2) .angka { color: #c87568 !important; }
+    .dashboard-admin .baris-kpi .kartu-kpi:nth-child(3) .angka { color: #5a9278 !important; }
+    .dashboard-admin .baris-kpi .kartu-kpi:nth-child(4) .angka { color: #b88748 !important; }
+    .dashboard-admin .baris-kpi .kartu-kpi:nth-child(5) .angka { color: #6689ba !important; }
 
     .dashboard-admin .baris-grafik {
         display: grid;
@@ -96,24 +150,24 @@
     }
     .dashboard-admin .kartu-grafik {
         min-width: 0;
-        background: #ffffff;
+        background: #fffdf9;
         padding: 20px;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
-        border: 1px solid #e2e8f0;
+        border-radius: 20px;
+        box-shadow: 0 8px 18px rgba(107, 91, 72, .07);
+        border: 1px solid #efe7dc;
     }
     .dashboard-admin .kartu-grafik h3 {
         font-size: 15px;
         margin: 0 0 16px;
-        color: var(--text-main);
-        border-bottom: 1px solid #e2e8f0;
+        color: #51443d;
+        border-bottom: 1px solid #eee7dc;
         padding-bottom: 12px;
     }
     .dashboard-admin .wadah-gambar {
         width: 100%;
         height: 300px;
-        background: #ffffff;
-        border-radius: 8px;
+        background: #fffdf9;
+        border-radius: 14px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -123,9 +177,9 @@
         width: 100%;
         min-height: 300px;
         box-sizing: border-box;
-        background: #f8fafc;
-        border-radius: 8px;
-        border: 1px dashed #cbd5e1;
+        background: #f7faf6;
+        border-radius: 15px;
+        border: 1px dashed #d8e5da;
         padding: 8px 16px;
     }
     .dashboard-admin .daftar-tindakan {
@@ -139,22 +193,22 @@
         justify-content: space-between;
         gap: 12px;
         padding: 16px 0;
-        border-bottom: 1px solid #e2e8f0;
+        border-bottom: 1px solid #eee7dc;
     }
     .dashboard-admin .item-tindakan:last-child { border-bottom: 0; }
     .dashboard-admin .link-tindakan {
-        color: var(--text-main);
+        color: #51443d;
         font-size: 13px;
         font-weight: 600;
         text-decoration: none;
     }
-    .dashboard-admin .link-tindakan:hover { color: #2563eb; }
+    .dashboard-admin .link-tindakan:hover { color: #c87862; }
     .dashboard-admin .jumlah-tindakan {
         min-width: 32px;
         padding: 5px 10px;
         border-radius: 999px;
-        background: #eff6ff;
-        color: #2563eb;
+        background: #e4edf8;
+        color: #6689ba;
         font-size: 13px;
         font-weight: 700;
         text-align: center;
@@ -165,7 +219,7 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        color: #64748b;
+        color: #82766c;
         font-size: 14px;
         text-align: center;
     }
@@ -180,6 +234,7 @@
         .dashboard-admin .icon-box { width: 44px; height: 44px; flex-basis: 44px; font-size: 19px; }
     }
     @media (max-width: 480px) {
+        .dashboard-admin { padding: 18px 12px; border-radius: 20px; }
         .dashboard-admin .baris-kpi { grid-template-columns: 1fr; }
         .dashboard-admin .kartu-kpi { min-height: 100px; }
         .dashboard-admin .kartu-grafik { padding: 16px; }
@@ -318,8 +373,8 @@
                 datasets: [{
                     label: 'Total Reject (Pcs)',
                     data: chartValues,
-                    backgroundColor: 'rgba(37, 99, 235, 0.8)',
-                    borderColor: '#2563eb',
+                    backgroundColor: 'rgba(233, 148, 124, 0.75)',
+                    borderColor: '#df987e',
                     borderWidth: 1,
                     borderRadius: 6
                 }]
